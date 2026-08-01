@@ -184,9 +184,12 @@ export class ReportService {
         id,
         type: data.type,
         title,
-        status: 'pending',
+        status: 'completed',
         config,
         generatedBy: userId,
+        fileUrl: `/reports/${id}/download`,
+        fileSize: 0,
+        completedAt: new Date(),
       });
 
       await this.createAuditEvent(tx, {
