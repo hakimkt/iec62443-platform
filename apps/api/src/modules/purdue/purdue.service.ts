@@ -543,9 +543,6 @@ export class PurdueService {
         .where(eq(assetMappings.modelId, modelId)),
     ]);
 
-    // Build a lookup: assetId → levelId
-    const assetLevelMap = new Map(mappings.map((m) => [m.assetId, m.levelId]));
-
     // Build a lookup: "sourceLevelId:targetLevelId" → rule for denied rules
     const deniedRules = new Map<string, typeof rules[number]>();
     for (const rule of rules) {

@@ -8,13 +8,11 @@ import { hasPermission, resolvePermissions, SYSTEM_ROLE_PERMISSIONS } from '@iec
 function makePayload(permissions: string[] = [], roles: string[] = []) {
   return {
     sub: 'user-123',
-    email: 'test@example.com',
-    tenantId: 'tenant-123',
+    tenant_id: 'tenant-123',
+    tenant_slug: 'test-tenant',
     roles,
     permissions,
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 900,
-    type: 'access' as const,
+    jti: 'test-jti-001',
   };
 }
 
@@ -92,13 +90,11 @@ describe('RBAC Permission System', () => {
       // When permissions is undefined/null, hasPermission falls through to resolvePermissions
       const payload = {
         sub: 'user-123',
-        email: 'test@example.com',
-        tenantId: 'tenant-123',
+        tenant_id: 'tenant-123',
+        tenant_slug: 'test-tenant',
         roles: ['viewer'],
         permissions: null as unknown as string[],
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 900,
-        type: 'access' as const,
+        jti: 'test-jti-002',
       };
       expect(hasPermission(payload, 'assessment:read')).toBe(true);
       expect(hasPermission(payload, 'dashboard:read')).toBe(true);

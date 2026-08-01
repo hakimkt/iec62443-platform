@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { AuthService } from './auth.service.js';
 
 // ---------------------------------------------------------------------------
@@ -29,8 +29,15 @@ function createMockDb() {
   };
 }
 
-const TENANT_ID = 'tenant-123';
 const USER_ID = 'user-123';
+
+const JWT_CONFIG = {
+  secret: 'test-secret-key-for-unit-tests',
+  accessTokenTtl: '15m',
+  refreshTokenTtl: '7d',
+  issuer: 'test',
+  audience: 'test',
+};
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -42,7 +49,7 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     mock = createMockDb();
-    service = new AuthService(mock.db, TENANT_ID);
+    service = new AuthService(mock.db, JWT_CONFIG);
   });
 
   // ── registerUser ─────────────────────────────────────────────────────

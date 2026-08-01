@@ -102,7 +102,8 @@ describe('AssessmentService', () => {
       // If any question scores 0, the section SL-A should be 0.
       // If the minimum score ratio is 0.5 (score 2/4), SL-A should be 2.
 
-      const engagement = {
+      // Engagement context used for scorecard metadata
+      const _engagement = {
         id: 'eng-1',
         name: 'Test',
         type: 'gap',
@@ -110,12 +111,15 @@ describe('AssessmentService', () => {
         targetSl: 3,
         templateId: 'tmpl-1',
       };
+      void _engagement;
 
-      const questions = [
+      // Question definitions used to calculate max possible scores
+      const _questions = [
         { id: 'q-1', section: 'FR-1', maxScore: 4, questionText: 'Q1' },
         { id: 'q-2', section: 'FR-1', maxScore: 4, questionText: 'Q2' },
         { id: 'q-3', section: 'FR-1', maxScore: 4, questionText: 'Q3' },
       ];
+      void _questions;
 
       const responses = [
         { questionId: 'q-1', score: 4 },  // 4/4 = 1.0

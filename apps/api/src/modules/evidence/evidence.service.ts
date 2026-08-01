@@ -508,7 +508,8 @@ export class EvidenceService {
     fileData: { filename: string; mimetype: string; toBuffer: () => Promise<Buffer> },
     userId: string,
   ) {
-    const item = await this.getEvidence(evidenceId);
+    // Verify evidence item exists before uploading
+    await this.getEvidence(evidenceId);
 
     // Read the file content into a buffer
     const buffer = await fileData.toBuffer();
@@ -548,6 +549,13 @@ export class EvidenceService {
       })
       .where(eq(evidenceItems.id, evidenceId))
       .returning();
+
+    if (!updated) {
+      throw Object.assign(new Error('Failed to update evidence item'), {
+        statusCode: 500,
+        code: 'EVIDENCE_UPDATE_FAILED',
+      });
+    }
 
     // Add chain of custody entry
     await this.db.insert(chainOfCustody).values({

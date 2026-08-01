@@ -74,7 +74,7 @@ export interface UpdateEngagementInput {
 
 export interface SubmitResponseInput {
   score?: number;
-  maturityLevel?: string;
+  maturityLevel?: number;
   assessorNotes?: string;
   evidenceRefs?: string[];
   findingRefs?: string[];

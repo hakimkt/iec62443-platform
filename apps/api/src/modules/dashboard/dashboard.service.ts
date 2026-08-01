@@ -92,7 +92,7 @@ export interface RemediationTimelinePoint {
 export class DashboardService {
   constructor(
     private db: NodePgDatabase,
-    private tenantId: string,
+    readonly tenantId: string,
   ) {}
 
   // Note: tenantId is used by the route handler for tenant context validation.

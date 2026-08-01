@@ -370,7 +370,9 @@ export class EvidenceController {
     }
 
     try {
-      const data = await request.file();
+      // @fastify/multipart augments FastifyRequest with file() at runtime
+      const req = request as FastifyRequest & { file: () => Promise<{ filename: string; mimetype: string; toBuffer: () => Promise<Buffer> } | null> };
+      const data = await req.file();
       if (!data) {
         return reply.status(400).send(
           errorResponse('VALIDATION_ERROR', 'No file uploaded', request.id),
