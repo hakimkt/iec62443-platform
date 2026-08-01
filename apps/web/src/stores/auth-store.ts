@@ -1,6 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// Sync auth state to a cookie so Next.js middleware (server-side) can read it.
+// zustand/persist writes to localStorage by default, which is client-only.
+function syncAuthCookie(state: Partial<AuthState>) {
+  if (typeof window === 'undefined') return;
+  const payload = {
+    isAuthenticated: state.isAuthenticated,
+    accessToken: state.accessToken,
+    currentTenantId: state.currentTenantId,
+  };
+  document.cookie = `auth-storage=${encodeURIComponent(JSON.stringify({ state: payload }))}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+}
+
 export interface AuthUser {
   id: string;
   email: string;
@@ -52,14 +64,22 @@ export const useAuthStore = create<AuthState>()(
       mfaChallenge: null,
 
       setUser: (user) => set({ user }),
-      setTokens: (accessToken, refreshToken) =>
-        set({ accessToken, refreshToken }),
-      setAuthenticated: (value) => set({ isAuthenticated: value }),
+      setTokens: (accessToken, refreshToken) => {
+        set({ accessToken, refreshToken });
+        syncAuthCookie({ accessToken });
+      },
+      setAuthenticated: (value) => {
+        set({ isAuthenticated: value });
+        syncAuthCookie({ isAuthenticated: value });
+      },
       setLoading: (value) => set({ isLoading: value }),
       setTenants: (tenants) => set({ tenants }),
-      setCurrentTenant: (tenantId) => set({ currentTenantId: tenantId }),
+      setCurrentTenant: (tenantId) => {
+        set({ currentTenantId: tenantId });
+        syncAuthCookie({ currentTenantId: tenantId });
+      },
       setMfaChallenge: (challenge) => set({ mfaChallenge: challenge }),
-      logout: () =>
+      logout: () => {
         set({
           user: null,
           accessToken: null,
@@ -69,7 +89,9 @@ export const useAuthStore = create<AuthState>()(
           tenants: [],
           currentTenantId: null,
           mfaChallenge: null,
-        }),
+        });
+        syncAuthCookie({ isAuthenticated: false, accessToken: null, currentTenantId: null });
+      },
     }),
     {
       name: 'auth-storage',

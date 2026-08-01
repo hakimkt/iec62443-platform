@@ -60,6 +60,7 @@ export function getApiClient(): ApiClient {
       },
       onAuthenticationFailure: () => {
         localStorage.removeItem('auth-storage');
+        document.cookie = 'auth-storage=; path=/; max-age=0';
         window.location.href = '/login';
       },
     });
