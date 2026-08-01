@@ -373,7 +373,7 @@ export class AssessmentService {
       if (data.status) {
         const validTransitions: Record<string, string[]> = {
           draft: ['in_progress', 'archived'],
-          in_progress: ['review', 'draft'],
+          in_progress: ['review', 'completed', 'draft'],
         };
 
         const allowed = validTransitions[engagement.status];
@@ -399,7 +399,12 @@ export class AssessmentService {
       if (data.scopeSystemId !== undefined) updateData['scopeSystemId'] = data.scopeSystemId;
       if (data.targetSl !== undefined) updateData['targetSl'] = data.targetSl;
       if (data.currentSl !== undefined) updateData['currentSl'] = data.currentSl;
-      if (data.status !== undefined) updateData['status'] = data.status;
+      if (data.status !== undefined) {
+        updateData['status'] = data.status;
+        if (data.status === 'completed') {
+          updateData['completedAt'] = new Date();
+        }
+      }
       if (data.leadAssessorId !== undefined) updateData['leadAssessorId'] = data.leadAssessorId;
       if (data.startDate !== undefined) updateData['startDate'] = data.startDate ? data.startDate.toISOString().split('T')[0] : null;
       if (data.targetDate !== undefined) updateData['targetDate'] = data.targetDate ? data.targetDate.toISOString().split('T')[0] : null;
