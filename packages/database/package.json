@@ -22,6 +22,7 @@
     "db:seed:demo-oil-gas-ot": "tsx src/seed/demo-oil-gas-ot.ts",
     "db:seed:demo-oil-gas-assessment": "tsx src/seed/demo-oil-gas-assessment.ts",
     "db:seed:demo-oil-gas-governance": "tsx src/seed/demo-oil-gas-governance.ts",
+    "db:seed:demo-oil-gas-purdue": "tsx src/seed/demo-oil-gas-purdue.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
