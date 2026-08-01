@@ -2,9 +2,11 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 
 import {
   createRegisterSchema,
+  updateRegisterSchema,
   createRiskSchema,
   updateRiskSchema,
   createTreatmentSchema,
+  updateTreatmentSchema,
   riskAcceptanceSchema,
   matrixConfigSchema,
   paginationSchema,
@@ -150,7 +152,18 @@ export class RiskController {
       );
     }
 
-    const body = request.body as Record<string, unknown>;
+    const parsed = updateRegisterSchema.safeParse(request.body);
+    if (!parsed.success) {
+      const details = parsed.error.issues.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      }));
+      return reply.status(400).send(
+        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
+      );
+    }
+
+    const body = parsed.data;
 
     const userId = this.getUserId(request);
     if (!userId) {
@@ -489,7 +502,18 @@ export class RiskController {
       );
     }
 
-    const body = request.body as Record<string, unknown>;
+    const parsed = updateTreatmentSchema.safeParse(request.body);
+    if (!parsed.success) {
+      const details = parsed.error.issues.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      }));
+      return reply.status(400).send(
+        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
+      );
+    }
+
+    const body = parsed.data;
 
     const userId = this.getUserId(request);
     if (!userId) {

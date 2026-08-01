@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { cn } from '../lib/utils.js';
-import { Button } from '../primitives/Button.js';
+import { cn } from '../lib/utils';
+import { Button } from '../primitives/Button';
 
 export interface PaginationProps extends React.HTMLAttributes<HTMLElement> {
   /** Current active page (1-based) */

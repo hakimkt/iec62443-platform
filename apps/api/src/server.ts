@@ -5,6 +5,7 @@ import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { pino } from 'pino';
+import { sql } from 'drizzle-orm';
 
 import { authPlugin } from './modules/auth/index.js';
 import { assessmentPlugin } from './modules/assessment/index.js';
@@ -109,6 +110,22 @@ await app.register(swaggerUi, {
   },
 });
 
+// ── Validate required environment variables ────────────────────────────
+const insecureDefaults = [
+  'change-me-in-production',
+  'dev-jwt-secret-change-in-production',
+];
+const requiredEnvVars = ['JWT_SECRET', 'DATABASE_URL'];
+const missingEnvVars = requiredEnvVars.filter(
+  (key) => !process.env[key] || insecureDefaults.includes(process.env[key]!),
+);
+if (missingEnvVars.length > 0 && process.env['NODE_ENV'] === 'production') {
+  app.log.fatal(
+    `Missing or insecure environment variables: ${missingEnvVars.join(', ')}. Refusing to start in production mode.`,
+  );
+  process.exit(1);
+}
+
 // ── Auth Module ────────────────────────────────────────────────────────
 await app.register(authPlugin, {
   connectionString: process.env['DATABASE_URL'] ?? 'postgresql://postgres:postgres@localhost:5432/iec62443',
@@ -122,45 +139,52 @@ await app.register(authPlugin, {
   mfaIssuer: process.env['MFA_ISSUER'] ?? 'IEC62443-Platform',
 });
 
-// ── Assessment Module ──────────────────────────────────────────────────
-await app.register(assessmentPlugin);
-
-// ── Finding Module ─────────────────────────────────────────────────────
-await app.register(findingPlugin);
-
-// ── Asset Module ──────────────────────────────────────────────────────
-await app.register(assetPlugin);
-
-// ── Evidence Module ───────────────────────────────────────────────────
-await app.register(evidencePlugin);
-
-// ── Risk Module ───────────────────────────────────────────────────────
-await app.register(riskPlugin);
-
-// ── Zone Module ───────────────────────────────────────────────────────
-await app.register(zonePlugin);
-
-// ── Purdue Module ─────────────────────────────────────────────────────
-await app.register(purduePlugin);
-
-// ── Dashboard Module ──────────────────────────────────────────────────
-await app.register(dashboardPlugin);
-
-// ── Report Module ─────────────────────────────────────────────────────
-await app.register(reportPlugin);
-
-// ── Remediation Module ────────────────────────────────────────────────
-await app.register(remediationPlugin);
-
-// ── CSMS Module ───────────────────────────────────────────────────────
-await app.register(csmsPlugin);
-
-// ── Admin Module ──────────────────────────────────────────────────────
-await app.register(adminPlugin);
+// ── Domain Modules (under /api/v1 prefix) ──────────────────────────────
+await app.register(
+  async (api) => {
+    api.register(assessmentPlugin);
+    api.register(findingPlugin);
+    api.register(assetPlugin);
+    api.register(evidencePlugin);
+    api.register(riskPlugin);
+    api.register(zonePlugin);
+    api.register(purduePlugin);
+    api.register(dashboardPlugin);
+    api.register(reportPlugin);
+    api.register(remediationPlugin);
+    api.register(csmsPlugin);
+    api.register(adminPlugin);
+  },
+  { prefix: '/api/v1' },
+);
 
 // ── Health Check ───────────────────────────────────────────────────────
 app.get('/health', async () => {
-  return { status: 'ok', timestamp: new Date().toISOString() };
+  const checks: Record<string, 'ok' | 'error'> = {};
+
+  // Check database connectivity
+  try {
+    await app.db.execute(sql`SELECT 1`);
+    checks['database'] = 'ok';
+  } catch {
+    checks['database'] = 'error';
+  }
+
+  const allOk = Object.values(checks).every((v) => v === 'ok');
+  return {
+    status: allOk ? 'ok' : 'degraded',
+    timestamp: new Date().toISOString(),
+    checks,
+  };
+});
+
+app.get('/ready', async (_request, reply) => {
+  try {
+    await app.db.execute(sql`SELECT 1`);
+    return { status: 'ready', timestamp: new Date().toISOString() };
+  } catch {
+    return reply.status(503).send({ status: 'not_ready', timestamp: new Date().toISOString() });
+  }
 });
 
 app.setNotFoundHandler(async (_request, reply) => {
@@ -203,3 +227,27 @@ try {
   app.log.error(err);
   process.exit(1);
 }
+
+// ── Graceful Shutdown ──────────────────────────────────────────────────
+const SHUTDOWN_TIMEOUT_MS = 30_000;
+
+async function gracefulShutdown(signal: string) {
+  app.log.info(`Received ${signal}, shutting down gracefully...`);
+  const timeout = setTimeout(() => {
+    app.log.warn('Forced shutdown after timeout');
+    process.exit(1);
+  }, SHUTDOWN_TIMEOUT_MS);
+  try {
+    await app.close();
+    clearTimeout(timeout);
+    app.log.info('Server closed successfully');
+    process.exit(0);
+  } catch (err) {
+    app.log.error(err, 'Error during shutdown');
+    clearTimeout(timeout);
+    process.exit(1);
+  }
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));

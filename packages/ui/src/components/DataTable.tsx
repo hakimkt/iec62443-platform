@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { cn } from '../lib/utils.js';
-import { Checkbox } from '../primitives/Checkbox.js';
-import { Pagination } from './Pagination.js';
-import { EmptyState } from './EmptyState.js';
+import { cn } from '../lib/utils';
+import { Checkbox } from '../primitives/Checkbox';
+import { Pagination } from './Pagination';
+import { EmptyState } from './EmptyState';
 
 /* ───────────────────────────── Column type ────────────────────── */
 

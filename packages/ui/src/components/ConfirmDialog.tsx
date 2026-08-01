@@ -6,8 +6,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '../primitives/Dialog.js';
-import { Button } from '../primitives/Button.js';
+} from '../primitives/Dialog';
+import { Button } from '../primitives/Button';
 
 export interface ConfirmDialogProps {
   /** Whether the dialog is open */

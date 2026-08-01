@@ -305,10 +305,13 @@ export class AuthController {
     }
 
     try {
+      // The secret is read from the database (set during setupMfa), not from the client.
+      // Passing the client-supplied secret would allow an attacker to bypass MFA setup
+      // by providing their own secret and verifying it with a TOTP code they generate.
       await this.authService.verifyMfaSetup(
         userId,
         parsed.data.code,
-        parsed.data.secret,
+        null, // Force the service to read the secret from the database
         request.ip,
         request.headers['user-agent'],
       );

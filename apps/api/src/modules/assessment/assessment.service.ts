@@ -630,7 +630,10 @@ export class AssessmentService {
       sectionMap.get(section)!.push(q);
     }
 
-    // Calculate scorecard per section
+    // Calculate scorecard per section using IEC 62443 minimum-bar (weakest-link) model.
+    // SL-A is determined by the lowest-scoring requirement — if any FR is not met at
+    // the target SL, the overall SL-A is capped. Per-section SL-A is the floor of the
+    // minimum score ratio; overall SL-A is the minimum across all sections.
     const scorecardResults: Array<{
       category: string;
       currentSl: number;
@@ -644,32 +647,40 @@ export class AssessmentService {
     for (const [section, sectionQuestions] of sectionMap) {
       const totalQuestions = sectionQuestions.length;
       let answeredCount = 0;
+      let minScoreRatio = 1; // weakest-link: track the minimum ratio
       let totalScore = 0;
       let maxPossibleScore = 0;
 
       for (const q of sectionQuestions) {
         const r = responseMap.get(q.id);
-        maxPossibleScore += q.maxScore ?? 4;
+        const maxScore = q.maxScore ?? 4;
+        maxPossibleScore += maxScore;
 
         if (r && r.score !== null) {
           answeredCount++;
           totalScore += r.score;
+          // Weakest-link: track the minimum score-to-max ratio across all questions
+          const ratio = maxScore > 0 ? r.score / maxScore : 0;
+          if (ratio < minScoreRatio) {
+            minScoreRatio = ratio;
+          }
         }
       }
 
-      const currentSl = maxPossibleScore > 0
-        ? Math.round((totalScore / maxPossibleScore) * 4 * 10) / 10
+      // IEC 62443: SL-A = floor(minScoreRatio * 4) — the weakest question caps the level
+      const currentSl = answeredCount > 0
+        ? Math.min(4, Math.floor(minScoreRatio * 4))
         : 0;
 
       const targetSl = engagement.targetSl ?? 0;
-      const gap = Math.max(0, targetSl - Math.floor(currentSl));
+      const gap = Math.max(0, targetSl - currentSl);
       const compliancePct = maxPossibleScore > 0
         ? Math.round((totalScore / maxPossibleScore) * 10000) / 100
         : 0;
 
       scorecardResults.push({
         category: section,
-        currentSl: Math.min(4, Math.floor(currentSl)),
+        currentSl,
         targetSl,
         gap,
         totalQuestions,

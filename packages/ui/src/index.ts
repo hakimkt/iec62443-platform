@@ -1,4 +1,4 @@
-export { cn } from './lib/utils.js';
+export { cn } from './lib/utils';
 
 // Primitives
-export * from './primitives/index.js';
+export * from './primitives/index';

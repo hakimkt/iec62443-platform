@@ -103,12 +103,8 @@ export interface AssessmentQuestion {
 // Assessment Response
 // ---------------------------------------------------------------------------
 
-/** Maturity level of an individual response. */
-export type MaturityLevel =
-  | 'implemented'
-  | 'partial'
-  | 'not_implemented'
-  | 'na';
+/** Maturity level of an individual response (ML 0–4 per IEC 62443-2-1). */
+export type MaturityLevel = 0 | 1 | 2 | 3 | 4;
 
 /**
  * An assessor's response to a single assessment question within an

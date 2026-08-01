@@ -2,9 +2,12 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 
 import {
   createPurdueModelSchema,
+  updatePurdueModelSchema,
   createLevelSchema,
+  updateLevelSchema,
   assetMappingSchema,
   communicationRuleSchema,
+  updateCommunicationRuleSchema,
   paginationSchema,
 } from '@iec62443/shared-schemas';
 
@@ -147,7 +150,18 @@ export class PurdueController {
       );
     }
 
-    const body = request.body as Record<string, unknown>;
+    const parsed = updatePurdueModelSchema.safeParse(request.body);
+    if (!parsed.success) {
+      const details = parsed.error.issues.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      }));
+      return reply.status(400).send(
+        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
+      );
+    }
+
+    const body = parsed.data;
 
     const userId = this.getUserId(request);
     if (!userId) {
@@ -256,7 +270,18 @@ export class PurdueController {
       );
     }
 
-    const body = request.body as Record<string, unknown>;
+    const parsed = updateLevelSchema.safeParse(request.body);
+    if (!parsed.success) {
+      const details = parsed.error.issues.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      }));
+      return reply.status(400).send(
+        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
+      );
+    }
+
+    const body = parsed.data;
 
     const userId = this.getUserId(request);
     if (!userId) {
@@ -448,7 +473,18 @@ export class PurdueController {
       );
     }
 
-    const body = request.body as Record<string, unknown>;
+    const parsed = updateCommunicationRuleSchema.safeParse(request.body);
+    if (!parsed.success) {
+      const details = parsed.error.issues.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      }));
+      return reply.status(400).send(
+        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
+      );
+    }
+
+    const body = parsed.data;
 
     const userId = this.getUserId(request);
     if (!userId) {

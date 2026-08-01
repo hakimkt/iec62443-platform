@@ -21,7 +21,7 @@ export const plans = pgTable(
     findingIds: uuid('finding_ids').array().default([]),
     riskIds: uuid('risk_ids').array().default([]),
     ownerId: uuid('owner_id'),
-    status: varchar('status', { length: 30 }).notNull().default('planned'),
+    status: varchar('status', { length: 30 }).notNull().default('draft'),
     budgetEstimate: numeric('budget_estimate', { precision: 12, scale: 2 }),
     budgetActual: numeric('budget_actual', { precision: 12, scale: 2 }),
     startDate: date('start_date'),
@@ -37,7 +37,7 @@ export const plans = pgTable(
   (table) => [
     check(
       'plans_status_check',
-      sql`${table.status} IN ('draft', 'approved', 'in_progress', 'completed', 'cancelled')`,
+      sql`${table.status} IN ('draft', 'planned', 'approved', 'in_progress', 'completed', 'cancelled', 'overdue')`,
     ),
   ],
 );

@@ -2,18 +2,18 @@ export {
   Button,
   buttonVariants,
   type ButtonProps,
-} from './Button.js';
+} from './Button';
 
 export {
   Input,
   inputVariants,
   type InputProps,
-} from './Input.js';
+} from './Input';
 
 export {
   Textarea,
   type TextareaProps,
-} from './Textarea.js';
+} from './Textarea';
 
 export {
   Select,
@@ -31,12 +31,12 @@ export {
   type SelectContentProps,
   type SelectItemProps,
   type MultiSelectProps,
-} from './Select.js';
+} from './Select';
 
 export {
   Checkbox,
   type CheckboxProps,
-} from './Checkbox.js';
+} from './Checkbox';
 
 export {
   RadioGroup,
@@ -44,13 +44,13 @@ export {
   radioGroupItemVariants,
   type RadioGroupProps,
   type RadioGroupItemProps,
-} from './RadioGroup.js';
+} from './RadioGroup';
 
 export {
   Switch,
   switchVariants,
   type SwitchProps,
-} from './Switch.js';
+} from './Switch';
 
 export {
   Dialog,
@@ -69,7 +69,7 @@ export {
   type DialogHeaderProps,
   type DialogBodyProps,
   type DialogFooterProps,
-} from './Dialog.js';
+} from './Dialog';
 
 export {
   DropdownMenu,
@@ -87,7 +87,7 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
-} from './DropdownMenu.js';
+} from './DropdownMenu';
 
 export {
   Popover,
@@ -95,7 +95,7 @@ export {
   PopoverContent,
   PopoverAnchor,
   type PopoverContentProps,
-} from './Popover.js';
+} from './Popover';
 
 export {
   TooltipProvider,
@@ -107,7 +107,7 @@ export {
   RichTooltipFooter,
   tooltipContentVariants,
   type TooltipContentProps,
-} from './Tooltip.js';
+} from './Tooltip';
 
 // ─── Batch 2: Data Display & Feedback Primitives ────────────────
 
@@ -121,13 +121,13 @@ export {
   tabsListVariants,
   tabsTriggerVariants,
   tabsContentVariants,
-} from './Tabs.js';
+} from './Tabs';
 export type {
   TabsProps,
   TabsListProps,
   TabsTriggerProps,
   TabsContentProps,
-} from './Tabs.js';
+} from './Tabs';
 
 // Accordion
 export {
@@ -138,12 +138,12 @@ export {
   accordionVariants,
   accordionItemVariants,
   accordionTriggerVariants,
-} from './Accordion.js';
+} from './Accordion';
 export type {
   AccordionProps,
   AccordionItemProps,
   AccordionTriggerProps,
-} from './Accordion.js';
+} from './Accordion';
 
 // Avatar
 export {
@@ -154,31 +154,31 @@ export {
   avatarFallbackVariants,
   statusDotVariants,
   getInitials,
-} from './Avatar.js';
+} from './Avatar';
 export type {
   AvatarProps,
   AvatarImageProps,
   AvatarFallbackProps,
-} from './Avatar.js';
+} from './Avatar';
 
 // Badge
-export { Badge, badgeVariants } from './Badge.js';
-export type { BadgeProps, BadgeVariantKey } from './Badge.js';
+export { Badge, badgeVariants } from './Badge';
+export type { BadgeProps, BadgeVariantKey } from './Badge';
 
 // Separator
-export { Separator, separatorVariants } from './Separator.js';
-export type { SeparatorProps } from './Separator.js';
+export { Separator, separatorVariants } from './Separator';
+export type { SeparatorProps } from './Separator';
 
 // ScrollArea
-export { ScrollArea, ScrollBar } from './ScrollArea.js';
+export { ScrollArea, ScrollBar } from './ScrollArea';
 
 // Skeleton
-export { Skeleton, SkeletonText, SkeletonAvatar, skeletonVariants } from './Skeleton.js';
-export type { SkeletonProps } from './Skeleton.js';
+export { Skeleton, SkeletonText, SkeletonAvatar, skeletonVariants } from './Skeleton';
+export type { SkeletonProps } from './Skeleton';
 
 // Label
-export { Label, labelVariants } from './Label.js';
-export type { LabelProps } from './Label.js';
+export { Label, labelVariants } from './Label';
+export type { LabelProps } from './Label';
 
 // Slider
 export {
@@ -187,12 +187,12 @@ export {
   sliderTrackVariants,
   sliderRangeVariants,
   sliderThumbVariants,
-} from './Slider.js';
-export type { SliderProps, SliderMark } from './Slider.js';
+} from './Slider';
+export type { SliderProps, SliderMark } from './Slider';
 
 // ProgressBar
-export { ProgressBar, progressBarVariants } from './ProgressBar.js';
-export type { ProgressBarProps } from './ProgressBar.js';
+export { ProgressBar, progressBarVariants } from './ProgressBar';
+export type { ProgressBarProps } from './ProgressBar';
 
 // Toast
 export {
@@ -205,5 +205,5 @@ export {
   ToastClose,
   toastVariants,
   useToast,
-} from './Toast.js';
-export type { ToastProps, ToastViewportProps } from './Toast.js';
+} from './Toast';
+export type { ToastProps, ToastViewportProps } from './Toast';

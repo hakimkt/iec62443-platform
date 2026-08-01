@@ -23,6 +23,8 @@ export const zones = pgTable(
     description: text('description'),
     zoneType: varchar('zone_type', { length: 50 }),
     securityLevel: smallint('security_level'),
+    targetSl: smallint('target_sl'),
+    achievedSl: smallint('achieved_sl'),
     parentZoneId: uuid('parent_zone_id'),
     purdueLevel: smallint('purdue_level'),
     facilityId: uuid('facility_id'),
@@ -49,6 +51,14 @@ export const zones = pgTable(
       sql`${table.securityLevel} BETWEEN 0 AND 4`,
     ),
     check(
+      'zones_target_sl_check',
+      sql`${table.targetSl} BETWEEN 0 AND 4`,
+    ),
+    check(
+      'zones_achieved_sl_check',
+      sql`${table.achievedSl} BETWEEN 0 AND 4`,
+    ),
+    check(
       'zones_purdue_level_check',
       sql`${table.purdueLevel} BETWEEN 0 AND 5`,
     ),
@@ -72,6 +82,8 @@ export const conduits = pgTable(
     conduitType: varchar('conduit_type', { length: 50 }),
     protocol: varchar('protocol', { length: 100 }),
     securityLevel: smallint('security_level'),
+    targetSl: smallint('target_sl'),
+    achievedSl: smallint('achieved_sl'),
     encryption: boolean('encryption').default(false),
     authentication: boolean('authentication').default(false),
     monitoring: boolean('monitoring').default(false),
@@ -91,6 +103,14 @@ export const conduits = pgTable(
     check(
       'conduits_security_level_check',
       sql`${table.securityLevel} BETWEEN 0 AND 4`,
+    ),
+    check(
+      'conduits_target_sl_check',
+      sql`${table.targetSl} BETWEEN 0 AND 4`,
+    ),
+    check(
+      'conduits_achieved_sl_check',
+      sql`${table.achievedSl} BETWEEN 0 AND 4`,
     ),
   ],
 );

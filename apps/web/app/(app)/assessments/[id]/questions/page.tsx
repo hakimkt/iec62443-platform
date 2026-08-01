@@ -11,7 +11,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@iec62443/ui';
 import { useAssessment, useAssessmentQuestions, useSubmitResponse } from '@/hooks/useAssessments';
 
-type MaturityLevel = 'implemented' | 'partial' | 'not_implemented' | 'na';
+type MaturityLevel = 0 | 1 | 2 | 3 | 4;
 
 export default function AssessmentQuestionsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: assessmentId } = use(params);
@@ -151,19 +151,20 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
               <div className="space-y-2">
                 <Label>Maturity Level</Label>
                 <Select
-                  value={localMaturity[currentQuestion.id] ?? currentQuestion.response?.maturityLevel ?? ''}
+                  value={(localMaturity[currentQuestion.id] ?? currentQuestion.response?.maturityLevel)?.toString() ?? ''}
                   onValueChange={(val) => {
-                    setLocalMaturity((prev) => ({ ...prev, [currentQuestion.id]: val as MaturityLevel }));
+                    setLocalMaturity((prev) => ({ ...prev, [currentQuestion.id]: Number(val) as MaturityLevel }));
                   }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select maturity level" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="implemented">Implemented</SelectItem>
-                    <SelectItem value="partial">Partially Implemented</SelectItem>
-                    <SelectItem value="not_implemented">Not Implemented</SelectItem>
-                    <SelectItem value="na">N/A</SelectItem>
+                    <SelectItem value="0">ML 0 — Initial</SelectItem>
+                    <SelectItem value="1">ML 1 — Managed</SelectItem>
+                    <SelectItem value="2">ML 2 — Defined</SelectItem>
+                    <SelectItem value="3">ML 3 — Implemented</SelectItem>
+                    <SelectItem value="4">ML 4 — Improving</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

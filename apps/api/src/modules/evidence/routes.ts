@@ -118,6 +118,38 @@ export async function evidenceRoutes(
     return controller.createEvidence(request, reply);
   });
 
+  // ── POST /evidence/:id/upload ────────────────────────────────────────
+  app.post('/evidence/:id/upload', {
+    schema: {
+      tags: ['Evidence'],
+      summary: 'Upload file for evidence item',
+      description: 'Uploads a file and attaches it to an existing evidence item. Computes SHA-256 hash for integrity verification. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+        },
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            data: { type: 'object' },
+            meta: { type: 'object' },
+          },
+        },
+      },
+    },
+    preHandler: [app.authenticate, app.requirePermission('evidence:upload')],
+  }, async (request, reply) => {
+    const tenantId = request.tenantId ?? '';
+    const service = createService(tenantId);
+    const controller = new EvidenceController(service);
+    return controller.uploadFile(request, reply);
+  });
+
   // ── GET /evidence/:id ────────────────────────────────────────────────
   app.get('/evidence/:id', {
     schema: {

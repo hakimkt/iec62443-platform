@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import fp from 'fastify-plugin';
 
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { tenants, tenantMemberships } from '@iec62443/database';
 import type { TokenPayload } from '@iec62443/auth';
 
@@ -57,8 +57,10 @@ async function tenantMiddleware(
     if (request.authType === 'api_key') {
       if (user.tenant_id) {
         request.tenantId = user.tenant_id;
+        // Fall through to validate tenant status and membership
+      } else {
+        return;
       }
-      return;
     }
 
     // Extract tenant_id from the JWT
@@ -150,9 +152,30 @@ async function tenantMiddleware(
     request.tenantSchema = tenant.schemaName;
 
     // Set search_path on the database connection for tenant isolation
+    // Validate schema name to prevent SQL injection — must be a valid PostgreSQL identifier
+    const SCHEMA_NAME_RE = /^[a-z_][a-z0-9_$]*$/;
+    if (!SCHEMA_NAME_RE.test(tenant.schemaName)) {
+      request.log.error(
+        { schemaName: tenant.schemaName, tenantId },
+        'Invalid tenant schema name — possible injection attempt',
+      );
+      return reply.status(500).send({
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'An unexpected error occurred.',
+        },
+        meta: {
+          requestId: request.id,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    }
+
     try {
+      // Use SET LOCAL so the search_path is scoped to the current transaction
+      // and resets automatically when the transaction ends, preventing pool contamination
       await db.execute(
-        `SET search_path TO ${tenant.schemaName}, public`,
+        sql`SET LOCAL search_path TO ${sql.identifier(tenant.schemaName)}, public`,
       );
     } catch {
       // If we can't set the search path, the tenant schema may not exist yet

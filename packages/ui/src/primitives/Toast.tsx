@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ToastPrimitive from '@radix-ui/react-toast';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { X } from 'lucide-react';
-import { cn } from '../lib/utils.js';
+import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Position variants ──────────────── */
 

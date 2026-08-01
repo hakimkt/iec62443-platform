@@ -2,6 +2,7 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 
 import {
   createFrameworkSchema,
+  updateFrameworkSchema,
   createElementSchema,
   updateElementSchema,
   createPolicySchema,
@@ -123,14 +124,23 @@ export class CSMSController {
   async updateFramework(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const body = request.body as Record<string, unknown>;
+
+    const parsed = updateFrameworkSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.status(400).send(
+        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+          parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
+        ),
+      );
+    }
+
     const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
 
     try {
       const framework = await this.csmsService.updateFramework(id, {
-        name: body['name'] as string | undefined,
-        version: body['version'] as string | undefined,
-        status: body['status'] as string | undefined,
+        name: parsed.data.name,
+        version: parsed.data.version,
+        status: parsed.data.status,
       }, userId);
       return reply.send(successResponse(framework, requestId));
     } catch (error) {

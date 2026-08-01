@@ -87,3 +87,7 @@ export {
 
 // ── Database Factory ─────────────────────────────────────────────────────
 export { createDb, createTenantDb } from './db.js';
+
+// ── Audit Service ────────────────────────────────────────────────────────
+export { AuditService } from './audit-service.js';
+export type { CreateAuditEventParams } from './audit-service.js';

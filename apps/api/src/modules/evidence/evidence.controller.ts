@@ -350,6 +350,40 @@ export class EvidenceController {
     }
   }
 
+  // ── POST /evidence/:id/upload ────────────────────────────────────────
+
+  async uploadFile(request: FastifyRequest, reply: FastifyReply) {
+    const params = request.params as Record<string, string>;
+    const id = params['id'];
+
+    if (!id) {
+      return reply.status(400).send(
+        errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id),
+      );
+    }
+
+    const userId = this.getUserId(request);
+    if (!userId) {
+      return reply.status(401).send(
+        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
+      );
+    }
+
+    try {
+      const data = await request.file();
+      if (!data) {
+        return reply.status(400).send(
+          errorResponse('VALIDATION_ERROR', 'No file uploaded', request.id),
+        );
+      }
+
+      const result = await this.evidenceService.uploadFile(id, data, userId);
+      return reply.status(200).send(successResponse(result, request.id));
+    } catch (error: unknown) {
+      return this.handleError(error, request, reply);
+    }
+  }
+
   // ── GET /tenant/storage ──────────────────────────────────────────────
 
   async getStorageQuota(request: FastifyRequest, reply: FastifyReply) {

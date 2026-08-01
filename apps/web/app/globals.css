@@ -1,6 +1,108 @@
 @import 'tailwindcss';
 
-@config "../../../../packages/config/src/tailwind/preset.ts";
+@theme {
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+  --color-brand-950: #172554;
+
+  --color-surface-0: #ffffff;
+  --color-surface-50: #f8fafc;
+  --color-surface-100: #f1f5f9;
+  --color-surface-200: #e2e8f0;
+  --color-surface-300: #cbd5e1;
+  --color-surface-400: #94a3b8;
+  --color-surface-500: #64748b;
+  --color-surface-600: #475569;
+  --color-surface-700: #334155;
+  --color-surface-800: #1e293b;
+  --color-surface-900: #0f172a;
+  --color-surface-950: #020617;
+
+  --color-severity-critical: #dc2626;
+  --color-severity-high: #ea580c;
+  --color-severity-medium: #d97706;
+  --color-severity-low: #2563eb;
+  --color-severity-informational: #64748b;
+
+  --color-risk-low: #22c55e;
+  --color-risk-medium: #f59e0b;
+  --color-risk-high: #f97316;
+  --color-risk-critical: #ef4444;
+
+  --color-purdue-0: #6b7280;
+  --color-purdue-1: #ef4444;
+  --color-purdue-2: #f97316;
+  --color-purdue-3: #eab308;
+  --color-purdue-3-5: #8b5cf6;
+  --color-purdue-4: #3b82f6;
+  --color-purdue-5: #06b6d4;
+
+  --color-security-0: #6b7280;
+  --color-security-1: #3b82f6;
+  --color-security-2: #2563eb;
+  --color-security-3: #7c3aed;
+  --color-security-4: #dc2626;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+  --spacing-112: 28rem;
+  --spacing-128: 32rem;
+
+  --radius-4xl: 2rem;
+
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-card-elevated: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-panel: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  --animate-fade-in: fadeIn 200ms ease-out;
+  --animate-slide-in-right: slideInRight 200ms ease-out;
+  --animate-slide-in-up: slideInUp 200ms ease-out;
+  --animate-scale-in: scaleIn 200ms ease-out;
+  --animate-accordion-down: accordionDown 200ms ease-out;
+  --animate-accordion-up: accordionUp 200ms ease-out;
+  --animate-indeterminate: indeterminate 1.5s infinite ease-in-out;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes slideInRight {
+    0% { transform: translateX(100%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideInUp {
+    0% { transform: translateY(10px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes scaleIn {
+    0% { transform: scale(0.95); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes accordionDown {
+    0% { height: 0; }
+    100% { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordionUp {
+    0% { height: var(--radix-accordion-content-height); }
+    100% { height: 0; }
+  }
+  @keyframes indeterminate {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+  }
+}
 
 @layer base {
   :root {
@@ -51,9 +153,10 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }

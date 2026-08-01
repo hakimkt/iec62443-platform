@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { X } from 'lucide-react';
-import { cn } from '../lib/utils.js';
+import { cn } from '../lib/utils';
 
 const inputVariants = cva(
   'flex h-9 w-full rounded-md border border-surface-200 bg-surface-0 px-3 py-1 text-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-surface-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-surface-100 disabled:text-surface-500',

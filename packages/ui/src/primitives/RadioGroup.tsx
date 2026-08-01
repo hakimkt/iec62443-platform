@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { Circle } from 'lucide-react';
 import { cva } from 'class-variance-authority';
-import { cn } from '../lib/utils.js';
+import { cn } from '../lib/utils';
 
 const radioGroupItemVariants = cva(
   'aspect-square rounded-full border shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',

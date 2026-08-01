@@ -50,7 +50,7 @@ export async function assessmentRoutes(
     schema: {
       tags: ['Assessment'],
       summary: 'List assessment templates',
-      description: 'Returns a list of assessment templates. Public read access.',
+      description: 'Returns a list of assessment templates. Requires authentication.',
       querystring: {
         type: 'object',
         properties: {
@@ -68,7 +68,7 @@ export async function assessmentRoutes(
         },
       },
     },
-    // Public read — no preHandler
+    preHandler: [app.authenticate, app.requirePermission('assessment.template:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
     const service = createService(tenantId);
@@ -117,7 +117,7 @@ export async function assessmentRoutes(
     schema: {
       tags: ['Assessment'],
       summary: 'Get an assessment template',
-      description: 'Returns a single assessment template by ID. Public read access.',
+      description: 'Returns a single assessment template by ID. Requires authentication.',
       params: {
         type: 'object',
         required: ['id'],
@@ -135,7 +135,7 @@ export async function assessmentRoutes(
         },
       },
     },
-    // Public read — no preHandler
+    preHandler: [app.authenticate, app.requirePermission('assessment.template:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
     const service = createService(tenantId);
@@ -389,7 +389,7 @@ export async function assessmentRoutes(
         properties: {
           questionId: { type: 'string', format: 'uuid' },
           score: { type: 'integer', minimum: 0, maximum: 4 },
-          maturityLevel: { type: 'string', enum: ['implemented', 'partial', 'not_implemented', 'na'] },
+          maturityLevel: { type: 'integer', minimum: 0, maximum: 4 },
           assessorNotes: { type: 'string', maxLength: 10000 },
           evidenceRefs: { type: 'array', items: { type: 'string', format: 'uuid' } },
           findingRefs: { type: 'array', items: { type: 'string', format: 'uuid' } },

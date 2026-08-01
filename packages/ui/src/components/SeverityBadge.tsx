@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Badge } from '../primitives/Badge.js';
-import type { BadgeVariantKey } from '../primitives/Badge.js';
+import { Badge } from '../primitives/Badge';
+import type { BadgeVariantKey } from '../primitives/Badge';
 
 /* ───────────────────────────── Props ──────────────────────────── */
 

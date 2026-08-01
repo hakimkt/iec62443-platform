@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Search } from 'lucide-react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/utils.js';
-import { Input } from '../primitives/Input.js';
+import { cn } from '../lib/utils';
+import { Input } from '../primitives/Input';
 
 const searchInputSizeVariants = cva('', {
   variants: {

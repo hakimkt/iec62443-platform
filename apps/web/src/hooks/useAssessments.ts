@@ -238,7 +238,7 @@ export function useSubmitResponse() {
       engagementId: string;
       questionId: string;
       score?: number;
-      maturityLevel?: string;
+      maturityLevel?: number;
       assessorNotes?: string;
       evidenceRefs?: string[];
       findingRefs?: string[];

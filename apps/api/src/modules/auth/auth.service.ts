@@ -460,8 +460,9 @@ export class AuthService {
     // ── Email placeholder ──
     // In production, send an email with the reset link containing the token.
     // Example: sendPasswordResetEmail(user.email, resetToken);
+    // TODO: Implement email delivery. The reset token must NOT be returned in the API response.
 
-    return resetToken;
+    return 'ok';
   }
 
   // ── Reset Password ──────────────────────────────────────────────────
@@ -565,7 +566,7 @@ export class AuthService {
   async verifyMfaSetup(
     userId: string,
     code: string,
-    secret: string,
+    secret: string | null,
     ipAddress?: string,
     userAgent?: string,
   ): Promise<void> {
@@ -582,16 +583,26 @@ export class AuthService {
       });
     }
 
-    // Verify the secret matches what was generated during setup
-    if (user.mfaSecret !== secret) {
+    // Use the server-stored secret from the database.
+    // If a secret was passed from the client, verify it matches the stored one
+    // (backwards compatibility), but prefer the DB-stored secret for security.
+    const storedSecret = user.mfaSecret;
+    if (!storedSecret) {
+      throw Object.assign(new Error('MFA setup not initiated. Call setupMfa first.'), {
+        statusCode: 400,
+        code: 'MFA_NOT_SETUP',
+      });
+    }
+
+    if (secret !== null && secret !== storedSecret) {
       throw Object.assign(new Error('MFA secret mismatch'), {
         statusCode: 400,
         code: 'MFA_SECRET_MISMATCH',
       });
     }
 
-    // Verify the TOTP code
-    const isValid = authenticator.verify({ token: code, secret });
+    // Verify the TOTP code using the server-stored secret
+    const isValid = authenticator.verify({ token: code, secret: storedSecret });
     if (!isValid) {
       throw Object.assign(new Error('Invalid TOTP code'), {
         statusCode: 400,

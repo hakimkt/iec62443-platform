@@ -29,6 +29,10 @@ export const communicationRuleSchema = z.object({
   protocol: z.string().max(100).optional(),
 });
 
+export const updatePurdueModelSchema = createPurdueModelSchema.partial();
+export const updateLevelSchema = createLevelSchema.partial();
+export const updateCommunicationRuleSchema = communicationRuleSchema.partial();
+
 export type CreatePurdueModelInput = z.infer<typeof createPurdueModelSchema>;
 export type CreateLevelInput = z.infer<typeof createLevelSchema>;
 export type AssetMappingInput = z.infer<typeof assetMappingSchema>;

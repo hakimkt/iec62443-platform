@@ -54,12 +54,16 @@ export const elements = pgTable(
   },
   (table) => [
     check(
+      'elements_category_check',
+      sql`${table.category} IN ('SM-1', 'SM-2', 'SM-3', 'SM-4', 'SM-5', 'SM-6', 'SM-7', 'SM-8', 'SM-9', 'SM-10', 'SM-11', 'SM-12')`,
+    ),
+    check(
       'elements_implementation_status_check',
       sql`${table.implementationStatus} IN ('implemented', 'partial', 'planned', 'not_started', 'na')`,
     ),
     check(
       'elements_maturity_score_check',
-      sql`${table.maturityScore} BETWEEN 0 AND 5`,
+      sql`${table.maturityScore} BETWEEN 0 AND 4`,
     ),
   ],
 );

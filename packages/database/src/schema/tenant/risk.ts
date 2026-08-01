@@ -44,6 +44,13 @@ export const entries = pgTable(
     category: varchar('category', { length: 100 }),
     threatSource: varchar('threat_source', { length: 200 }),
     vulnerability: text('vulnerability'),
+    threatCategory: varchar('threat_category', { length: 30 }),
+    threatCapability: varchar('threat_capability', { length: 30 }),
+    attackVector: varchar('attack_vector', { length: 30 }),
+    threatScenario: text('threat_scenario'),
+    vulnerabilityClass: varchar('vulnerability_class', { length: 30 }),
+    cveRefs: varchar('cve_refs').array().default([]),
+    icsaRefs: varchar('icsa_refs').array().default([]),
     assetIds: uuid('asset_ids').array().default([]),
     zoneIds: uuid('zone_ids').array().default([]),
     likelihood: smallint('likelihood'),
@@ -100,6 +107,22 @@ export const entries = pgTable(
     check(
       'entries_residual_impact_check',
       sql`${table.residualImpact} BETWEEN 1 AND 5`,
+    ),
+    check(
+      'entries_threat_category_check',
+      sql`${table.threatCategory} IN ('accidental', 'deliberate', 'natural', 'failure')`,
+    ),
+    check(
+      'entries_threat_capability_check',
+      sql`${table.threatCapability} IN ('low', 'moderate', 'high', 'very_high')`,
+    ),
+    check(
+      'entries_attack_vector_check',
+      sql`${table.attackVector} IN ('network', 'adjacent', 'local', 'physical')`,
+    ),
+    check(
+      'entries_vulnerability_class_check',
+      sql`${table.vulnerabilityClass} IN ('design', 'implementation', 'configuration', 'operational', 'physical')`,
     ),
     index('idx_entries_register_level').on(table.registerId, table.riskLevel),
   ],

@@ -33,20 +33,30 @@ export const templates = pgTable('templates', {
 
 // ── Questions ────────────────────────────────────────────────────────────
 
-export const questions = pgTable('questions', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  templateId: uuid('template_id')
-    .notNull()
-    .references(() => templates.id),
-  section: varchar('section', { length: 200 }),
-  clauseRef: varchar('clause_ref', { length: 50 }),
-  questionText: text('question_text').notNull(),
-  requirementId: varchar('requirement_id', { length: 100 }),
-  maxScore: smallint('max_score').default(4),
-  guidanceText: text('guidance_text'),
-  sortOrder: integer('sort_order').default(0),
-  isActive: boolean('is_active').default(true),
-});
+export const questions = pgTable(
+  'questions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    templateId: uuid('template_id')
+      .notNull()
+      .references(() => templates.id),
+    section: varchar('section', { length: 200 }),
+    clauseRef: varchar('clause_ref', { length: 50 }),
+    questionText: text('question_text').notNull(),
+    requirementId: varchar('requirement_id', { length: 100 }),
+    foundationRequirement: varchar('foundation_requirement', { length: 10 }),
+    maxScore: smallint('max_score').default(4),
+    guidanceText: text('guidance_text'),
+    sortOrder: integer('sort_order').default(0),
+    isActive: boolean('is_active').default(true),
+  },
+  (table) => [
+    check(
+      'questions_foundation_requirement_check',
+      sql`${table.foundationRequirement} IN ('FR-1', 'FR-2', 'FR-3', 'FR-4', 'FR-5', 'FR-6', 'FR-7')`,
+    ),
+  ],
+);
 
 // ── Engagements ──────────────────────────────────────────────────────────
 
@@ -109,7 +119,7 @@ export const responses = pgTable(
       .notNull()
       .references(() => questions.id),
     score: smallint('score'),
-    maturityLevel: varchar('maturity_level', { length: 30 }),
+    maturityLevel: smallint('maturity_level'),
     assessorNotes: text('assessor_notes'),
     evidenceRefs: uuid('evidence_refs').array().default([]),
     findingRefs: uuid('finding_refs').array().default([]),
@@ -128,7 +138,7 @@ export const responses = pgTable(
     check('responses_score_check', sql`${table.score} >= 0`),
     check(
       'responses_maturity_level_check',
-      sql`${table.maturityLevel} IN ('implemented', 'partial', 'not_implemented', 'na')`,
+      sql`${table.maturityLevel} BETWEEN 0 AND 4`,
     ),
     unique('responses_unique_engagement_question').on(
       table.engagementId,

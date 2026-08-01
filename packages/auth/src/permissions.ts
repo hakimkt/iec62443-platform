@@ -19,6 +19,9 @@ export const SYSTEM_ROLE_PERMISSIONS: Record<SystemRoleName, string[]> = {
     'user:impersonate',
     'audit_log:read',
     'audit_log:export',
+    'admin:read',
+    'admin:write',
+    'dashboard:read',
   ],
   tenant_owner: [
     'tenant:read',
@@ -112,6 +115,11 @@ export const SYSTEM_ROLE_PERMISSIONS: Record<SystemRoleName, string[]> = {
     'report:delete',
     'audit_log:read',
     'audit_log:export',
+    'admin:read',
+    'admin:write',
+    'dashboard:read',
+    'csms:write',
+    'report:write',
   ],
   tenant_admin: [
     'tenant:read',
@@ -200,6 +208,11 @@ export const SYSTEM_ROLE_PERMISSIONS: Record<SystemRoleName, string[]> = {
     'report:delete',
     'audit_log:read',
     'audit_log:export',
+    'admin:read',
+    'admin:write',
+    'dashboard:read',
+    'csms:write',
+    'report:write',
   ],
   project_manager: [
     'assessment:read',
@@ -264,6 +277,9 @@ export const SYSTEM_ROLE_PERMISSIONS: Record<SystemRoleName, string[]> = {
     'assessment.response:read',
     'assessment.response:write',
     'assessment.response:review',
+    'dashboard:read',
+    'csms:write',
+    'report:write',
   ],
   lead_assessor: [
     'assessment:read',
@@ -304,6 +320,7 @@ export const SYSTEM_ROLE_PERMISSIONS: Record<SystemRoleName, string[]> = {
     'report:download',
     'csms:read',
     'remediation:read',
+    'dashboard:read',
   ],
   assessor: [
     'assessment:read',
@@ -323,6 +340,7 @@ export const SYSTEM_ROLE_PERMISSIONS: Record<SystemRoleName, string[]> = {
     'csms:read',
     'remediation:read',
     'report:read',
+    'dashboard:read',
   ],
   quality_manager: [
     'assessment:read',
@@ -346,6 +364,10 @@ export const SYSTEM_ROLE_PERMISSIONS: Record<SystemRoleName, string[]> = {
     'report:download',
     'audit_log:read',
     'audit_log:export',
+    'dashboard:read',
+    'admin:read',
+    'csms:write',
+    'report:write',
   ],
   risk_manager: [
     'risk:read',
@@ -368,6 +390,8 @@ export const SYSTEM_ROLE_PERMISSIONS: Record<SystemRoleName, string[]> = {
     'report:read',
     'report:generate',
     'report:download',
+    'dashboard:read',
+    'report:write',
   ],
   viewer: [
     'assessment:read',
@@ -382,6 +406,7 @@ export const SYSTEM_ROLE_PERMISSIONS: Record<SystemRoleName, string[]> = {
     'evidence:read',
     'report:read',
     'report:download',
+    'dashboard:read',
   ],
 };
 

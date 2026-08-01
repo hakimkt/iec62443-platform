@@ -58,8 +58,8 @@ export interface CSMSElement {
   /** IEC 62443 requirement reference (e.g. "62443-2-1 4.2.1"). */
   requirementRef: string;
   implementationStatus: ImplementationStatus;
-  /** Maturity score (0–5) based on CMMI-style assessment. */
-  maturityScore: 0 | 1 | 2 | 3 | 4 | 5;
+  /** Maturity score (0–4) based on IEC 62443-2-1 maturity levels. */
+  maturityScore: 0 | 1 | 2 | 3 | 4;
   ownerId: UUID | null;
   lastReviewed: string | null;
   nextReview: string | null;

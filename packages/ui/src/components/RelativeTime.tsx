@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { cn } from '../lib/utils.js';
+import { cn } from '../lib/utils';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   TooltipProvider,
-} from '../primitives/Tooltip.js';
+} from '../primitives/Tooltip';
 
 /* ───────────────────────────── Types ──────────────────────────── */
 

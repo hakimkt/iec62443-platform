@@ -95,8 +95,11 @@ export class DashboardService {
     private tenantId: string,
   ) {}
 
+  // Note: tenantId is used by the route handler for tenant context validation.
+  // Actual tenant isolation is handled by PostgreSQL search_path set by the tenant middleware,
+  // which scopes all queries to the tenant's schema automatically.
+
   async getSummary(): Promise<DashboardSummary> {
-    void this.tenantId;
     const [
       findingCounts,
       riskCounts,

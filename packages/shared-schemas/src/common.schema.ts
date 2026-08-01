@@ -14,6 +14,26 @@ export const passwordSchema = z
 export const securityLevelSchema = z.coerce.number().int().min(0).max(4);
 export const purdueLevelSchema = z.coerce.number().min(0).max(5);
 export const iecPartSchema = z.enum(['3-2', '3-3', '4-1', '4-2', '2-1']);
+
+export const foundationRequirementSchema = z.enum([
+  'FR-1',
+  'FR-2',
+  'FR-3',
+  'FR-4',
+  'FR-5',
+  'FR-6',
+  'FR-7',
+]);
+
+export const FR_LABELS: Record<string, string> = {
+  'FR-1': 'Identification and authentication control',
+  'FR-2': 'Use control',
+  'FR-3': 'System integrity',
+  'FR-4': 'Data confidentiality',
+  'FR-5': 'Restricted data flow',
+  'FR-6': 'Timely response to events',
+  'FR-7': 'Resource availability',
+};
 export const metadataSchema = z.record(z.unknown()).default({});
 export const tagsSchema = z.array(z.string().max(100)).max(20).default([]);
 

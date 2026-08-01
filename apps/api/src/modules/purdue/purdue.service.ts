@@ -531,29 +531,75 @@ export class PurdueService {
   async getCompliance(modelId: string): Promise<ComplianceResult> {
     await this.getModel(modelId);
 
-    const rules = await this.db
-      .select()
-      .from(communicationRules)
-      .where(eq(communicationRules.modelId, modelId));
+    // Fetch all communication rules and asset mappings for this model
+    const [rules, mappings] = await Promise.all([
+      this.db
+        .select()
+        .from(communicationRules)
+        .where(eq(communicationRules.modelId, modelId)),
+      this.db
+        .select()
+        .from(assetMappings)
+        .where(eq(assetMappings.modelId, modelId)),
+    ]);
+
+    // Build a lookup: assetId → levelId
+    const assetLevelMap = new Map(mappings.map((m) => [m.assetId, m.levelId]));
+
+    // Build a lookup: "sourceLevelId:targetLevelId" → rule for denied rules
+    const deniedRules = new Map<string, typeof rules[number]>();
+    for (const rule of rules) {
+      if (!rule.isAllowed) {
+        deniedRules.set(`${rule.sourceLevelId}:${rule.targetLevelId}`, rule);
+      }
+    }
 
     const violations: ComplianceViolation[] = [];
     let compliantCount = 0;
 
+    // Check each allowed rule against the denied rules
+    // A communication is compliant if it doesn't violate any denied rule
     for (const rule of rules) {
-      if (!rule.isAllowed) {
-        // This is a denied rule — check if any actual communications violate it
-        // For now, we just count denied rules as potential violations
-        // In a real implementation, we'd cross-reference with actual conduit data
+      if (rule.isAllowed) {
+        // Check if there's a more specific denied rule that overrides this
+        const deniedKey = `${rule.sourceLevelId}:${rule.targetLevelId}`;
+        const deniedRule = deniedRules.get(deniedKey);
+        if (deniedRule) {
+          // Conflicting rules — the denied rule takes precedence per IEC 62443
+          violations.push({
+            ruleId: rule.id,
+            sourceLevel: rule.sourceLevelId,
+            targetLevel: rule.targetLevelId,
+            assetName: 'N/A',
+            protocol: rule.protocol,
+            condition: rule.condition,
+          });
+        } else {
+          compliantCount++;
+        }
+      }
+    }
+
+    // Check for assets that are mapped to levels but communicate across
+    // denied boundaries (cross-reference with zone/conduit data)
+    for (const deniedRule of deniedRules.values()) {
+      const sourceLevelId = deniedRule.sourceLevelId;
+      const targetLevelId = deniedRule.targetLevelId;
+
+      // Find assets in the source level
+      const sourceAssets = mappings.filter((m) => m.levelId === sourceLevelId);
+      const targetAssets = mappings.filter((m) => m.levelId === targetLevelId);
+
+      // If there are assets on both sides of a denied boundary, that's a potential violation
+      if (sourceAssets.length > 0 && targetAssets.length > 0) {
         violations.push({
-          ruleId: rule.id,
-          sourceLevel: rule.sourceLevelId,
-          targetLevel: rule.targetLevelId,
-          assetName: 'Unknown',
-          protocol: rule.protocol,
-          condition: rule.condition,
+          ruleId: deniedRule.id,
+          sourceLevel: sourceLevelId,
+          targetLevel: targetLevelId,
+          assetName: `${sourceAssets.length} source(s) → ${targetAssets.length} target(s)`,
+          protocol: deniedRule.protocol,
+          condition: deniedRule.condition,
         });
-      } else {
-        compliantCount++;
       }
     }
 
