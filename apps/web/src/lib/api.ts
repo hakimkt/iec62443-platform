@@ -54,6 +54,8 @@ export function getApiClient(): ApiClient {
               },
             }),
           );
+          // Sync updated token to cookie for middleware
+          document.cookie = `auth-storage=${encodeURIComponent(JSON.stringify({ state: { isAuthenticated: true, accessToken, currentTenantId: parsed?.state?.currentTenantId } }))}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
         } catch {
           // Silently ignore storage errors
         }
