@@ -7,7 +7,7 @@ import { Button } from '@iec62443/ui/primitives';
 import { Badge } from '@iec62443/ui/primitives';
 import { Separator } from '@iec62443/ui/primitives';
 import { ProgressBar } from '@iec62443/ui/primitives';
-import { ArrowLeft, Trash2, ClipboardCheck, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Trash2, ClipboardCheck, BarChart3, ListChecks } from 'lucide-react';
 import { useAssessment, useAssessmentProgress, useDeleteAssessment } from '@/hooks/useAssessments';
 import type { AssessmentStatus } from '@iec62443/shared-types';
 
@@ -69,6 +69,13 @@ export default function AssessmentDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {(assessment.status === 'draft' || assessment.status === 'in_progress') && (
+            <Link href={`/assessments/${assessmentId}/questions`}>
+              <Button variant="primary" size="sm" icon={ListChecks}>
+                {assessment.status === 'draft' ? 'Start Assessment' : 'Continue Assessment'}
+              </Button>
+            </Link>
+          )}
           {assessment.status === 'draft' && (
             <Button variant="danger-ghost" size="sm" icon={Trash2} onClick={handleDelete}>
               Delete
@@ -97,13 +104,20 @@ export default function AssessmentDetailPage({ params }: { params: Promise<{ id:
         <nav className="flex gap-6" role="tablist" aria-label="Assessment sections">
           {([
             { key: 'summary' as TabKey, label: 'Summary', icon: ClipboardCheck },
+            { key: 'questions' as TabKey, label: 'Questions', icon: ListChecks },
             { key: 'scorecard' as TabKey, label: 'Scorecard', icon: BarChart3 },
           ]).map((tab) => (
             <button
               key={tab.key}
               role="tab"
               aria-selected={activeTab === tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => {
+                if (tab.key === 'questions') {
+                  router.push(`/assessments/${assessmentId}/questions`);
+                } else {
+                  setActiveTab(tab.key);
+                }
+              }}
               className={`flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium transition-colors ${
                 activeTab === tab.key
                   ? 'border-brand-600 text-brand-700'
