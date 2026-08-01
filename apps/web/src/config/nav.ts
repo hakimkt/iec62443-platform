@@ -1,7 +1,6 @@
 import {
   LayoutDashboard,
   ClipboardCheck,
-  BookOpen,
   Server,
   Layers,
   Network,
@@ -52,12 +51,6 @@ export const navSections: NavSection[] = [
         href: '/assessments',
         icon: ClipboardCheck,
         requiredPermission: 'assessment:read',
-      },
-      {
-        key: 'requirements',
-        label: 'Requirements',
-        href: '/requirements',
-        icon: BookOpen,
       },
       {
         key: 'assets',
