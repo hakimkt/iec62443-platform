@@ -2,6 +2,8 @@ import { eq, and, desc, count, sql } from 'drizzle-orm';
 
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
+type DbOrTx = NodePgDatabase | Parameters<Parameters<NodePgDatabase['transaction']>[0]>[0];
+
 import {
   findings,
   entries,
@@ -93,6 +95,7 @@ export class DashboardService {
   constructor(
     private db: NodePgDatabase,
     readonly tenantId: string,
+    private tenantSchema?: string,
   ) {}
 
   // Note: tenantId is used by the route handler for tenant context validation.
@@ -100,43 +103,50 @@ export class DashboardService {
   // which scopes all queries to the tenant's schema automatically.
 
   async getSummary(): Promise<DashboardSummary> {
-    const [
-      findingCounts,
-      riskCounts,
-      assessmentCounts,
-      remediationCounts,
-      assetCount,
-      zoneCount,
-      avgScore,
-    ] = await Promise.all([
-      this.getFindingCounts(),
-      this.getRiskCounts(),
-      this.getAssessmentCounts(),
-      this.getRemediationCounts(),
-      this.getAssetCount(),
-      this.getZoneCount(),
-      this.getAverageSecurityScore(),
-    ]);
+    return this.db.transaction(async (tx) => {
+      // Set search_path inside the transaction so all queries use the tenant schema
+      if (this.tenantSchema) {
+        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+      }
 
-    return {
-      securityScore: avgScore,
-      securityScoreTrend: 0,
-      totalFindings: findingCounts.total,
-      openFindings: findingCounts.open,
-      criticalFindings: findingCounts.critical,
-      findingsTrend: 0,
-      totalRisks: riskCounts.total,
-      highRisks: riskCounts.high,
-      risksTrend: 0,
-      remediationActions: remediationCounts.total,
-      overdueActions: remediationCounts.overdue,
-      remediationTrend: 0,
-      activeAssessments: assessmentCounts.active,
-      completedAssessments: assessmentCounts.completed,
-      assessmentProgress: assessmentCounts.avgProgress,
-      assetCount,
-      zoneCount,
-    };
+      const [
+        findingCounts,
+        riskCounts,
+        assessmentCounts,
+        remediationCounts,
+        assetCount,
+        zoneCount,
+        avgScore,
+      ] = await Promise.all([
+        this.getFindingCounts(tx),
+        this.getRiskCounts(tx),
+        this.getAssessmentCounts(tx),
+        this.getRemediationCounts(tx),
+        this.getAssetCount(tx),
+        this.getZoneCount(tx),
+        this.getAverageSecurityScore(tx),
+      ]);
+
+      return {
+        securityScore: avgScore,
+        securityScoreTrend: 0,
+        totalFindings: findingCounts.total,
+        openFindings: findingCounts.open,
+        criticalFindings: findingCounts.critical,
+        findingsTrend: 0,
+        totalRisks: riskCounts.total,
+        highRisks: riskCounts.high,
+        risksTrend: 0,
+        remediationActions: remediationCounts.total,
+        overdueActions: remediationCounts.overdue,
+        remediationTrend: 0,
+        activeAssessments: assessmentCounts.active,
+        completedAssessments: assessmentCounts.completed,
+        assessmentProgress: assessmentCounts.avgProgress,
+        assetCount,
+        zoneCount,
+      };
+    });
   }
 
   async getRiskHeatMap(registerId?: string): Promise<RiskHeatMapData> {
@@ -265,11 +275,11 @@ export class DashboardService {
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  private async getFindingCounts() {
+  private async getFindingCounts(db: DbOrTx = this.db) {
     const [totalResult, openResult, criticalResult] = await Promise.all([
-      this.db.select({ count: count() }).from(findings),
-      this.db.select({ count: count() }).from(findings).where(eq(findings.status, 'open')),
-      this.db.select({ count: count() }).from(findings).where(eq(findings.severity, 'critical')),
+      db.select({ count: count() }).from(findings),
+      db.select({ count: count() }).from(findings).where(eq(findings.status, 'open')),
+      db.select({ count: count() }).from(findings).where(eq(findings.severity, 'critical')),
     ]);
 
     return {
@@ -279,10 +289,10 @@ export class DashboardService {
     };
   }
 
-  private async getRiskCounts() {
+  private async getRiskCounts(db: DbOrTx = this.db) {
     const [totalResult, highResult] = await Promise.all([
-      this.db.select({ count: count() }).from(entries),
-      this.db.select({ count: count() }).from(entries).where(eq(entries.riskLevel, 'high')),
+      db.select({ count: count() }).from(entries),
+      db.select({ count: count() }).from(entries).where(eq(entries.riskLevel, 'high')),
     ]);
 
     return {
@@ -291,10 +301,10 @@ export class DashboardService {
     };
   }
 
-  private async getAssessmentCounts() {
+  private async getAssessmentCounts(db: DbOrTx = this.db) {
     const [activeResult, completedResult] = await Promise.all([
-      this.db.select({ count: count() }).from(engagements).where(eq(engagements.status, 'in_progress')),
-      this.db.select({ count: count() }).from(engagements).where(eq(engagements.status, 'completed')),
+      db.select({ count: count() }).from(engagements).where(eq(engagements.status, 'in_progress')),
+      db.select({ count: count() }).from(engagements).where(eq(engagements.status, 'completed')),
     ]);
 
     return {
@@ -304,10 +314,10 @@ export class DashboardService {
     };
   }
 
-  private async getRemediationCounts() {
+  private async getRemediationCounts(db: DbOrTx = this.db) {
     const [totalResult, overdueResult] = await Promise.all([
-      this.db.select({ count: count() }).from(remediationActions),
-      this.db.select({ count: count() }).from(remediationActions).where(eq(remediationActions.status, 'overdue')),
+      db.select({ count: count() }).from(remediationActions),
+      db.select({ count: count() }).from(remediationActions).where(eq(remediationActions.status, 'overdue')),
     ]);
 
     return {
@@ -316,18 +326,18 @@ export class DashboardService {
     };
   }
 
-  private async getAssetCount(): Promise<number> {
-    const result = await this.db.select({ count: count() }).from(assets);
+  private async getAssetCount(db: DbOrTx = this.db): Promise<number> {
+    const result = await db.select({ count: count() }).from(assets);
     return result[0]?.count ?? 0;
   }
 
-  private async getZoneCount(): Promise<number> {
-    const result = await this.db.select({ count: count() }).from(zones);
+  private async getZoneCount(db: DbOrTx = this.db): Promise<number> {
+    const result = await db.select({ count: count() }).from(zones);
     return result[0]?.count ?? 0;
   }
 
-  private async getAverageSecurityScore(): Promise<number> {
-    const result = await this.db
+  private async getAverageSecurityScore(db: DbOrTx = this.db): Promise<number> {
+    const result = await db
       .select({ avg: sql<number>`coalesce(avg(${scorecards.compliancePct}), 0)` })
       .from(scorecards);
 

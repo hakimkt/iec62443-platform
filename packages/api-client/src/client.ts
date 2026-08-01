@@ -191,7 +191,9 @@ export class ApiClient {
   }
 
   private buildUrl(path: string, params?: Record<string, string>): string {
-    const url = new URL(path, this.config.baseUrl);
+    const base = this.config.baseUrl.replace(/\/$/, '');
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    const url = new URL(`${base}${normalizedPath}`);
     if (params) {
       for (const [key, value] of Object.entries(params)) {
         if (value !== undefined && value !== null && value !== '') {
@@ -224,7 +226,7 @@ export class ApiClient {
   }
 
   private async performTokenRefresh(refreshToken: string): Promise<void> {
-    const url = this.buildUrl('/api/v1/auth/refresh');
+    const url = this.buildUrl('/auth/refresh');
 
     const response = await fetch(url, {
       method: 'POST',

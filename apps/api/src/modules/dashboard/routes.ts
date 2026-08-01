@@ -12,6 +12,22 @@ export interface DashboardRouteOptions {
   db: import('drizzle-orm/node-postgres').NodePgDatabase;
 }
 
+const responseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const listResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
 export async function dashboardRoutes(
   app: FastifyInstance,
   options: DashboardRouteOptions,
@@ -31,8 +47,8 @@ export async function dashboardRoutes(
     }),
   });
 
-  function createService(tenantId: string) {
-    return new DashboardService(db, tenantId);
+  function createService(tenantId: string, tenantSchema?: string) {
+    return new DashboardService(db, tenantId, tenantSchema);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -51,20 +67,12 @@ export async function dashboardRoutes(
           to: { type: 'string', format: 'date' },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new DashboardController(service);
     return controller.getSummary(request, reply);
   });
@@ -84,20 +92,12 @@ export async function dashboardRoutes(
           registerId: { type: 'string', format: 'uuid' },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new DashboardController(service);
     return controller.getRiskHeatMap(request, reply);
   });
@@ -111,20 +111,12 @@ export async function dashboardRoutes(
       tags: ['Dashboard'],
       summary: 'Get assessment progress list',
       security: [{ bearerAuth: [] }],
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: listResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new DashboardController(service);
     return controller.getAssessmentProgress(request, reply);
   });
@@ -138,20 +130,12 @@ export async function dashboardRoutes(
       tags: ['Dashboard'],
       summary: 'Get recent findings',
       security: [{ bearerAuth: [] }],
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: listResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new DashboardController(service);
     return controller.getRecentFindings(request, reply);
   });
@@ -165,20 +149,12 @@ export async function dashboardRoutes(
       tags: ['Dashboard'],
       summary: 'Get remediation status summary',
       security: [{ bearerAuth: [] }],
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new DashboardController(service);
     return controller.getRemediationStatus(request, reply);
   });

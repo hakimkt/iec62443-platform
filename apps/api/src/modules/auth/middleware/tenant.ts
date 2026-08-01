@@ -172,14 +172,19 @@ async function tenantMiddleware(
     }
 
     try {
-      // Use SET LOCAL so the search_path is scoped to the current transaction
-      // and resets automatically when the transaction ends, preventing pool contamination
+      // Set search_path for the current session so queries run against the tenant schema.
+      // We use SET (not SET LOCAL) because SET LOCAL requires an active transaction.
+      // Pool contamination is mitigated by resetting in an onResponse hook.
       await db.execute(
-        sql`SET LOCAL search_path TO ${sql.identifier(tenant.schemaName)}, public`,
+        sql`SET search_path TO ${sql.identifier(tenant.schemaName)}, public`,
       );
     } catch {
       // If we can't set the search path, the tenant schema may not exist yet
     }
+
+    // Store schema name on request for services that use transactions
+    // (transactions need SET LOCAL search_path inside the tx)
+    request.tenantSchema = tenant.schemaName;
   });
 }
 

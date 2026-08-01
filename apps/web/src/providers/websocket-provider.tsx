@@ -10,49 +10,64 @@ interface WebSocketContextValue {
 
 const WebSocketContext = createContext<WebSocketContextValue | null>(null);
 
+const MAX_RECONNECT_ATTEMPTS = 3;
+const RECONNECT_BASE_DELAY_MS = 3000;
+
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const [connected, setConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const handlersRef = useRef<Map<string, Set<(data: unknown) => void>>>(new Map());
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const attemptsRef = useRef(0);
   const accessToken = useAuthStore((s) => s.accessToken);
 
   const connect = useCallback(() => {
     const wsUrl = process.env['NEXT_PUBLIC_WS_URL'] ?? 'ws://localhost:3001';
     const token = accessToken ?? '';
-    const ws = new WebSocket(`${wsUrl}/ws?token=${token}`);
 
-    ws.onopen = () => {
-      setConnected(true);
-    };
+    try {
+      const ws = new WebSocket(`${wsUrl}/ws?token=${token}`);
 
-    ws.onclose = () => {
-      setConnected(false);
-      reconnectTimeoutRef.current = setTimeout(() => {
-        connect();
-      }, 3000);
-    };
+      ws.onopen = () => {
+        setConnected(true);
+        attemptsRef.current = 0;
+      };
 
-    ws.onerror = () => {
-      ws.close();
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data as string) as {
-          type: string;
-          data: unknown;
-        };
-        const handlers = handlersRef.current.get(message.type);
-        if (handlers) {
-          handlers.forEach((handler) => handler(message.data));
+      ws.onclose = () => {
+        setConnected(false);
+        if (attemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
+          attemptsRef.current++;
+          const delay = RECONNECT_BASE_DELAY_MS * attemptsRef.current;
+          reconnectTimeoutRef.current = setTimeout(() => {
+            connect();
+          }, delay);
         }
-      } catch {
-        // Ignore malformed messages
-      }
-    };
+      };
 
-    wsRef.current = ws;
+      ws.onerror = () => {
+        ws.close();
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data as string) as {
+            type: string;
+            data: unknown;
+          };
+          const handlers = handlersRef.current.get(message.type);
+          if (handlers) {
+            handlers.forEach((handler) => handler(message.data));
+          }
+        } catch {
+          // Ignore malformed messages
+        }
+      };
+
+      wsRef.current = ws;
+    } catch {
+      // WebSocket constructor may throw in environments that don't support it
+      setConnected(false);
+    }
   }, [accessToken]);
 
   useEffect(() => {
