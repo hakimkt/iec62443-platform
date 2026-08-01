@@ -150,125 +150,149 @@ export class DashboardService {
   }
 
   async getRiskHeatMap(registerId?: string): Promise<RiskHeatMapData> {
-    const conditions = [];
-
-    if (registerId) {
-      conditions.push(eq(entries.registerId, registerId));
-    }
-
-    const riskEntries = await this.db
-      .select({
-        likelihood: entries.likelihood,
-        impact: entries.impact,
-      })
-      .from(entries)
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .limit(1000);
-
-    const cells: RiskHeatMapCell[] = [];
-    const matrix: Record<string, number> = {};
-
-    for (const entry of riskEntries) {
-      const l = entry.likelihood ?? 1;
-      const i = entry.impact ?? 1;
-      const key = `${l}-${i}`;
-      matrix[key] = (matrix[key] ?? 0) + 1;
-    }
-
-    for (let l = 1; l <= 5; l++) {
-      for (let i = 1; i <= 5; i++) {
-        const key = `${l}-${i}`;
-        const c = matrix[key] ?? 0;
-        const score = l * i;
-        cells.push({
-          likelihood: l,
-          impact: i,
-          count: c,
-          level: score >= 15 ? 'critical' : score >= 10 ? 'high' : score >= 5 ? 'medium' : 'low',
-        });
+    return this.db.transaction(async (tx) => {
+      if (this.tenantSchema) {
+        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
       }
-    }
 
-    return {
-      cells,
-      labels: {
-        likelihood: ['1 - Rare', '2 - Unlikely', '3 - Possible', '4 - Likely', '5 - Almost Certain'],
-        impact: ['1 - Negligible', '2 - Minor', '3 - Moderate', '4 - Major', '5 - Catastrophic'],
-      },
-    };
+      const conditions = [];
+
+      if (registerId) {
+        conditions.push(eq(entries.registerId, registerId));
+      }
+
+      const riskEntries = await tx
+        .select({
+          likelihood: entries.likelihood,
+          impact: entries.impact,
+        })
+        .from(entries)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .limit(1000);
+
+      const cells: RiskHeatMapCell[] = [];
+      const matrix: Record<string, number> = {};
+
+      for (const entry of riskEntries) {
+        const l = entry.likelihood ?? 1;
+        const i = entry.impact ?? 1;
+        const key = `${l}-${i}`;
+        matrix[key] = (matrix[key] ?? 0) + 1;
+      }
+
+      for (let l = 1; l <= 5; l++) {
+        for (let i = 1; i <= 5; i++) {
+          const key = `${l}-${i}`;
+          const c = matrix[key] ?? 0;
+          const score = l * i;
+          cells.push({
+            likelihood: l,
+            impact: i,
+            count: c,
+            level: score >= 15 ? 'critical' : score >= 10 ? 'high' : score >= 5 ? 'medium' : 'low',
+          });
+        }
+      }
+
+      return {
+        cells,
+        labels: {
+          likelihood: ['1 - Rare', '2 - Unlikely', '3 - Possible', '4 - Likely', '5 - Almost Certain'],
+          impact: ['1 - Negligible', '2 - Minor', '3 - Moderate', '4 - Major', '5 - Catastrophic'],
+        },
+      };
+    });
   }
 
   async getAssessmentProgress(): Promise<AssessmentProgressItem[]> {
-    const rows = await this.db
-      .select({
-        id: engagements.id,
-        name: engagements.name,
-        status: engagements.status,
-        createdAt: engagements.createdAt,
-      })
-      .from(engagements)
-      .where(eq(engagements.status, 'in_progress'))
-      .orderBy(desc(engagements.createdAt))
-      .limit(10);
+    return this.db.transaction(async (tx) => {
+      if (this.tenantSchema) {
+        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+      }
 
-    return rows.map((r) => ({
-      id: r.id,
-      name: r.name,
-      framework: 'IEC 62443',
-      progress: 0,
-      status: r.status,
-      dueDate: null,
-    }));
+      const rows = await tx
+        .select({
+          id: engagements.id,
+          name: engagements.name,
+          status: engagements.status,
+          createdAt: engagements.createdAt,
+        })
+        .from(engagements)
+        .where(eq(engagements.status, 'in_progress'))
+        .orderBy(desc(engagements.createdAt))
+        .limit(10);
+
+      return rows.map((r) => ({
+        id: r.id,
+        name: r.name,
+        framework: 'IEC 62443',
+        progress: 0,
+        status: r.status,
+        dueDate: null,
+      }));
+    });
   }
 
   async getRecentFindings(): Promise<RecentFindingItem[]> {
-    const rows = await this.db
-      .select({
-        id: findings.id,
-        title: findings.title,
-        severity: findings.severity,
-        status: findings.status,
-        createdAt: findings.createdAt,
-      })
-      .from(findings)
-      .orderBy(desc(findings.createdAt))
-      .limit(10);
+    return this.db.transaction(async (tx) => {
+      if (this.tenantSchema) {
+        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+      }
 
-    return rows.map((r) => ({
-      id: r.id,
-      title: r.title,
-      severity: r.severity,
-      status: r.status,
-      assetName: null,
-      createdAt: r.createdAt.toISOString(),
-    }));
+      const rows = await tx
+        .select({
+          id: findings.id,
+          title: findings.title,
+          severity: findings.severity,
+          status: findings.status,
+          createdAt: findings.createdAt,
+        })
+        .from(findings)
+        .orderBy(desc(findings.createdAt))
+        .limit(10);
+
+      return rows.map((r) => ({
+        id: r.id,
+        title: r.title,
+        severity: r.severity,
+        status: r.status,
+        assetName: null,
+        createdAt: r.createdAt.toISOString(),
+      }));
+    });
   }
 
   async getRemediationStatus(): Promise<RemediationStatus> {
-    const statusCounts = await this.db
-      .select({
-        status: remediationActions.status,
-        count: count(),
-      })
-      .from(remediationActions)
-      .groupBy(remediationActions.status);
+    return this.db.transaction(async (tx) => {
+      if (this.tenantSchema) {
+        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+      }
 
-    const byStatus: Record<string, number> = {};
-    for (const row of statusCounts) {
-      byStatus[row.status ?? 'unknown'] = row.count;
-    }
+      const statusCounts = await tx
+        .select({
+          status: remediationActions.status,
+          count: count(),
+        })
+        .from(remediationActions)
+        .groupBy(remediationActions.status);
 
-    const total = statusCounts.reduce((sum, r) => sum + r.count, 0);
+      const byStatus: Record<string, number> = {};
+      for (const row of statusCounts) {
+        byStatus[row.status ?? 'unknown'] = row.count;
+      }
 
-    return {
-      total,
-      open: byStatus['open'] ?? 0,
-      inProgress: byStatus['in_progress'] ?? 0,
-      completed: byStatus['completed'] ?? 0,
-      overdue: byStatus['overdue'] ?? 0,
-      byPriority: {},
-      timeline: [],
-    };
+      const total = statusCounts.reduce((sum, r) => sum + r.count, 0);
+
+      return {
+        total,
+        open: byStatus['open'] ?? 0,
+        inProgress: byStatus['in_progress'] ?? 0,
+        completed: byStatus['completed'] ?? 0,
+        overdue: byStatus['overdue'] ?? 0,
+        byPriority: {},
+        timeline: [],
+      };
+    });
   }
 
   // ---------------------------------------------------------------------------

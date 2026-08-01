@@ -23,10 +23,12 @@ interface OfflineState {
   clearQueue: () => void;
 }
 
+// Initialize to true to avoid hydration mismatch — OfflineBanner syncs
+// the real value via window online/offline events in a useEffect.
 export const useOfflineStore = create<OfflineState>()(
   persist(
     (set) => ({
-      isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
+      isOnline: true,
       pendingMutations: [],
       syncInProgress: false,
       lastSyncAt: null,

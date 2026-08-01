@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo } from 'reac
 import { useRouter } from 'next/navigation';
 import { useAuthStore, type AuthUser, type AuthTenant } from '@/stores/auth-store';
 import { getApiClient } from '@/lib/api';
+import { ApiClientError } from '@iec62443/api-client';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -43,8 +44,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!store.currentTenantId && res.data.tenants?.length) {
           store.setCurrentTenant(res.data.tenants[0]?.id ?? '');
         }
-      }).catch(() => {
-        store.logout();
+      }).catch((err: unknown) => {
+        // Only log out on 401 (token expired/invalid), not on network errors
+        if (err instanceof ApiClientError && err.status === 401) {
+          store.logout();
+        }
       });
     }
   }, [store.isAuthenticated]);

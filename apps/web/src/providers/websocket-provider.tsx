@@ -22,7 +22,9 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const accessToken = useAuthStore((s) => s.accessToken);
 
   const connect = useCallback(() => {
-    const wsUrl = process.env['NEXT_PUBLIC_WS_URL'] ?? 'ws://localhost:3001';
+    const wsUrl = process.env['NEXT_PUBLIC_WS_URL'];
+    if (!wsUrl) return;
+
     const token = accessToken ?? '';
 
     try {

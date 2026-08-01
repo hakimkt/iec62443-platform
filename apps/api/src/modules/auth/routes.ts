@@ -51,6 +51,18 @@ export async function authRoutes(
     }),
   });
 
+  // ── GET /auth/me ─────────────────────────────────────────────────────
+  app.get('/me', {
+    schema: {
+      tags: ['Auth'],
+      summary: 'Get current user',
+      description: 'Returns the authenticated user profile and their tenant memberships.',
+      security: [{ bearerAuth: [] }],
+      response: { 200: responseSchema },
+    },
+    preHandler: [app.authenticate],
+  }, async (request, reply) => controller.getMe(request, reply));
+
   // ── POST /auth/register ─────────────────────────────────────────────
   app.post('/register', {
     schema: {

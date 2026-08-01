@@ -8,6 +8,10 @@ export function OfflineBanner() {
   const { isOnline, pendingMutations, setOnline } = useOfflineStore();
 
   useEffect(() => {
+    // Sync the real navigator.onLine value on mount (store initializes to true
+    // to avoid hydration mismatch, so we need to correct it if actually offline).
+    setOnline(navigator.onLine);
+
     function handleOnline() {
       setOnline(true);
     }

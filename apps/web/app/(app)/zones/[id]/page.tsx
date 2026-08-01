@@ -62,7 +62,7 @@ export default function ZoneDetailPage({ params }: { params: Promise<{ id: strin
   const [isEditing, setIsEditing] = useState(false);
 
   const { data: zone, isLoading } = useZone(zoneId);
-  const { data: conduitsResult } = useConduits({ zoneId });
+  const { data: conduitsResult } = useConduits({ sourceZoneId: zoneId });
   const { data: memberships } = useZoneMemberships(zoneId);
   const removeMembership = useRemoveZoneMembership();
   const updateZone = useUpdateZone();

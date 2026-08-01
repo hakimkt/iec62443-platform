@@ -240,7 +240,8 @@ export function useDeleteSegmentationRule() {
 interface ConduitListParams {
   page?: number;
   perPage?: number;
-  zoneId?: string;
+  sourceZoneId?: string;
+  targetZoneId?: string;
   conduitType?: string;
   search?: string;
 }
@@ -254,7 +255,8 @@ export function useConduits(params: ConduitListParams = {}) {
       const queryParams: Record<string, string> = {};
       if (params.page) queryParams['page'] = String(params.page);
       if (params.perPage) queryParams['perPage'] = String(params.perPage);
-      if (params.zoneId) queryParams['zoneId'] = params.zoneId;
+      if (params.sourceZoneId) queryParams['sourceZoneId'] = params.sourceZoneId;
+      if (params.targetZoneId) queryParams['targetZoneId'] = params.targetZoneId;
       if (params.conduitType) queryParams['conduitType'] = params.conduitType;
       if (params.search) queryParams['search'] = params.search;
 

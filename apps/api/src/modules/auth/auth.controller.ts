@@ -76,7 +76,17 @@ export class AuthController {
         request.headers['user-agent'],
       );
 
-      return reply.status(201).send(successResponse(result, request.id));
+      return reply.status(201).send(
+        successResponse(
+          {
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken,
+            user: result.user,
+            tenants: result.tenants,
+          },
+          request.id,
+        ),
+      );
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -123,6 +133,7 @@ export class AuthController {
             accessToken: result.tokenPair.accessToken,
             refreshToken: result.tokenPair.refreshToken,
             user: result.user,
+            tenants: result.tenants,
           },
           request.id,
         ),
@@ -369,6 +380,7 @@ export class AuthController {
             accessToken: result.tokenPair.accessToken,
             refreshToken: result.tokenPair.refreshToken,
             user: result.user,
+            tenants: result.tenants,
           },
           request.id,
         ),
@@ -410,6 +422,27 @@ export class AuthController {
           { mfaEnabled: false, message: 'MFA has been disabled successfully.' },
           request.id,
         ),
+      );
+    } catch (error: unknown) {
+      return this.handleError(error, request, reply);
+    }
+  }
+
+  // ── GET /auth/me ─────────────────────────────────────────────────────
+
+  async getMe(request: FastifyRequest, reply: FastifyReply) {
+    const userId = (request as unknown as { user: { sub: string } }).user?.sub;
+    if (!userId) {
+      return reply.status(401).send(
+        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
+      );
+    }
+
+    try {
+      const result = await this.authService.getCurrentUser(userId);
+
+      return reply.status(200).send(
+        successResponse(result, request.id),
       );
     } catch (error: unknown) {
       return this.handleError(error, request, reply);

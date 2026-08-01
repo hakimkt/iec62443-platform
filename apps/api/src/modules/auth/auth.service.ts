@@ -36,10 +36,13 @@ export interface RegisterResult {
     status: string;
     createdAt: string;
   };
+  accessToken: string;
+  refreshToken: string;
+  tenants: LoginTenant[];
 }
 
 export type LoginResult =
-  | { type: 'token'; tokenPair: TokenPair; user: LoginUser }
+  | { type: 'token'; tokenPair: TokenPair; user: LoginUser; tenants: LoginTenant[] }
   | { type: 'mfa_required'; requestId: string; message: string };
 
 export interface LoginUser {
@@ -48,6 +51,14 @@ export interface LoginUser {
   firstName: string;
   lastName: string;
   mfaEnabled: boolean;
+  status: string;
+}
+
+export interface LoginTenant {
+  id: string;
+  name: string;
+  slug: string;
+  role: string;
   status: string;
 }
 
@@ -176,6 +187,9 @@ export class AuthService {
       userAgent: userAgent ?? null,
     });
 
+    // Auto-login: generate token pair
+    const tokenPair = await this.generateTokenPair(newUser.id, ipAddress, userAgent);
+
     return {
       user: {
         id: newUser.id,
@@ -185,6 +199,9 @@ export class AuthService {
         status: newUser.status,
         createdAt: newUser.createdAt.toISOString(),
       },
+      accessToken: tokenPair.accessToken,
+      refreshToken: tokenPair.refreshToken,
+      tenants: await this.getUserTenants(newUser.id),
     };
   }
 
@@ -341,6 +358,7 @@ export class AuthService {
         mfaEnabled: user.mfaEnabled,
         status: user.status,
       },
+      tenants: await this.getUserTenants(user.id),
     };
   }
 
@@ -706,6 +724,7 @@ export class AuthService {
         mfaEnabled: user.mfaEnabled,
         status: user.status,
       },
+      tenants: await this.getUserTenants(user.id),
     };
   }
 
@@ -764,7 +783,73 @@ export class AuthService {
     });
   }
 
+  // ── Get Current User (GET /auth/me) ──────────────────────────────────
+
+  async getCurrentUser(userId: string): Promise<{
+    user: LoginUser;
+    tenants: LoginTenant[];
+  }> {
+    const [user] = await this.db
+      .select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        mfaEnabled: users.mfaEnabled,
+        status: users.status,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      throw Object.assign(new Error('User not found'), {
+        statusCode: 404,
+        code: 'USER_NOT_FOUND',
+      });
+    }
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        mfaEnabled: user.mfaEnabled,
+        status: user.status,
+      },
+      tenants: await this.getUserTenants(userId),
+    };
+  }
+
   // ── Private helpers ──────────────────────────────────────────────────
+
+  private async getUserTenants(userId: string): Promise<LoginTenant[]> {
+    const memberships = await this.db
+      .select({
+        tenantId: tenantMemberships.tenantId,
+        role: tenantMemberships.role,
+        tenantName: tenants.name,
+        tenantSlug: tenants.slug,
+        tenantStatus: tenants.status,
+      })
+      .from(tenantMemberships)
+      .innerJoin(tenants, eq(tenantMemberships.tenantId, tenants.id))
+      .where(
+        and(
+          eq(tenantMemberships.userId, userId),
+          eq(tenantMemberships.status, 'active'),
+        ),
+      );
+
+    return memberships.map((m) => ({
+      id: m.tenantId,
+      name: m.tenantName,
+      slug: m.tenantSlug,
+      role: m.role ?? 'viewer',
+      status: m.tenantStatus,
+    }));
+  }
 
   private async generateTokenPair(
     userId: string,
