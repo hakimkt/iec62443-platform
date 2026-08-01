@@ -293,3 +293,22 @@ export function useAssessmentProgress(engagementId: string | null) {
     enabled: !!engagementId,
   });
 }
+
+export function useCompleteAssessment() {
+  const client = getApiClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (engagementId: string) => {
+      const result = await client.patch<SingleResponse<AssessmentEngagement>>(
+        `/assessments/${engagementId}`,
+        { status: 'completed' },
+      );
+      return result.data;
+    },
+    onSuccess: (_data, engagementId) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.assessments.lists() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.assessments.detail(engagementId) });
+    },
+  });
+}

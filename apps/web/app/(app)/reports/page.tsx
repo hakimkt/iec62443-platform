@@ -15,7 +15,7 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { useReports, useDeleteReport, useDownloadReport } from '@/hooks/useReports';
+import { useReports, useDeleteReport } from '@/hooks/useReports';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   pending: { label: 'Pending', color: 'bg-surface-100 text-surface-600', icon: Clock },
@@ -52,7 +52,6 @@ export default function ReportsPage() {
   });
 
   const deleteReport = useDeleteReport();
-  const downloadReport = useDownloadReport();
 
   const reports = reportsData?.data ?? [];
   const pagination = reportsData?.pagination;
