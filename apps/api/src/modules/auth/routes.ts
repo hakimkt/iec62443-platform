@@ -15,6 +15,15 @@ export interface AuthRouteOptions {
   mfaIssuer?: string;
 }
 
+// Shared response schema — allows nested properties through serialization
+const responseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
 export async function authRoutes(
   app: FastifyInstance,
   options: AuthRouteOptions,
@@ -53,20 +62,12 @@ export async function authRoutes(
         required: ['email', 'password', 'firstName', 'lastName'],
         properties: {
           email: { type: 'string', format: 'email', maxLength: 320 },
-          password: { type: 'string', minLength: 14, maxLength: 128 },
+          password: { type: 'string', minLength: 8, maxLength: 128 },
           firstName: { type: 'string', minLength: 1, maxLength: 100 },
           lastName: { type: 'string', minLength: 1, maxLength: 100 },
         },
       },
-      response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 201: responseSchema },
     },
   }, async (request, reply) => controller.register(request, reply));
 
@@ -85,15 +86,7 @@ export async function authRoutes(
           password: { type: 'string', minLength: 1, maxLength: 128 },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
   }, async (request, reply) => controller.login(request, reply));
 
@@ -110,15 +103,7 @@ export async function authRoutes(
           refreshToken: { type: 'string' },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
   }, async (request, reply) => controller.refresh(request, reply));
 
@@ -135,15 +120,7 @@ export async function authRoutes(
           refreshToken: { type: 'string' },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
   }, async (request, reply) => controller.logout(request, reply));
 
@@ -160,15 +137,7 @@ export async function authRoutes(
           email: { type: 'string', format: 'email' },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
   }, async (request, reply) => controller.forgotPassword(request, reply));
 
@@ -183,18 +152,10 @@ export async function authRoutes(
         required: ['token', 'password'],
         properties: {
           token: { type: 'string' },
-          password: { type: 'string', minLength: 14, maxLength: 128 },
+          password: { type: 'string', minLength: 8, maxLength: 128 },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
   }, async (request, reply) => controller.resetPassword(request, reply));
 
@@ -205,15 +166,7 @@ export async function authRoutes(
       summary: 'Setup MFA (TOTP)',
       description: 'Generates a TOTP secret and QR code URI for MFA enrollment. Requires authentication.',
       security: [{ bearerAuth: [] }],
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate],
   }, async (request, reply) => controller.setupMfa(request, reply));
@@ -233,15 +186,7 @@ export async function authRoutes(
           secret: { type: 'string' },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate],
   }, async (request, reply) => controller.verifyMfaSetup(request, reply));
@@ -260,15 +205,7 @@ export async function authRoutes(
           requestId: { type: 'string' },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
   }, async (request, reply) => controller.challengeMfa(request, reply));
 
@@ -286,15 +223,7 @@ export async function authRoutes(
           password: { type: 'string' },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate],
   }, async (request, reply) => controller.disableMfa(request, reply));

@@ -4,7 +4,6 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
-import { pino } from 'pino';
 import { sql } from 'drizzle-orm';
 
 import { authPlugin } from './modules/auth/index.js';
@@ -21,17 +20,14 @@ import { remediationPlugin } from './modules/remediation/index.js';
 import { csmsPlugin } from './modules/csms/index.js';
 import { adminPlugin } from './modules/admin/index.js';
 
-const logger = pino({
-  level: process.env['LOG_LEVEL'] ?? 'info',
-  transport: process.env['NODE_ENV'] === 'development'
-    ? { target: 'pino-pretty', options: { colorize: true } }
-    : undefined,
-});
-
 const app = Fastify({
-  logger,
+  logger: {
+    level: process.env['LOG_LEVEL'] ?? 'info',
+    transport: process.env['NODE_ENV'] === 'development'
+      ? { target: 'pino-pretty', options: { colorize: true } }
+      : undefined,
+  },
   requestIdHeader: 'x-request-id',
-  requestIdLogLabel: 'requestId',
   genReqId: () => crypto.randomUUID(),
 });
 
@@ -126,22 +122,20 @@ if (missingEnvVars.length > 0 && process.env['NODE_ENV'] === 'production') {
   process.exit(1);
 }
 
-// ── Auth Module ────────────────────────────────────────────────────────
-await app.register(authPlugin, {
-  connectionString: process.env['DATABASE_URL'] ?? 'postgresql://postgres:postgres@localhost:5432/iec62443',
-  jwtConfig: {
-    secret: process.env['JWT_SECRET'] ?? 'change-me-in-production',
-    accessTokenTtl: process.env['JWT_ACCESS_TOKEN_TTL'] ?? '15m',
-    refreshTokenTtl: process.env['JWT_REFRESH_TOKEN_TTL'] ?? '7d',
-    issuer: process.env['JWT_ISSUER'] ?? 'iec62443-platform',
-    audience: process.env['JWT_AUDIENCE'] ?? 'iec62443-platform-users',
-  },
-  mfaIssuer: process.env['MFA_ISSUER'] ?? 'IEC62443-Platform',
-});
-
-// ── Domain Modules (under /api/v1 prefix) ──────────────────────────────
+// ── All API routes under /api/v1 prefix ────────────────────────────────
 await app.register(
   async (api) => {
+    api.register(authPlugin, {
+      connectionString: process.env['DATABASE_URL'] ?? 'postgresql://postgres:postgres@localhost:5432/iec62443',
+      jwtConfig: {
+        secret: process.env['JWT_SECRET'] ?? 'change-me-in-production',
+        accessTokenTtl: process.env['JWT_ACCESS_TOKEN_TTL'] ?? '15m',
+        refreshTokenTtl: process.env['JWT_REFRESH_TOKEN_TTL'] ?? '7d',
+        issuer: process.env['JWT_ISSUER'] ?? 'iec62443-platform',
+        audience: process.env['JWT_AUDIENCE'] ?? 'iec62443-platform-users',
+      },
+      mfaIssuer: process.env['MFA_ISSUER'] ?? 'IEC62443-Platform',
+    });
     api.register(assessmentPlugin);
     api.register(findingPlugin);
     api.register(assetPlugin);

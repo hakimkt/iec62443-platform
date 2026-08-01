@@ -22,8 +22,8 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState('');
 
   function validatePassword(pw: string): string | null {
-    if (pw.length < 14) {
-      return 'Password must be at least 14 characters long.';
+    if (pw.length < 8) {
+      return 'Password must be at least 8 characters long.';
     }
     if (!/[A-Z]/.test(pw)) {
       return 'Password must contain at least one uppercase letter.';

@@ -5,7 +5,7 @@ export const slugSchema = z.string().min(2).max(100).regex(/^[a-z0-9]+(?:-[a-z0-
 export const emailSchema = z.string().email().max(320);
 export const passwordSchema = z
   .string()
-  .min(14)
+  .min(8)
   .max(128)
   .regex(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,

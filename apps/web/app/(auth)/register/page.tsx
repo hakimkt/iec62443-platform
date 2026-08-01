@@ -19,8 +19,8 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
 
   function validatePassword(pw: string): string | null {
-    if (pw.length < 14) {
-      return 'Password must be at least 14 characters long.';
+    if (pw.length < 8) {
+      return 'Password must be at least 8 characters long.';
     }
     if (!/[A-Z]/.test(pw)) {
       return 'Password must contain at least one uppercase letter.';
@@ -127,7 +127,7 @@ export default function RegisterPage() {
             <Input
               id="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Min. 14 characters"
+              placeholder="Min. 8 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -149,7 +149,7 @@ export default function RegisterPage() {
             </button>
           </div>
           <p className="text-xs text-surface-500">
-            Must be at least 14 characters with uppercase, lowercase, number,
+            Must be at least 8 characters with uppercase, lowercase, number,
             and special character.
           </p>
         </div>
