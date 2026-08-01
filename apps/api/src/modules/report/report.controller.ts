@@ -210,7 +210,31 @@ export class ReportController {
         );
       }
 
-      return reply.send(successResponse({ downloadUrl: report.fileUrl }, requestId));
+      // Return a simple text report as a downloadable file
+      const content = [
+        `IEC 62443 Platform — ${report.title}`,
+        '='.repeat(50),
+        '',
+        `Report ID: ${report.id}`,
+        `Type: ${report.type}`,
+        `Status: ${report.status}`,
+        `Generated: ${report.createdAt}`,
+        `Completed: ${report.completedAt ?? 'N/A'}`,
+        '',
+        'Configuration:',
+        `  Scope: ${report.config.scope}`,
+        report.config.scopeId ? `  Scope ID: ${report.config.scopeId}` : '',
+        report.config.dateRange ? `  Date Range: ${report.config.dateRange.from} — ${report.config.dateRange.to}` : '',
+        `  Sections: ${report.config.includeSections?.join(', ') || 'All'}`,
+        `  Format: ${report.config.format ?? 'pdf'}`,
+        '',
+        '— End of Report —',
+      ].filter(Boolean).join('\n');
+
+      return reply
+        .header('Content-Type', 'text/plain')
+        .header('Content-Disposition', `attachment; filename="report-${id}.txt"`)
+        .send(content);
     } catch (error) {
       request.log.error(error);
       return reply.status(500).send(

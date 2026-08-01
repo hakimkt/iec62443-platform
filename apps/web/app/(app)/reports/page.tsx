@@ -67,7 +67,27 @@ export default function ReportsPage() {
     const result = await downloadReport.mutateAsync(id);
     if (result?.downloadUrl) {
       const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
-      window.open(`${apiUrl}${result.downloadUrl}`, '_blank');
+      const token = localStorage.getItem('auth-storage');
+      let authToken = '';
+      try {
+        const parsed = JSON.parse(token ?? '{}');
+        authToken = parsed?.state?.accessToken ?? '';
+      } catch { /* ignore */ }
+
+      const response = await fetch(`${apiUrl}${result.downloadUrl}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (!response.ok) return;
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `report-${id}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
   };
 
