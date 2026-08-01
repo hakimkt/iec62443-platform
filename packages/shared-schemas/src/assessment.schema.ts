@@ -31,7 +31,9 @@ export const createEngagementSchema = z.object({
   templateId: uuidSchema,
 });
 
-export const updateEngagementSchema = createEngagementSchema.partial();
+export const updateEngagementSchema = createEngagementSchema.partial().extend({
+  status: assessmentStatusSchema.optional(),
+});
 
 export const createTemplateSchema = z.object({
   name: z.string().min(1).max(500),

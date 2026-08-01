@@ -85,8 +85,9 @@ export interface SubmitResponseInput {
 export interface Progress {
   engagementId: string;
   totalQuestions: number;
-  answeredQuestions: number;
+  answeredCount: number;
   completionPct: number;
+  lastAnsweredAt: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -358,8 +359,10 @@ export class AssessmentService {
 
       const engagement = await this.getEngagementTx(tx, id);
 
-      // Only allow updates if status is 'draft' or 'in_progress'
-      if (engagement.status !== 'draft' && engagement.status !== 'in_progress') {
+      // Only allow updates if status is 'draft' or 'in_progress', unless
+      // the update is a valid status transition (e.g., completed → review).
+      const isStatusOnlyUpdate = Object.keys(data).length === 1 && data.status !== undefined;
+      if (!isStatusOnlyUpdate && engagement.status !== 'draft' && engagement.status !== 'in_progress') {
         throw Object.assign(
           new Error('Cannot update engagement that is in review, completed, or archived'),
           {
@@ -374,6 +377,8 @@ export class AssessmentService {
         const validTransitions: Record<string, string[]> = {
           draft: ['in_progress', 'archived'],
           in_progress: ['review', 'completed', 'draft'],
+          review: ['completed', 'in_progress'],
+          completed: ['review'],
         };
 
         const allowed = validTransitions[engagement.status];
@@ -854,16 +859,26 @@ export class AssessmentService {
           ),
         );
 
-      const answeredQuestions = answeredResult?.total ?? 0;
+      const answeredCount = answeredResult?.total ?? 0;
+
+      // Get last answered timestamp
+      const [lastAnswered] = await tx
+        .select({ createdAt: responses.createdAt })
+        .from(responses)
+        .where(eq(responses.engagementId, engagementId))
+        .orderBy(desc(responses.createdAt))
+        .limit(1);
+
       const completionPct = totalQuestions > 0
-        ? Math.round((answeredQuestions / totalQuestions) * 10000) / 100
+        ? Math.round((answeredCount / totalQuestions) * 10000) / 100
         : 0;
 
       return {
         engagementId,
         totalQuestions,
-        answeredQuestions,
+        answeredCount,
         completionPct,
+        lastAnsweredAt: lastAnswered?.createdAt?.toISOString() ?? null,
       };
     });
   }
