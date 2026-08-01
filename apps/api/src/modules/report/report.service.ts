@@ -187,7 +187,7 @@ export class ReportService {
         status: 'completed',
         config,
         generatedBy: userId,
-        fileUrl: `/reports/${id}/download`,
+        fileUrl: `/api/v1/reports/${id}/download`,
         fileSize: 0,
         completedAt: new Date(),
       });

@@ -66,7 +66,8 @@ export default function ReportsPage() {
   const handleDownload = async (id: string) => {
     const result = await downloadReport.mutateAsync(id);
     if (result?.downloadUrl) {
-      window.open(result.downloadUrl, '_blank');
+      const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+      window.open(`${apiUrl}${result.downloadUrl}`, '_blank');
     }
   };
 
