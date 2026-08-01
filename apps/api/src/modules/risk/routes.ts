@@ -12,6 +12,31 @@ export interface RiskRouteOptions {
   db: import('drizzle-orm/node-postgres').NodePgDatabase;
 }
 
+const responseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const listResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const paginatedResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    pagination: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
 export async function riskRoutes(
   app: FastifyInstance,
   options: RiskRouteOptions,
@@ -31,8 +56,8 @@ export async function riskRoutes(
     }),
   });
 
-  function createService(tenantId: string) {
-    return new RiskService(db, tenantId);
+  function createService(tenantId: string, tenantSchema?: string) {
+    return new RiskService(db, tenantId, tenantSchema);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -53,12 +78,12 @@ export async function riskRoutes(
           status: { type: 'string', enum: ['active', 'archived'] },
         },
       },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, pagination: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: paginatedResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.listRegisters(request, reply);
   });
@@ -78,12 +103,12 @@ export async function riskRoutes(
           ownerId: { type: 'string', format: 'uuid' },
         },
       },
-      response: { 201: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:create')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.createRegister(request, reply);
   });
@@ -94,12 +119,12 @@ export async function riskRoutes(
       summary: 'Get a risk register',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.getRegister(request, reply);
   });
@@ -111,12 +136,12 @@ export async function riskRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
       body: { type: 'object', properties: { name: { type: 'string', maxLength: 500 }, status: { type: 'string', enum: ['active', 'archived'] } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.updateRegister(request, reply);
   });
@@ -132,7 +157,7 @@ export async function riskRoutes(
     preHandler: [app.authenticate, app.requirePermission('risk:delete')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.deleteRegister(request, reply);
   });
@@ -145,12 +170,12 @@ export async function riskRoutes(
       summary: 'Get risk heat map data',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, meta: { type: 'object' } } } },
+      response: { 200: listResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.getHeatMap(request, reply);
   });
@@ -163,12 +188,12 @@ export async function riskRoutes(
       summary: 'Get matrix configuration',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.getMatrixConfig(request, reply);
   });
@@ -180,12 +205,12 @@ export async function riskRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
       body: { type: 'object' },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.updateMatrixConfig(request, reply);
   });
@@ -213,12 +238,12 @@ export async function riskRoutes(
           sort: { type: 'string', enum: ['date', 'score'] },
         },
       },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, pagination: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: paginatedResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.listRisks(request, reply);
   });
@@ -234,12 +259,12 @@ export async function riskRoutes(
           registerId: { type: 'string', format: 'uuid' },
         },
       },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.getRiskStats(request, reply);
   });
@@ -250,12 +275,12 @@ export async function riskRoutes(
       summary: 'Create a risk entry',
       security: [{ bearerAuth: [] }],
       body: { type: 'object', required: ['registerId', 'title'] },
-      response: { 201: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:create')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.createRisk(request, reply);
   });
@@ -266,12 +291,12 @@ export async function riskRoutes(
       summary: 'Get a risk entry',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.getRisk(request, reply);
   });
@@ -283,12 +308,12 @@ export async function riskRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
       body: { type: 'object' },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.updateRisk(request, reply);
   });
@@ -304,7 +329,7 @@ export async function riskRoutes(
     preHandler: [app.authenticate, app.requirePermission('risk:delete')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.deleteRisk(request, reply);
   });
@@ -319,12 +344,12 @@ export async function riskRoutes(
       summary: 'List treatments for a risk',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, meta: { type: 'object' } } } },
+      response: { 200: listResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.listTreatments(request, reply);
   });
@@ -336,12 +361,12 @@ export async function riskRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
       body: { type: 'object', required: ['type', 'description'] },
-      response: { 201: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.createTreatment(request, reply);
   });
@@ -353,12 +378,12 @@ export async function riskRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id', 'treatmentId'], properties: { id: { type: 'string', format: 'uuid' }, treatmentId: { type: 'string', format: 'uuid' } } },
       body: { type: 'object' },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.updateTreatment(request, reply);
   });
@@ -374,7 +399,7 @@ export async function riskRoutes(
     preHandler: [app.authenticate, app.requirePermission('risk:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.deleteTreatment(request, reply);
   });
@@ -389,12 +414,12 @@ export async function riskRoutes(
       summary: 'List acceptances for a risk',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, meta: { type: 'object' } } } },
+      response: { 200: listResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.listAcceptances(request, reply);
   });
@@ -406,12 +431,12 @@ export async function riskRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
       body: { type: 'object', required: ['justification'] },
-      response: { 201: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('risk:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RiskController(service);
     return controller.createAcceptance(request, reply);
   });

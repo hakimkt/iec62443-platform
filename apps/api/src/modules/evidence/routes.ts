@@ -12,6 +12,31 @@ export interface EvidenceRouteOptions {
   db: import('drizzle-orm/node-postgres').NodePgDatabase;
 }
 
+const responseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const listResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const paginatedResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    pagination: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
 export async function evidenceRoutes(
   app: FastifyInstance,
   options: EvidenceRouteOptions,
@@ -37,8 +62,8 @@ export async function evidenceRoutes(
   });
 
   // ── Helper: create tenant-scoped service ─────────────────────────────
-  function createService(tenantId: string) {
-    return new EvidenceService(db, tenantId);
+  function createService(tenantId: string, tenantSchema?: string) {
+    return new EvidenceService(db, tenantId, tenantSchema);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -64,20 +89,13 @@ export async function evidenceRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            pagination: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: paginatedResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('evidence:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new EvidenceController(service);
     return controller.listEvidence(request, reply);
   });
@@ -101,19 +119,13 @@ export async function evidenceRoutes(
         },
       },
       response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        201: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('evidence:upload')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new EvidenceController(service);
     return controller.createEvidence(request, reply);
   });
@@ -133,19 +145,13 @@ export async function evidenceRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('evidence:upload')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new EvidenceController(service);
     return controller.uploadFile(request, reply);
   });
@@ -165,19 +171,13 @@ export async function evidenceRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('evidence:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new EvidenceController(service);
     return controller.getEvidence(request, reply);
   });
@@ -205,19 +205,13 @@ export async function evidenceRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('evidence:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new EvidenceController(service);
     return controller.updateEvidence(request, reply);
   });
@@ -245,7 +239,7 @@ export async function evidenceRoutes(
     preHandler: [app.authenticate, app.requirePermission('evidence:delete')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new EvidenceController(service);
     return controller.deleteEvidence(request, reply);
   });
@@ -269,19 +263,13 @@ export async function evidenceRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
+        200: listResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('evidence:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new EvidenceController(service);
     return controller.getLinks(request, reply);
   });
@@ -309,19 +297,13 @@ export async function evidenceRoutes(
         },
       },
       response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        201: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('evidence:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new EvidenceController(service);
     return controller.linkEvidence(request, reply);
   });
@@ -350,7 +332,7 @@ export async function evidenceRoutes(
     preHandler: [app.authenticate, app.requirePermission('evidence:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new EvidenceController(service);
     return controller.unlinkEvidence(request, reply);
   });
@@ -374,19 +356,13 @@ export async function evidenceRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
+        200: listResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('evidence:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new EvidenceController(service);
     return controller.getChainOfCustody(request, reply);
   });
@@ -410,19 +386,13 @@ export async function evidenceRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('evidence:verify')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new EvidenceController(service);
     return controller.verifyEvidence(request, reply);
   });
@@ -439,19 +409,13 @@ export async function evidenceRoutes(
       description: 'Returns storage quota information for the tenant. Requires authentication.',
       security: [{ bearerAuth: [] }],
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('evidence:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new EvidenceController(service);
     return controller.getStorageQuota(request, reply);
   });

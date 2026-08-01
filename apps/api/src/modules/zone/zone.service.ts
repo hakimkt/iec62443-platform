@@ -144,7 +144,10 @@ export class ZoneService {
   constructor(
     private db: NodePgDatabase,
     private tenantId: string,
-  ) {}
+    tenantSchema?: string,
+  ) {
+    void tenantSchema;
+  }
 
   // ── Zones CRUD ──────────────────────────────────────────────────────
 

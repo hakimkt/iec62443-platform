@@ -12,6 +12,31 @@ export interface PurdueRouteOptions {
   db: import('drizzle-orm/node-postgres').NodePgDatabase;
 }
 
+const responseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const listResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const paginatedResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    pagination: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
 export async function purdueRoutes(
   app: FastifyInstance,
   options: PurdueRouteOptions,
@@ -31,8 +56,8 @@ export async function purdueRoutes(
     }),
   });
 
-  function createService(tenantId: string) {
-    return new PurdueService(db, tenantId);
+  function createService(tenantId: string, tenantSchema?: string) {
+    return new PurdueService(db, tenantId, tenantSchema);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -52,12 +77,12 @@ export async function purdueRoutes(
           search: { type: 'string', maxLength: 200 },
         },
       },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, pagination: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: paginatedResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.listModels(request, reply);
   });
@@ -68,12 +93,12 @@ export async function purdueRoutes(
       summary: 'Create a Purdue model',
       security: [{ bearerAuth: [] }],
       body: { type: 'object', required: ['name'] },
-      response: { 201: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:create')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.createModel(request, reply);
   });
@@ -84,12 +109,12 @@ export async function purdueRoutes(
       summary: 'Get a Purdue model',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.getModel(request, reply);
   });
@@ -101,12 +126,12 @@ export async function purdueRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
       body: { type: 'object' },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.updateModel(request, reply);
   });
@@ -122,7 +147,7 @@ export async function purdueRoutes(
     preHandler: [app.authenticate, app.requirePermission('purdue:delete')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.deleteModel(request, reply);
   });
@@ -135,12 +160,12 @@ export async function purdueRoutes(
       summary: 'List levels for a model',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, meta: { type: 'object' } } } },
+      response: { 200: listResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.listLevels(request, reply);
   });
@@ -152,12 +177,12 @@ export async function purdueRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
       body: { type: 'object', required: ['levelNumber', 'name'] },
-      response: { 201: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.createLevel(request, reply);
   });
@@ -169,12 +194,12 @@ export async function purdueRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id', 'levelId'], properties: { id: { type: 'string', format: 'uuid' }, levelId: { type: 'string', format: 'uuid' } } },
       body: { type: 'object' },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.updateLevel(request, reply);
   });
@@ -190,7 +215,7 @@ export async function purdueRoutes(
     preHandler: [app.authenticate, app.requirePermission('purdue:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.deleteLevel(request, reply);
   });
@@ -203,12 +228,12 @@ export async function purdueRoutes(
       summary: 'List asset mappings',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, meta: { type: 'object' } } } },
+      response: { 200: listResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.listMappings(request, reply);
   });
@@ -220,12 +245,12 @@ export async function purdueRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
       body: { type: 'object', required: ['assetId', 'levelId'] },
-      response: { 201: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.addMapping(request, reply);
   });
@@ -241,7 +266,7 @@ export async function purdueRoutes(
     preHandler: [app.authenticate, app.requirePermission('purdue:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.removeMapping(request, reply);
   });
@@ -254,12 +279,12 @@ export async function purdueRoutes(
       summary: 'List communication rules',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, meta: { type: 'object' } } } },
+      response: { 200: listResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.listRules(request, reply);
   });
@@ -271,12 +296,12 @@ export async function purdueRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
       body: { type: 'object', required: ['sourceLevelId', 'targetLevelId'] },
-      response: { 201: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.createRule(request, reply);
   });
@@ -288,12 +313,12 @@ export async function purdueRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id', 'ruleId'], properties: { id: { type: 'string', format: 'uuid' }, ruleId: { type: 'string', format: 'uuid' } } },
       body: { type: 'object' },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.updateRule(request, reply);
   });
@@ -309,7 +334,7 @@ export async function purdueRoutes(
     preHandler: [app.authenticate, app.requirePermission('purdue:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.deleteRule(request, reply);
   });
@@ -322,12 +347,12 @@ export async function purdueRoutes(
       summary: 'Get Purdue model compliance',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('purdue:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new PurdueController(service);
     return controller.getCompliance(request, reply);
   });

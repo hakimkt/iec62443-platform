@@ -136,7 +136,10 @@ export class RiskService {
   constructor(
     private db: NodePgDatabase,
     private tenantId: string,
-  ) {}
+    tenantSchema?: string,
+  ) {
+    void tenantSchema;
+  }
 
   // ── Registers CRUD ──────────────────────────────────────────────────
 

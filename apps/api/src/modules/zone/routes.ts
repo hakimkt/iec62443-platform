@@ -12,6 +12,31 @@ export interface ZoneRouteOptions {
   db: import('drizzle-orm/node-postgres').NodePgDatabase;
 }
 
+const responseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const listResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const paginatedResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    pagination: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
 export async function zoneRoutes(
   app: FastifyInstance,
   options: ZoneRouteOptions,
@@ -31,8 +56,8 @@ export async function zoneRoutes(
     }),
   });
 
-  function createService(tenantId: string) {
-    return new ZoneService(db, tenantId);
+  function createService(tenantId: string, tenantSchema?: string) {
+    return new ZoneService(db, tenantId, tenantSchema);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -57,12 +82,12 @@ export async function zoneRoutes(
           search: { type: 'string', maxLength: 200 },
         },
       },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, pagination: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: paginatedResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.listZones(request, reply);
   });
@@ -91,12 +116,12 @@ export async function zoneRoutes(
           metadata: { type: 'object' },
         },
       },
-      response: { 201: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:create')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.createZone(request, reply);
   });
@@ -107,12 +132,12 @@ export async function zoneRoutes(
       summary: 'Get a zone',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.getZone(request, reply);
   });
@@ -124,12 +149,12 @@ export async function zoneRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
       body: { type: 'object' },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.updateZone(request, reply);
   });
@@ -145,7 +170,7 @@ export async function zoneRoutes(
     preHandler: [app.authenticate, app.requirePermission('zone:delete')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.deleteZone(request, reply);
   });
@@ -171,12 +196,12 @@ export async function zoneRoutes(
           search: { type: 'string', maxLength: 200 },
         },
       },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, pagination: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: paginatedResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.listConduits(request, reply);
   });
@@ -203,12 +228,12 @@ export async function zoneRoutes(
           metadata: { type: 'object' },
         },
       },
-      response: { 201: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:create')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.createConduit(request, reply);
   });
@@ -219,12 +244,12 @@ export async function zoneRoutes(
       summary: 'Get a conduit',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.getConduit(request, reply);
   });
@@ -236,12 +261,12 @@ export async function zoneRoutes(
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
       body: { type: 'object' },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.updateConduit(request, reply);
   });
@@ -257,7 +282,7 @@ export async function zoneRoutes(
     preHandler: [app.authenticate, app.requirePermission('zone:delete')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.deleteConduit(request, reply);
   });
@@ -272,12 +297,12 @@ export async function zoneRoutes(
       summary: 'List memberships for a zone',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, meta: { type: 'object' } } } },
+      response: { 200: listResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.listMemberships(request, reply);
   });
@@ -295,12 +320,12 @@ export async function zoneRoutes(
           assetId: { type: 'string', format: 'uuid' },
         },
       },
-      response: { 201: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.addMembership(request, reply);
   });
@@ -323,7 +348,7 @@ export async function zoneRoutes(
     preHandler: [app.authenticate, app.requirePermission('zone:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.removeMembership(request, reply);
   });
@@ -338,12 +363,12 @@ export async function zoneRoutes(
       summary: 'List segmentation rules for a zone',
       security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['id'], properties: { id: { type: 'string', format: 'uuid' } } },
-      response: { 200: { type: 'object', properties: { data: { type: 'array', items: { type: 'object' } }, meta: { type: 'object' } } } },
+      response: { 200: listResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.listRules(request, reply);
   });
@@ -365,12 +390,12 @@ export async function zoneRoutes(
           isCompliant: { type: 'boolean', default: true },
         },
       },
-      response: { 201: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:create')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.createRule(request, reply);
   });
@@ -393,7 +418,7 @@ export async function zoneRoutes(
     preHandler: [app.authenticate, app.requirePermission('zone:delete')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.deleteRule(request, reply);
   });
@@ -407,12 +432,12 @@ export async function zoneRoutes(
       tags: ['Zones'],
       summary: 'Get the full zone and conduit topology',
       security: [{ bearerAuth: [] }],
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.getTopology(request, reply);
   });
@@ -442,12 +467,12 @@ export async function zoneRoutes(
           },
         },
       },
-      response: { 200: { type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } } },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('zone:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ZoneController(service);
     return controller.updateTopology(request, reply);
   });

@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import fp from 'fastify-plugin';
 
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { tenants, tenantMemberships } from '@iec62443/database';
 import type { TokenPayload } from '@iec62443/auth';
 
@@ -151,40 +151,13 @@ async function tenantMiddleware(
     request.tenantId = tenantId;
     request.tenantSchema = tenant.schemaName;
 
-    // Set search_path on the database connection for tenant isolation
-    // Validate schema name to prevent SQL injection — must be a valid PostgreSQL identifier
-    const SCHEMA_NAME_RE = /^[a-z_][a-z0-9_$]*$/;
-    if (!SCHEMA_NAME_RE.test(tenant.schemaName)) {
-      request.log.error(
-        { schemaName: tenant.schemaName, tenantId },
-        'Invalid tenant schema name — possible injection attempt',
-      );
-      return reply.status(500).send({
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: 'An unexpected error occurred.',
-        },
-        meta: {
-          requestId: request.id,
-          timestamp: new Date().toISOString(),
-        },
-      });
-    }
-
-    try {
-      // Set search_path for the current session so queries run against the tenant schema.
-      // We use SET (not SET LOCAL) because SET LOCAL requires an active transaction.
-      // Pool contamination is mitigated by resetting in an onResponse hook.
-      await db.execute(
-        sql`SET search_path TO ${sql.identifier(tenant.schemaName)}, public`,
-      );
-    } catch {
-      // If we can't set the search path, the tenant schema may not exist yet
-    }
-
-    // Store schema name on request for services that use transactions
-    // (transactions need SET LOCAL search_path inside the tx)
-    request.tenantSchema = tenant.schemaName;
+    // NOTE: We do NOT set SET search_path on the database connection here.
+    // Session-level SET search_path would pollute the connection pool and
+    // cause subsequent requests on the same connection to fail (e.g., login
+    // queries against the public.users table).
+    // Instead, the service layer uses db.transaction() with SET LOCAL search_path
+    // inside the transaction, which is scoped to the transaction and does not
+    // contaminate the pool.
   });
 }
 

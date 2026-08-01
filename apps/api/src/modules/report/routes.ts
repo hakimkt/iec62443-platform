@@ -12,6 +12,31 @@ export interface ReportRouteOptions {
   db: import('drizzle-orm/node-postgres').NodePgDatabase;
 }
 
+const responseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const listResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const paginatedResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    pagination: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
 export async function reportRoutes(
   app: FastifyInstance,
   options: ReportRouteOptions,
@@ -31,8 +56,8 @@ export async function reportRoutes(
     }),
   });
 
-  function createService(tenantId: string) {
-    return new ReportService(db, tenantId);
+  function createService(tenantId: string, tenantSchema?: string) {
+    return new ReportService(db, tenantId, tenantSchema);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -44,20 +69,12 @@ export async function reportRoutes(
       tags: ['Reports'],
       summary: 'List report templates',
       security: [{ bearerAuth: [] }],
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: listResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('report:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ReportController(service);
     return controller.getTemplates(request, reply);
   });
@@ -81,21 +98,12 @@ export async function reportRoutes(
           search: { type: 'string', maxLength: 200 },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            pagination: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: paginatedResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('report:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ReportController(service);
     return controller.listReports(request, reply);
   });
@@ -118,20 +126,12 @@ export async function reportRoutes(
           config: { type: 'object' },
         },
       },
-      response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('report:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ReportController(service);
     return controller.createReport(request, reply);
   });
@@ -152,20 +152,12 @@ export async function reportRoutes(
           id: { type: 'string', format: 'uuid' },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('report:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ReportController(service);
     return controller.getReport(request, reply);
   });
@@ -186,20 +178,12 @@ export async function reportRoutes(
           id: { type: 'string', format: 'uuid' },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('report:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ReportController(service);
     return controller.downloadReport(request, reply);
   });
@@ -227,7 +211,7 @@ export async function reportRoutes(
     preHandler: [app.authenticate, app.requirePermission('report:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new ReportController(service);
     return controller.deleteReport(request, reply);
   });

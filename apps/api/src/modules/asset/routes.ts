@@ -12,6 +12,31 @@ export interface AssetRouteOptions {
   db: import('drizzle-orm/node-postgres').NodePgDatabase;
 }
 
+const responseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const listResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const paginatedResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    pagination: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
 export async function assetRoutes(
   app: FastifyInstance,
   options: AssetRouteOptions,
@@ -37,8 +62,8 @@ export async function assetRoutes(
   });
 
   // ── Helper: create tenant-scoped service ─────────────────────────────
-  function createService(tenantId: string) {
-    return new AssetService(db, tenantId);
+  function createService(tenantId: string, tenantSchema?: string) {
+    return new AssetService(db, tenantId, tenantSchema);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -67,20 +92,13 @@ export async function assetRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            pagination: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: paginatedResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('asset:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssetController(service);
     return controller.listAssets(request, reply);
   });
@@ -118,19 +136,13 @@ export async function assetRoutes(
         },
       },
       response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        201: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('asset:create')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssetController(service);
     return controller.createAsset(request, reply);
   });
@@ -143,19 +155,13 @@ export async function assetRoutes(
       description: 'Returns aggregate counts of assets by type, criticality, and total. Requires authentication.',
       security: [{ bearerAuth: [] }],
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('asset:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssetController(service);
     return controller.getAssetStats(request, reply);
   });
@@ -168,19 +174,13 @@ export async function assetRoutes(
       description: 'Exports all assets as a JSON array. Requires authentication.',
       security: [{ bearerAuth: [] }],
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
+        200: listResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('asset:export')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssetController(service);
     return controller.exportAssets(request, reply);
   });
@@ -200,19 +200,13 @@ export async function assetRoutes(
         },
       },
       response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        201: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('asset:import')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssetController(service);
     return controller.importAssets(request, reply);
   });
@@ -232,19 +226,13 @@ export async function assetRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('asset:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssetController(service);
     return controller.getImportJobStatus(request, reply);
   });
@@ -264,19 +252,13 @@ export async function assetRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('asset:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssetController(service);
     return controller.getAsset(request, reply);
   });
@@ -320,19 +302,13 @@ export async function assetRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('asset:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssetController(service);
     return controller.updateAsset(request, reply);
   });
@@ -360,7 +336,7 @@ export async function assetRoutes(
     preHandler: [app.authenticate, app.requirePermission('asset:delete')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssetController(service);
     return controller.deleteAsset(request, reply);
   });
@@ -384,19 +360,13 @@ export async function assetRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
+        200: listResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('asset:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssetController(service);
     return controller.getRelationships(request, reply);
   });
@@ -426,19 +396,13 @@ export async function assetRoutes(
         },
       },
       response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        201: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('asset:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssetController(service);
     return controller.createRelationship(request, reply);
   });
@@ -467,7 +431,7 @@ export async function assetRoutes(
     preHandler: [app.authenticate, app.requirePermission('asset:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssetController(service);
     return controller.deleteRelationship(request, reply);
   });

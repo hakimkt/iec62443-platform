@@ -12,6 +12,31 @@ export interface RemediationRouteOptions {
   db: import('drizzle-orm/node-postgres').NodePgDatabase;
 }
 
+const responseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const listResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const paginatedResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    pagination: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
 export async function remediationRoutes(
   app: FastifyInstance,
   options: RemediationRouteOptions,
@@ -31,8 +56,8 @@ export async function remediationRoutes(
     }),
   });
 
-  function createService(tenantId: string) {
-    return new RemediationService(db, tenantId);
+  function createService(tenantId: string, tenantSchema?: string) {
+    return new RemediationService(db, tenantId, tenantSchema);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -53,21 +78,12 @@ export async function remediationRoutes(
           search: { type: 'string', maxLength: 200 },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            pagination: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: paginatedResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('remediation:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RemediationController(service);
     return controller.listPlans(request, reply);
   });
@@ -95,20 +111,12 @@ export async function remediationRoutes(
           targetDate: { type: 'string' },
         },
       },
-      response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('remediation:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RemediationController(service);
     return controller.createPlan(request, reply);
   });
@@ -127,20 +135,12 @@ export async function remediationRoutes(
         required: ['id'],
         properties: { id: { type: 'string', format: 'uuid' } },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('remediation:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RemediationController(service);
     return controller.getPlan(request, reply);
   });
@@ -159,20 +159,12 @@ export async function remediationRoutes(
         required: ['id'],
         properties: { id: { type: 'string', format: 'uuid' } },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('remediation:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RemediationController(service);
     return controller.updatePlan(request, reply);
   });
@@ -196,7 +188,7 @@ export async function remediationRoutes(
     preHandler: [app.authenticate, app.requirePermission('remediation:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RemediationController(service);
     return controller.deletePlan(request, reply);
   });
@@ -220,21 +212,12 @@ export async function remediationRoutes(
           assigneeId: { type: 'string', format: 'uuid' },
         },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            pagination: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: paginatedResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('remediation:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RemediationController(service);
     return controller.listActions(request, reply);
   });
@@ -268,20 +251,12 @@ export async function remediationRoutes(
           milestone: { type: 'string' },
         },
       },
-      response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('remediation:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RemediationController(service);
     return controller.createAction(request, reply);
   });
@@ -300,20 +275,12 @@ export async function remediationRoutes(
         required: ['id'],
         properties: { id: { type: 'string', format: 'uuid' } },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('remediation:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RemediationController(service);
     return controller.getAction(request, reply);
   });
@@ -332,20 +299,12 @@ export async function remediationRoutes(
         required: ['id'],
         properties: { id: { type: 'string', format: 'uuid' } },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('remediation:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RemediationController(service);
     return controller.updateAction(request, reply);
   });
@@ -369,7 +328,7 @@ export async function remediationRoutes(
     preHandler: [app.authenticate, app.requirePermission('remediation:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RemediationController(service);
     return controller.deleteAction(request, reply);
   });
@@ -388,20 +347,12 @@ export async function remediationRoutes(
         required: ['actionId'],
         properties: { actionId: { type: 'string', format: 'uuid' } },
       },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 200: listResponseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('remediation:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RemediationController(service);
     return controller.listVerifications(request, reply);
   });
@@ -428,20 +379,12 @@ export async function remediationRoutes(
           notes: { type: 'string' },
         },
       },
-      response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
-      },
+      response: { 201: responseSchema },
     },
     preHandler: [app.authenticate, app.requirePermission('remediation:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new RemediationController(service);
     return controller.verifyAction(request, reply);
   });

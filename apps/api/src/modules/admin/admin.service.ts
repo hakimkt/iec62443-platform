@@ -62,7 +62,10 @@ export class AdminService {
   constructor(
     private db: NodePgDatabase,
     private tenantId: string,
-  ) {}
+    tenantSchema?: string,
+  ) {
+    void tenantSchema;
+  }
 
   // ── Members ─────────────────────────────────────────────────────────
 

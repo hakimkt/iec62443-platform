@@ -12,6 +12,31 @@ export interface AssessmentRouteOptions {
   db: import('drizzle-orm/node-postgres').NodePgDatabase;
 }
 
+const responseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const listResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const paginatedResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    pagination: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
 export async function assessmentRoutes(
   app: FastifyInstance,
   options: AssessmentRouteOptions,
@@ -37,8 +62,8 @@ export async function assessmentRoutes(
   });
 
   // ── Helper: create tenant-scoped service ─────────────────────────────
-  function createService(tenantId: string) {
-    return new AssessmentService(db, tenantId);
+  function createService(tenantId: string, tenantSchema?: string) {
+    return new AssessmentService(db, tenantId, tenantSchema);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -59,19 +84,13 @@ export async function assessmentRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
+        200: listResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('assessment.template:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssessmentController(service);
     return controller.listTemplates(request, reply);
   });
@@ -95,19 +114,13 @@ export async function assessmentRoutes(
         },
       },
       response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        201: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('assessment.template:create')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssessmentController(service);
     return controller.createTemplate(request, reply);
   });
@@ -126,19 +139,13 @@ export async function assessmentRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('assessment.template:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssessmentController(service);
     return controller.getTemplate(request, reply);
   });
@@ -165,20 +172,13 @@ export async function assessmentRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            pagination: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: paginatedResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('assessment:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssessmentController(service);
     return controller.listEngagements(request, reply);
   });
@@ -207,19 +207,13 @@ export async function assessmentRoutes(
         },
       },
       response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        201: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('assessment:create')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssessmentController(service);
     return controller.createEngagement(request, reply);
   });
@@ -239,19 +233,13 @@ export async function assessmentRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('assessment:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssessmentController(service);
     return controller.getEngagement(request, reply);
   });
@@ -288,19 +276,13 @@ export async function assessmentRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('assessment:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssessmentController(service);
     return controller.updateEngagement(request, reply);
   });
@@ -328,7 +310,7 @@ export async function assessmentRoutes(
     preHandler: [app.authenticate, app.requirePermission('assessment:delete')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssessmentController(service);
     return controller.deleteEngagement(request, reply);
   });
@@ -352,19 +334,13 @@ export async function assessmentRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
+        200: listResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('assessment.response:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssessmentController(service);
     return controller.getEngagementQuestions(request, reply);
   });
@@ -396,19 +372,13 @@ export async function assessmentRoutes(
         },
       },
       response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        201: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('assessment.response:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssessmentController(service);
     return controller.submitResponse(request, reply);
   });
@@ -432,19 +402,13 @@ export async function assessmentRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
+        200: listResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('assessment:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssessmentController(service);
     return controller.getScorecard(request, reply);
   });
@@ -464,19 +428,13 @@ export async function assessmentRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('assessment:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AssessmentController(service);
     return controller.getProgress(request, reply);
   });

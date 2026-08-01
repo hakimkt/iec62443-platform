@@ -1,4 +1,4 @@
-import { eq, and, desc, count, ilike } from 'drizzle-orm';
+import { eq, and, desc, count, ilike, sql } from 'drizzle-orm';
 import crypto from 'node:crypto';
 
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -8,6 +8,8 @@ import { reports, auditEvents } from '@iec62443/database';
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+
+type DbOrTx = NodePgDatabase | Parameters<Parameters<NodePgDatabase['transaction']>[0]>[0];
 
 export interface ReportFilters {
   type?: string;
@@ -65,151 +67,182 @@ export class ReportService {
   constructor(
     private db: NodePgDatabase,
     private tenantId: string,
+    private tenantSchema?: string,
   ) {}
 
   async listReports(filters: ReportFilters) {
-    const page = filters.page ?? 1;
-    const perPage = Math.min(filters.perPage ?? 25, 100);
-    const conditions = [];
+    return this.db.transaction(async (tx) => {
+      if (this.tenantSchema) {
+        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+      }
 
-    if (filters.type) {
-      conditions.push(eq(reports.type, filters.type));
-    }
-    if (filters.status) {
-      conditions.push(eq(reports.status, filters.status));
-    }
-    if (filters.search) {
-      conditions.push(ilike(reports.title, `%${filters.search}%`));
-    }
+      const page = filters.page ?? 1;
+      const perPage = Math.min(filters.perPage ?? 25, 100);
+      const conditions = [];
 
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      if (filters.type) {
+        conditions.push(eq(reports.type, filters.type));
+      }
+      if (filters.status) {
+        conditions.push(eq(reports.status, filters.status));
+      }
+      if (filters.search) {
+        conditions.push(ilike(reports.title, `%${filters.search}%`));
+      }
 
-    const [items, totalResult] = await Promise.all([
-      this.db
-        .select()
-        .from(reports)
-        .where(whereClause)
-        .orderBy(desc(reports.createdAt))
-        .limit(perPage)
-        .offset((page - 1) * perPage),
-      this.db
-        .select({ count: count() })
-        .from(reports)
-        .where(whereClause),
-    ]);
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-    const total = totalResult[0]?.count ?? 0;
+      const [items, totalResult] = await Promise.all([
+        tx
+          .select()
+          .from(reports)
+          .where(whereClause)
+          .orderBy(desc(reports.createdAt))
+          .limit(perPage)
+          .offset((page - 1) * perPage),
+        tx
+          .select({ count: count() })
+          .from(reports)
+          .where(whereClause),
+      ]);
 
-    return {
-      items: items.map((r) => ({
-        id: r.id,
-        type: r.type,
-        title: r.title,
-        status: r.status,
-        config: r.config,
-        fileUrl: r.fileUrl,
-        fileSize: r.fileSize,
-        generatedBy: r.generatedBy,
-        createdAt: r.createdAt.toISOString(),
-        completedAt: r.completedAt?.toISOString() ?? null,
-      })),
-      pagination: {
-        page,
-        perPage,
-        total,
-        totalPages: Math.ceil(total / perPage),
-      },
-    };
+      const total = totalResult[0]?.count ?? 0;
+
+      return {
+        items: items.map((r) => ({
+          id: r.id,
+          type: r.type,
+          title: r.title,
+          status: r.status,
+          config: r.config,
+          fileUrl: r.fileUrl,
+          fileSize: r.fileSize,
+          generatedBy: r.generatedBy,
+          createdAt: r.createdAt.toISOString(),
+          completedAt: r.completedAt?.toISOString() ?? null,
+        })),
+        pagination: {
+          page,
+          perPage,
+          total,
+          totalPages: Math.ceil(total / perPage),
+        },
+      };
+    });
   }
 
   async getReport(id: string) {
-    const result = await this.db
-      .select()
-      .from(reports)
-      .where(eq(reports.id, id))
-      .limit(1);
+    return this.db.transaction(async (tx) => {
+      if (this.tenantSchema) {
+        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+      }
 
-    const row = result[0];
-    if (!row) return null;
+      const result = await tx
+        .select()
+        .from(reports)
+        .where(eq(reports.id, id))
+        .limit(1);
 
-    return {
-      id: row.id,
-      type: row.type,
-      title: row.title,
-      status: row.status,
-      config: row.config,
-      fileUrl: row.fileUrl,
-      fileSize: row.fileSize,
-      generatedBy: row.generatedBy,
-      createdAt: row.createdAt.toISOString(),
-      completedAt: row.completedAt?.toISOString() ?? null,
-    };
+      const row = result[0];
+      if (!row) return null;
+
+      return {
+        id: row.id,
+        type: row.type,
+        title: row.title,
+        status: row.status,
+        config: row.config,
+        fileUrl: row.fileUrl,
+        fileSize: row.fileSize,
+        generatedBy: row.generatedBy,
+        createdAt: row.createdAt.toISOString(),
+        completedAt: row.completedAt?.toISOString() ?? null,
+      };
+    });
   }
 
   async createReport(data: CreateReportInput, userId: string) {
-    const id = crypto.randomUUID();
-    const title = data.title ?? this.getDefaultTitle(data.type);
+    return this.db.transaction(async (tx) => {
+      if (this.tenantSchema) {
+        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+      }
 
-    const config = {
-      scope: data.config.scope,
-      scopeId: data.config.scopeId ?? null,
-      dateRange: data.config.dateRange?.from && data.config.dateRange?.to
-        ? { from: data.config.dateRange.from, to: data.config.dateRange.to }
-        : null,
-      includeSections: data.config.includeSections ?? [],
-      format: data.config.format ?? 'pdf',
-    };
+      const id = crypto.randomUUID();
+      const title = data.title ?? this.getDefaultTitle(data.type);
 
-    await this.db.insert(reports).values({
-      id,
-      type: data.type,
-      title,
-      status: 'pending',
-      config,
-      generatedBy: userId,
+      const config = {
+        scope: data.config.scope,
+        scopeId: data.config.scopeId ?? null,
+        dateRange: data.config.dateRange?.from && data.config.dateRange?.to
+          ? { from: data.config.dateRange.from, to: data.config.dateRange.to }
+          : null,
+        includeSections: data.config.includeSections ?? [],
+        format: data.config.format ?? 'pdf',
+      };
+
+      await tx.insert(reports).values({
+        id,
+        type: data.type,
+        title,
+        status: 'pending',
+        config,
+        generatedBy: userId,
+      });
+
+      await this.createAuditEvent(tx, {
+        userId,
+        eventType: 'report.created',
+        entityType: 'report',
+        entityId: id,
+        action: 'create',
+        details: { type: data.type, title, scope: data.config.scope },
+      });
+
+      const result = await this.getReportWithTx(tx, id);
+      return result;
     });
-
-    await this.createAuditEvent({
-      userId,
-      eventType: 'report.created',
-      entityType: 'report',
-      entityId: id,
-      action: 'create',
-      details: { type: data.type, title, scope: data.config.scope },
-    });
-
-    const result = await this.getReport(id);
-    return result;
   }
 
   async deleteReport(id: string, userId?: string) {
-    const existing = await this.getReport(id);
-    if (!existing) return false;
+    return this.db.transaction(async (tx) => {
+      if (this.tenantSchema) {
+        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+      }
 
-    await this.db.delete(reports).where(eq(reports.id, id));
+      const existing = await this.getReportWithTx(tx, id);
+      if (!existing) return false;
 
-    await this.createAuditEvent({
-      userId: userId ?? 'system',
-      eventType: 'report.deleted',
-      entityType: 'report',
-      entityId: id,
-      action: 'delete',
-      details: { type: existing.type, title: existing.title },
+      await tx.delete(reports).where(eq(reports.id, id));
+
+      await this.createAuditEvent(tx, {
+        userId: userId ?? 'system',
+        eventType: 'report.deleted',
+        entityType: 'report',
+        entityId: id,
+        action: 'delete',
+        details: { type: existing.type, title: existing.title },
+      });
+
+      return true;
     });
-
-    return true;
   }
 
   async updateReportStatus(id: string, status: string, fileUrl?: string, fileSize?: number) {
-    const updates: Record<string, unknown> = { status };
-    if (fileUrl) updates['fileUrl'] = fileUrl;
-    if (fileSize !== undefined) updates['fileSize'] = fileSize;
-    if (status === 'completed') updates['completedAt'] = new Date();
+    return this.db.transaction(async (tx) => {
+      if (this.tenantSchema) {
+        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+      }
 
-    await this.db
-      .update(reports)
-      .set(updates)
-      .where(eq(reports.id, id));
+      const updates: Record<string, unknown> = { status };
+      if (fileUrl) updates['fileUrl'] = fileUrl;
+      if (fileSize !== undefined) updates['fileSize'] = fileSize;
+      if (status === 'completed') updates['completedAt'] = new Date();
+
+      await tx
+        .update(reports)
+        .set(updates)
+        .where(eq(reports.id, id));
+    });
   }
 
   getTemplates(): ReportTemplateItem[] {
@@ -305,7 +338,31 @@ export class ReportService {
     return titles[type] ?? 'Report';
   }
 
-  private async createAuditEvent(params: {
+  private async getReportWithTx(db: DbOrTx, id: string) {
+    const result = await db
+      .select()
+      .from(reports)
+      .where(eq(reports.id, id))
+      .limit(1);
+
+    const row = result[0];
+    if (!row) return null;
+
+    return {
+      id: row.id,
+      type: row.type,
+      title: row.title,
+      status: row.status,
+      config: row.config,
+      fileUrl: row.fileUrl,
+      fileSize: row.fileSize,
+      generatedBy: row.generatedBy,
+      createdAt: row.createdAt.toISOString(),
+      completedAt: row.completedAt?.toISOString() ?? null,
+    };
+  }
+
+  private async createAuditEvent(db: DbOrTx, params: {
     userId: string;
     eventType: string;
     entityType: string;
@@ -316,7 +373,7 @@ export class ReportService {
     userAgent?: string | null;
   }): Promise<void> {
     try {
-      const [lastEvent] = await this.db
+      const [lastEvent] = await db
         .select({ eventHash: auditEvents.eventHash })
         .from(auditEvents)
         .where(eq(auditEvents.tenantId, this.tenantId))
@@ -336,7 +393,7 @@ export class ReportService {
       });
       const eventHash = await computeEventHash(dataToHash, previousHash);
 
-      await this.db.insert(auditEvents).values({
+      await db.insert(auditEvents).values({
         tenantId: this.tenantId,
         userId: params.userId,
         eventType: params.eventType,

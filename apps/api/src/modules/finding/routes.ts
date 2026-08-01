@@ -12,6 +12,31 @@ export interface FindingRouteOptions {
   db: import('drizzle-orm/node-postgres').NodePgDatabase;
 }
 
+const responseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const listResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
+const paginatedResponseSchema = {
+  type: 'object' as const,
+  properties: {
+    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    pagination: { type: 'object' as const, additionalProperties: true },
+    meta: { type: 'object' as const, additionalProperties: true },
+  },
+};
+
 export async function findingRoutes(
   app: FastifyInstance,
   options: FindingRouteOptions,
@@ -37,8 +62,8 @@ export async function findingRoutes(
   });
 
   // ── Helper: create tenant-scoped service ─────────────────────────────
-  function createService(tenantId: string) {
-    return new FindingService(db, tenantId);
+  function createService(tenantId: string, tenantSchema?: string) {
+    return new FindingService(db, tenantId, tenantSchema);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -65,20 +90,13 @@ export async function findingRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            pagination: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: paginatedResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('finding:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new FindingController(service);
     return controller.listFindings(request, reply);
   });
@@ -111,19 +129,13 @@ export async function findingRoutes(
         },
       },
       response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        201: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('finding:create')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new FindingController(service);
     return controller.createFinding(request, reply);
   });
@@ -143,19 +155,13 @@ export async function findingRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('finding:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new FindingController(service);
     return controller.getFinding(request, reply);
   });
@@ -193,19 +199,13 @@ export async function findingRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('finding:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new FindingController(service);
     return controller.updateFinding(request, reply);
   });
@@ -233,7 +233,7 @@ export async function findingRoutes(
     preHandler: [app.authenticate, app.requirePermission('finding:delete')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new FindingController(service);
     return controller.deleteFinding(request, reply);
   });
@@ -265,19 +265,13 @@ export async function findingRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('finding:transition')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new FindingController(service);
     return controller.transitionFinding(request, reply);
   });
@@ -297,19 +291,13 @@ export async function findingRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
+        200: listResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('finding:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new FindingController(service);
     return controller.getStatusHistory(request, reply);
   });
@@ -333,19 +321,13 @@ export async function findingRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'array', items: { type: 'object' } },
-            meta: { type: 'object' },
-          },
-        },
+        200: listResponseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('finding:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new FindingController(service);
     return controller.getComments(request, reply);
   });
@@ -373,19 +355,13 @@ export async function findingRoutes(
         },
       },
       response: {
-        201: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        201: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('finding:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new FindingController(service);
     return controller.addComment(request, reply);
   });
@@ -424,7 +400,7 @@ export async function findingRoutes(
     preHandler: [app.authenticate, app.requirePermission('finding:update')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new FindingController(service);
     return controller.linkEvidence(request, reply);
   });
@@ -444,19 +420,13 @@ export async function findingRoutes(
         },
       },
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            data: { type: 'object' },
-            meta: { type: 'object' },
-          },
-        },
+        200: responseSchema,
       },
     },
     preHandler: [app.authenticate, app.requirePermission('finding:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new FindingController(service);
     return controller.getEvidence(request, reply);
   });

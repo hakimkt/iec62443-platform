@@ -31,8 +31,8 @@ export async function csmsRoutes(
     }),
   });
 
-  function createService(tenantId: string) {
-    return new CSMSService(db, tenantId);
+  function createService(tenantId: string, tenantSchema?: string) {
+    return new CSMSService(db, tenantId, tenantSchema);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -57,7 +57,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.listFrameworks(request, reply);
   });
@@ -84,7 +84,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.createFramework(request, reply);
   });
@@ -107,7 +107,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.getFramework(request, reply);
   });
@@ -130,7 +130,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.updateFramework(request, reply);
   });
@@ -153,7 +153,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.deleteFramework(request, reply);
   });
@@ -181,7 +181,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.listElements(request, reply);
   });
@@ -204,7 +204,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.createElement(request, reply);
   });
@@ -227,7 +227,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.getElement(request, reply);
   });
@@ -250,7 +250,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.updateElement(request, reply);
   });
@@ -273,7 +273,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.deleteElement(request, reply);
   });
@@ -300,7 +300,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.listPolicies(request, reply);
   });
@@ -323,7 +323,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.createPolicy(request, reply);
   });
@@ -346,7 +346,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.getPolicy(request, reply);
   });
@@ -369,7 +369,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.updatePolicy(request, reply);
   });
@@ -392,7 +392,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.approvePolicy(request, reply);
   });
@@ -415,7 +415,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.deletePolicy(request, reply);
   });
@@ -438,7 +438,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.listImprovementPlans(request, reply);
   });
@@ -461,7 +461,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.createImprovementPlan(request, reply);
   });
@@ -484,7 +484,7 @@ export async function csmsRoutes(
     preHandler: [app.authenticate, app.requirePermission('csms:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new CSMSController(service);
     return controller.getGapAnalysis(request, reply);
   });

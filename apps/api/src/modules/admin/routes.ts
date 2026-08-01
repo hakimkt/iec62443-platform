@@ -31,8 +31,8 @@ export async function adminRoutes(
     }),
   });
 
-  function createService(tenantId: string) {
-    return new AdminService(db, tenantId);
+  function createService(tenantId: string, tenantSchema?: string) {
+    return new AdminService(db, tenantId, tenantSchema);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -58,7 +58,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.listMembers(request, reply);
   });
@@ -80,7 +80,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.inviteMember(request, reply);
   });
@@ -99,7 +99,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.updateMember(request, reply);
   });
@@ -118,7 +118,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.removeMember(request, reply);
   });
@@ -136,7 +136,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.listRoles(request, reply);
   });
@@ -159,7 +159,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.createRole(request, reply);
   });
@@ -178,7 +178,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.updateRole(request, reply);
   });
@@ -197,7 +197,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.deleteRole(request, reply);
   });
@@ -215,7 +215,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.listApiKeys(request, reply);
   });
@@ -238,7 +238,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.createApiKey(request, reply);
   });
@@ -257,7 +257,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.revokeApiKey(request, reply);
   });
@@ -288,7 +288,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.getAuditLog(request, reply);
   });
@@ -306,7 +306,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:read')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.getTenantSettings(request, reply);
   });
@@ -320,7 +320,7 @@ export async function adminRoutes(
     preHandler: [app.authenticate, app.requirePermission('admin:write')],
   }, async (request, reply) => {
     const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId);
+    const service = createService(tenantId, request.tenantSchema);
     const controller = new AdminController(service);
     return controller.updateTenantSettings(request, reply);
   });

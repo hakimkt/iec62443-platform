@@ -76,7 +76,10 @@ export class EvidenceService {
   constructor(
     private db: NodePgDatabase,
     private tenantId: string,
-  ) {}
+    tenantSchema?: string,
+  ) {
+    void tenantSchema;
+  }
 
   // ── Evidence CRUD ────────────────────────────────────────────────────
 
