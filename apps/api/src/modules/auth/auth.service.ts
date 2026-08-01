@@ -1,4 +1,4 @@
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, isNull } from 'drizzle-orm';
 import argon2 from 'argon2';
 import { authenticator } from 'otplib';
 import crypto from 'node:crypto';
@@ -12,6 +12,7 @@ import {
   roles,
   userRoles,
   auditEvents,
+  authTokens,
 } from '@iec62443/database';
 import {
   signAccessToken,
@@ -72,28 +73,24 @@ export interface RefreshResult {
 }
 
 // ---------------------------------------------------------------------------
-// Password reset token store (in-memory for now; replace with Redis/DB)
+// Email service (console logger for dev; swap with SMTP in production)
 // ---------------------------------------------------------------------------
 
-interface PasswordResetEntry {
-  tokenHash: string;
-  userId: string;
-  expiresAt: Date;
+interface EmailService {
+  sendPasswordResetEmail(email: string, resetToken: string): Promise<void>;
 }
 
-const passwordResetStore = new Map<string, PasswordResetEntry>();
-
-// ---------------------------------------------------------------------------
-// MFA challenge store (in-memory for now; replace with Redis)
-// ---------------------------------------------------------------------------
-
-interface MfaChallengeEntry {
-  userId: string;
-  mfaSecret: string;
-  expiresAt: Date;
+class ConsoleEmailService implements EmailService {
+  async sendPasswordResetEmail(email: string, resetToken: string): Promise<void> {
+    // In development, log the reset link. In production, replace with
+    // an SMTP-based implementation that sends a real email.
+    console.log(
+      `[EMAIL] Password reset for ${email}: reset token=${resetToken}`,
+    );
+  }
 }
 
-const mfaChallengeStore = new Map<string, MfaChallengeEntry>();
+const emailService: EmailService = new ConsoleEmailService();
 
 // ---------------------------------------------------------------------------
 // Audit hash chain helper
@@ -306,11 +303,14 @@ export class AuthService {
     if (user.mfaEnabled && user.mfaSecret) {
       const requestId = crypto.randomUUID();
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+      const requestHash = crypto.createHash('sha256').update(requestId).digest('hex');
 
-      mfaChallengeStore.set(requestId, {
+      await this.db.insert(authTokens).values({
+        tokenType: 'mfa_challenge',
+        tokenHash: requestHash,
         userId: user.id,
-        mfaSecret: user.mfaSecret,
         expiresAt,
+        metadata: { mfaSecret: user.mfaSecret },
       });
 
       // Audit: MFA challenge issued
@@ -415,9 +415,6 @@ export class AuthService {
   // ── Logout ───────────────────────────────────────────────────────────
 
   async logoutUser(refreshToken: string): Promise<void> {
-    // In a production system, we would add the token jti to a revocation
-    // list (e.g., Redis set). For now, we verify the token is valid and
-    // record the logout event.
     let payload: TokenPayload | null = null;
     try {
       payload = await verifyToken(refreshToken, this.jwtConfig);
@@ -427,6 +424,34 @@ export class AuthService {
     }
 
     if (payload) {
+      // Revoke the token by storing its JTI in the auth_tokens table
+      if (payload.jti) {
+        const jtiHash = crypto.createHash('sha256').update(payload.jti).digest('hex');
+        const expiresAt = new Date((payload.exp ?? 0) * 1000);
+
+        // Only store if not already revoked
+        const [existing] = await this.db
+          .select({ id: authTokens.id })
+          .from(authTokens)
+          .where(
+            and(
+              eq(authTokens.tokenHash, jtiHash),
+              eq(authTokens.tokenType, 'jwt_revocation'),
+            ),
+          )
+          .limit(1);
+
+        if (!existing) {
+          await this.db.insert(authTokens).values({
+            tokenType: 'jwt_revocation',
+            tokenHash: jtiHash,
+            userId: payload.sub,
+            expiresAt,
+            metadata: { jti: payload.jti },
+          });
+        }
+      }
+
       // Audit: logout
       await this.createAuditEvent({
         userId: payload.sub,
@@ -450,14 +475,15 @@ export class AuthService {
 
     // Always return success to avoid user enumeration
     if (!user) {
-      return crypto.randomUUID(); // Fake token to prevent timing attacks
+      return 'ok';
     }
 
     const resetToken = crypto.randomUUID();
     const tokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-    passwordResetStore.set(tokenHash, {
+    await this.db.insert(authTokens).values({
+      tokenType: 'password_reset',
       tokenHash,
       userId: user.id,
       expiresAt,
@@ -475,10 +501,8 @@ export class AuthService {
       userAgent: userAgent ?? null,
     });
 
-    // ── Email placeholder ──
-    // In production, send an email with the reset link containing the token.
-    // Example: sendPasswordResetEmail(user.email, resetToken);
-    // TODO: Implement email delivery. The reset token must NOT be returned in the API response.
+    // Send the reset token via email (never in the API response)
+    await emailService.sendPasswordResetEmail(user.email, resetToken);
 
     return 'ok';
   }
@@ -492,7 +516,18 @@ export class AuthService {
     userAgent?: string,
   ): Promise<void> {
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-    const entry = passwordResetStore.get(tokenHash);
+
+    const [entry] = await this.db
+      .select()
+      .from(authTokens)
+      .where(
+        and(
+          eq(authTokens.tokenHash, tokenHash),
+          eq(authTokens.tokenType, 'password_reset'),
+          isNull(authTokens.consumedAt),
+        ),
+      )
+      .limit(1);
 
     if (!entry) {
       throw Object.assign(new Error('Invalid or expired reset token'), {
@@ -502,7 +537,10 @@ export class AuthService {
     }
 
     if (new Date() > entry.expiresAt) {
-      passwordResetStore.delete(tokenHash);
+      await this.db
+        .update(authTokens)
+        .set({ consumedAt: new Date() })
+        .where(eq(authTokens.id, entry.id));
       throw Object.assign(new Error('Reset token has expired'), {
         statusCode: 400,
         code: 'RESET_TOKEN_EXPIRED',
@@ -528,7 +566,10 @@ export class AuthService {
       .where(eq(users.id, entry.userId));
 
     // Consume the token
-    passwordResetStore.delete(tokenHash);
+    await this.db
+      .update(authTokens)
+      .set({ consumedAt: new Date() })
+      .where(eq(authTokens.id, entry.id));
 
     // Audit: password reset completed
     await this.createAuditEvent({
@@ -655,7 +696,19 @@ export class AuthService {
     ipAddress?: string,
     userAgent?: string,
   ): Promise<LoginResult> {
-    const entry = mfaChallengeStore.get(requestId);
+    const requestHash = crypto.createHash('sha256').update(requestId).digest('hex');
+
+    const [entry] = await this.db
+      .select()
+      .from(authTokens)
+      .where(
+        and(
+          eq(authTokens.tokenHash, requestHash),
+          eq(authTokens.tokenType, 'mfa_challenge'),
+          isNull(authTokens.consumedAt),
+        ),
+      )
+      .limit(1);
 
     if (!entry) {
       throw Object.assign(new Error('Invalid or expired MFA challenge'), {
@@ -665,15 +718,20 @@ export class AuthService {
     }
 
     if (new Date() > entry.expiresAt) {
-      mfaChallengeStore.delete(requestId);
+      await this.db
+        .update(authTokens)
+        .set({ consumedAt: new Date() })
+        .where(eq(authTokens.id, entry.id));
       throw Object.assign(new Error('MFA challenge has expired'), {
         statusCode: 400,
         code: 'MFA_CHALLENGE_EXPIRED',
       });
     }
 
+    const mfaSecret = (entry.metadata as Record<string, unknown>)?.['mfaSecret'] as string;
+
     // Verify TOTP code
-    const isValid = authenticator.verify({ token: code, secret: entry.mfaSecret });
+    const isValid = authenticator.verify({ token: code, secret: mfaSecret });
     if (!isValid) {
       throw Object.assign(new Error('Invalid TOTP code'), {
         statusCode: 400,
@@ -682,7 +740,10 @@ export class AuthService {
     }
 
     // Consume the challenge
-    mfaChallengeStore.delete(requestId);
+    await this.db
+      .update(authTokens)
+      .set({ consumedAt: new Date() })
+      .where(eq(authTokens.id, entry.id));
 
     // Fetch user for response
     const [user] = await this.db
@@ -980,5 +1041,18 @@ export class AuthService {
       // Audit failures should not break the primary operation
       console.error('Failed to create audit event:', error);
     }
+  }
+
+  /**
+   * Remove expired auth tokens from the database.
+   * Should be called periodically (e.g., on server startup or via a cron job).
+   */
+  async cleanupExpiredTokens(): Promise<number> {
+    const result = await this.db
+      .delete(authTokens)
+      .where(sql`${authTokens.expiresAt} < NOW()`)
+      .returning({ id: authTokens.id });
+
+    return result.length;
   }
 }

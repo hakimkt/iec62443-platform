@@ -3,7 +3,7 @@ import fp from 'fastify-plugin';
 
 import { verifyToken, type JwtConfig, type TokenPayload } from '@iec62443/auth';
 import { eq, and } from 'drizzle-orm';
-import { apiKeys, users } from '@iec62443/database';
+import { apiKeys, users, authTokens } from '@iec62443/database';
 import crypto from 'node:crypto';
 
 // ---------------------------------------------------------------------------
@@ -107,6 +107,38 @@ async function jwtMiddleware(
 
     try {
       const payload = await verifyToken(token, jwtConfig);
+
+      // Check if the token has been revoked
+      if (payload.jti) {
+        const jtiHash = crypto.createHash('sha256').update(payload.jti).digest('hex');
+        const db = request.server.db;
+        if (db) {
+          const [revoked] = await db
+            .select({ id: authTokens.id })
+            .from(authTokens)
+            .where(
+              and(
+                eq(authTokens.tokenHash, jtiHash),
+                eq(authTokens.tokenType, 'jwt_revocation'),
+              ),
+            )
+            .limit(1);
+
+          if (revoked) {
+            return reply.status(401).send({
+              error: {
+                code: 'TOKEN_REVOKED',
+                message: 'This token has been revoked.',
+              },
+              meta: {
+                requestId: request.id,
+                timestamp: new Date().toISOString(),
+              },
+            });
+          }
+        }
+      }
+
       request.user = payload;
       request.authType = 'jwt';
     } catch {

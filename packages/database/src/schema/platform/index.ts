@@ -7,3 +7,4 @@ export {
   apiKeys,
 } from './roles.js';
 export { auditEvents } from './audit-events.js';
+export { authTokens } from './auth-tokens.js';

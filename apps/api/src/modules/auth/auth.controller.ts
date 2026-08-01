@@ -224,7 +224,6 @@ export class AuthController {
         successResponse(
           {
             message: 'If an account with this email exists, a password reset link has been sent.',
-            token, // In production, this would be sent via email only
           },
           request.id,
         ),

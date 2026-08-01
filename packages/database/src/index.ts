@@ -8,6 +8,7 @@ export {
   apiKeys,
 } from './schema/platform/roles.js';
 export { auditEvents } from './schema/platform/audit-events.js';
+export { authTokens } from './schema/platform/auth-tokens.js';
 
 // ── Tenant Schema — Assessment ───────────────────────────────────────────
 export {

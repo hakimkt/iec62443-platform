@@ -1,4 +1,4 @@
-import { eq, and, desc, sql, count, ilike } from 'drizzle-orm';
+import { eq, and, desc, sql, count, ilike, sum } from 'drizzle-orm';
 import crypto from 'node:crypto';
 
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -575,7 +575,7 @@ export class EvidenceService {
         };
       }
 
-      // If the evidence has a file reference, re-compute the hash from the stored file
+      // If the evidence has a file reference, verify the hash against the stored file
       if (item.fileId) {
         // Look up the file record to get the storage key
         const [file] = await tx
@@ -585,19 +585,42 @@ export class EvidenceService {
           .limit(1);
 
         if (file) {
-          // In production, fetch the file from S3/MinIO and re-compute the hash.
-          // For now, we check the stored metadata against the recorded hash.
-          // A full implementation would:
-          //   1. Fetch the file from the storage backend (S3/MinIO)
-          //   2. Compute SHA-256 of the file content
-          //   3. Compare with the stored sha256Hash
-          //   4. Return verified=true only if they match
+          // Attempt to fetch the file from S3/MinIO and re-compute the hash.
+          // If S3 is not configured, we cannot verify the file content.
+          const s3Endpoint = process.env['S3_ENDPOINT'];
+          const s3Bucket = process.env['S3_BUCKET'];
+
+          if (s3Endpoint && s3Bucket) {
+            try {
+              const fileBuffer = await this.fetchFileFromStorage(file.storageKey, s3Bucket);
+              const computedHash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+              const hashesMatch = computedHash === item.sha256Hash;
+
+              return {
+                verified: hashesMatch,
+                hash: item.sha256Hash,
+                fileId: item.fileId,
+                storageKey: file.storageKey,
+                reason: hashesMatch ? undefined : 'Computed hash does not match stored hash — file may have been tampered with',
+              };
+            } catch {
+              return {
+                verified: false,
+                hash: item.sha256Hash,
+                fileId: item.fileId,
+                storageKey: file.storageKey,
+                reason: 'Unable to fetch file from storage backend for verification',
+              };
+            }
+          }
+
+          // S3 not configured — cannot verify file integrity
           return {
-            verified: true,
+            verified: false,
             hash: item.sha256Hash,
             fileId: item.fileId,
             storageKey: file.storageKey,
-            note: 'Hash verification requires file content access — verify against storage backend in production',
+            reason: 'Storage backend not configured — cannot verify file content integrity',
           };
         }
       }
@@ -719,12 +742,23 @@ export class EvidenceService {
   // ── Storage Quota ────────────────────────────────────────────────────
 
   async getStorageQuota() {
-    return this.withTenantSchema(async (_tx) => {
-      // Placeholder: tenant storage quota not directly accessible from tenant schema
+    return this.withTenantSchema(async (tx) => {
+      // Sum file sizes from evidence items that have files
+      const [result] = await tx
+        .select({
+          totalUsed: sum(evidenceItems.fileSize),
+        })
+        .from(evidenceItems)
+        .where(eq(evidenceItems.status, 'active'));
+
+      const quotaBytes = Number(process.env['STORAGE_QUOTA_BYTES'] ?? '10737418240'); // 10 GB default
+      const usedBytes = Number(result?.totalUsed ?? 0);
+      const usagePct = quotaBytes > 0 ? Math.round((usedBytes / quotaBytes) * 10000) / 100 : 0;
+
       return {
-        quotaBytes: 10737418240,
-        usedBytes: 0,
-        usagePct: 0,
+        quotaBytes,
+        usedBytes,
+        usagePct,
       };
     });
   }
@@ -784,5 +818,32 @@ export class EvidenceService {
       // Audit failures should not break the primary operation
       console.error('Failed to create audit event:', error);
     }
+  }
+
+  /**
+   * Fetch a file from S3/MinIO storage backend.
+   * Returns the file content as a Buffer.
+   */
+  private async fetchFileFromStorage(storageKey: string, bucket: string): Promise<Buffer> {
+    const endpoint = process.env['S3_ENDPOINT']!;
+    const accessKey = process.env['S3_ACCESS_KEY'];
+    const secretKey = process.env['S3_SECRET_KEY'];
+
+    // Use AWS SDK v3-style fetch via the S3 endpoint
+    const url = `${endpoint}/${bucket}/${storageKey}`;
+    const headers: Record<string, string> = {};
+
+    if (accessKey && secretKey) {
+      // Basic auth for MinIO (simplified — production should use AWS SigV4)
+      headers['Authorization'] = 'Basic ' + Buffer.from(`${accessKey}:${secretKey}`).toString('base64');
+    }
+
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch file from storage: ${response.status} ${response.statusText}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    return Buffer.from(arrayBuffer);
   }
 }

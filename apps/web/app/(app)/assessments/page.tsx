@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { cn } from '@iec62443/ui';
 import { Button } from '@iec62443/ui/primitives';
 import { Badge } from '@iec62443/ui/primitives';
@@ -173,34 +174,36 @@ export default function AssessmentsPage() {
 }
 
 function AssessmentRow({ assessment }: { assessment: AssessmentEngagement }) {
+  const router = useRouter();
+
   return (
-    <Link
-      href={`/assessments/${assessment.id}`}
-      className="flex items-center border-b border-surface-100 transition-colors last:border-0 hover:bg-surface-50"
+    <tr
+      onClick={() => router.push(`/assessments/${assessment.id}`)}
+      className="cursor-pointer border-b border-surface-100 transition-colors last:border-0 hover:bg-surface-50"
     >
-      <div className="flex-1 px-4 py-3">
+      <td className="px-4 py-3">
         <p className="text-sm font-medium text-surface-900">{assessment.name}</p>
         <p className="text-xs text-surface-500">{assessment.iecPart}</p>
-      </div>
-      <div className="px-4 py-3">
+      </td>
+      <td className="px-4 py-3">
         <span className="text-sm text-surface-600 capitalize">{assessment.type}</span>
-      </div>
-      <div className="px-4 py-3">
+      </td>
+      <td className="px-4 py-3">
         <Badge variant={statusBadgeVariant[assessment.status]} size="sm">
           {assessment.status.replace('_', ' ')}
         </Badge>
-      </div>
-      <div className="px-4 py-3">
+      </td>
+      <td className="px-4 py-3">
         <span className="text-sm font-medium text-surface-900">SL {assessment.targetSl}</span>
-      </div>
-      <div className="px-4 py-3">
+      </td>
+      <td className="px-4 py-3">
         <span className="text-sm text-surface-600">{assessment.targetDate ?? '—'}</span>
-      </div>
-      <div className="px-4 py-3">
+      </td>
+      <td className="px-4 py-3">
         <span className="text-sm text-surface-500">
           {new Date(assessment.updatedAt).toLocaleDateString()}
         </span>
-      </div>
-    </Link>
+      </td>
+    </tr>
   );
 }
