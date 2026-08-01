@@ -156,19 +156,17 @@ export class CSMSService {
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const [items, totalResult] = await Promise.all([
-        tx
+      const items = await tx
           .select()
           .from(csmsFrameworks)
           .where(whereClause)
           .orderBy(desc(csmsFrameworks.createdAt))
           .limit(perPage)
-          .offset(offset),
-        tx
+          .offset(offset);
+      const totalResult = await tx
           .select({ count: count() })
           .from(csmsFrameworks)
-          .where(whereClause),
-      ]);
+          .where(whereClause);
 
       const total = totalResult[0]?.count ?? 0;
 
@@ -310,19 +308,17 @@ export class CSMSService {
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const [items, totalResult] = await Promise.all([
-        tx
+      const items = await tx
           .select()
           .from(csmsElements)
           .where(whereClause)
           .orderBy(desc(csmsElements.createdAt))
           .limit(perPage)
-          .offset(offset),
-        tx
+          .offset(offset);
+      const totalResult = await tx
           .select({ count: count() })
           .from(csmsElements)
-          .where(whereClause),
-      ]);
+          .where(whereClause);
 
       const total = totalResult[0]?.count ?? 0;
 
@@ -480,19 +476,17 @@ export class CSMSService {
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const [items, totalResult] = await Promise.all([
-        tx
+      const items = await tx
           .select()
           .from(csmsPolicies)
           .where(whereClause)
           .orderBy(desc(csmsPolicies.createdAt))
           .limit(perPage)
-          .offset(offset),
-        tx
+          .offset(offset);
+      const totalResult = await tx
           .select({ count: count() })
           .from(csmsPolicies)
-          .where(whereClause),
-      ]);
+          .where(whereClause);
 
       const total = totalResult[0]?.count ?? 0;
 

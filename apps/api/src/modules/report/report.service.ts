@@ -92,19 +92,17 @@ export class ReportService {
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const [items, totalResult] = await Promise.all([
-        tx
+      const items = await tx
           .select()
           .from(reports)
           .where(whereClause)
           .orderBy(desc(reports.createdAt))
           .limit(perPage)
-          .offset((page - 1) * perPage),
-        tx
+          .offset((page - 1) * perPage);
+      const totalResult = await tx
           .select({ count: count() })
           .from(reports)
-          .where(whereClause),
-      ]);
+          .where(whereClause);
 
       const total = totalResult[0]?.count ?? 0;
 

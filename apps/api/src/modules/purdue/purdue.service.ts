@@ -636,16 +636,14 @@ export class PurdueService {
       await this.getModelWithTx(tx, modelId);
 
       // Fetch all communication rules and asset mappings for this model
-      const [rules, mappings] = await Promise.all([
-        tx
+      const rules = await tx
           .select()
           .from(communicationRules)
-          .where(eq(communicationRules.modelId, modelId)),
-        tx
+          .where(eq(communicationRules.modelId, modelId));
+      const mappings = await tx
           .select()
           .from(assetMappings)
-          .where(eq(assetMappings.modelId, modelId)),
-      ]);
+          .where(eq(assetMappings.modelId, modelId));
 
       // Build a lookup: "sourceLevelId:targetLevelId" → rule for denied rules
       const deniedRules = new Map<string, typeof rules[number]>();

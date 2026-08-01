@@ -87,8 +87,7 @@ export class AdminService {
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-    const [items, totalResult] = await Promise.all([
-      this.db
+    const items = await this.db
         .select({
           id: tenantMemberships.id,
           tenantId: tenantMemberships.tenantId,
@@ -108,12 +107,11 @@ export class AdminService {
         .where(whereClause)
         .orderBy(desc(tenantMemberships.createdAt))
         .limit(perPage)
-        .offset(offset),
-      this.db
+        .offset(offset);
+    const totalResult = await this.db
         .select({ count: count() })
         .from(tenantMemberships)
-        .where(whereClause),
-    ]);
+        .where(whereClause);
 
     const total = totalResult[0]?.count ?? 0;
 
@@ -482,19 +480,17 @@ export class AdminService {
 
     const whereClause = and(...conditions);
 
-    const [items, totalResult] = await Promise.all([
-      this.db
+    const items = await this.db
         .select()
         .from(auditEvents)
         .where(whereClause)
         .orderBy(desc(auditEvents.id))
         .limit(perPage)
-        .offset(offset),
-      this.db
+        .offset(offset);
+    const totalResult = await this.db
         .select({ count: count() })
         .from(auditEvents)
-        .where(whereClause),
-    ]);
+        .where(whereClause);
 
     const total = totalResult[0]?.count ?? 0;
 

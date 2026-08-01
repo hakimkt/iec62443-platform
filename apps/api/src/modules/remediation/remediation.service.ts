@@ -139,19 +139,17 @@ export class RemediationService {
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const [items, totalResult] = await Promise.all([
-        tx
+      const items = await tx
           .select()
           .from(remediationPlans)
           .where(whereClause)
           .orderBy(desc(remediationPlans.createdAt))
           .limit(perPage)
-          .offset(offset),
-        tx
+          .offset(offset);
+      const totalResult = await tx
           .select({ count: count() })
           .from(remediationPlans)
-          .where(whereClause),
-      ]);
+          .where(whereClause);
 
       const total = totalResult[0]?.count ?? 0;
 
@@ -345,19 +343,17 @@ export class RemediationService {
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const [items, totalResult] = await Promise.all([
-        tx
+      const items = await tx
           .select()
           .from(remediationActions)
           .where(whereClause)
           .orderBy(desc(remediationActions.createdAt))
           .limit(perPage)
-          .offset(offset),
-        tx
+          .offset(offset);
+      const totalResult = await tx
           .select({ count: count() })
           .from(remediationActions)
-          .where(whereClause),
-      ]);
+          .where(whereClause);
 
       const total = totalResult[0]?.count ?? 0;
 
