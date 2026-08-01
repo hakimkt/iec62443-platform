@@ -1,0 +1,28 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "plugins": [{ "name": "next" }],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@iec62443/shared-types": ["../../packages/shared-types/src/index.ts"],
+      "@iec62443/shared-schemas": ["../../packages/shared-schemas/src/index.ts"],
+      "@iec62443/ui": ["../../packages/ui/src/index.ts"],
+      "@iec62443/ui/primitives": ["../../packages/ui/src/primitives/index.ts"],
+      "@iec62443/ui/components": ["../../packages/ui/src/components/index.ts"],
+      "@iec62443/ui/charts": ["../../packages/ui/src/charts/index.ts"],
+      "@iec62443/ui/diagrams": ["../../packages/ui/src/diagrams/index.ts"],
+      "@iec62443/api-client": ["../../packages/api-client/src/index.ts"],
+      "@iec62443/auth": ["../../packages/auth/src/index.ts"]
+    },
+    "allowJs": true,
+    "noEmit": true,
+    "incremental": true
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

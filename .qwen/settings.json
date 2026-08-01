@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm run *)",
+      "Bash(pnpm *)",
+      "Bash(mkdir *)",
+      "Bash(npx *)",
+      "Bash(../../node_modules/.bin/tsc *)",
+      "Bash(find *)",
+      "Bash(./node_modules/.bin/tsc *)",
+      "Bash(git add *)"
+    ]
+  },
+  "$version": 4
+}

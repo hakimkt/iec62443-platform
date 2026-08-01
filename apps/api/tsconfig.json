@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@iec62443/shared-types": ["../../packages/shared-types/src/index.ts"],
+      "@iec62443/shared-schemas": ["../../packages/shared-schemas/src/index.ts"],
+      "@iec62443/database": ["../../packages/database/src/index.ts"],
+      "@iec62443/auth": ["../../packages/auth/src/index.ts"]
+    },
+    "noEmit": true,
+    "incremental": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

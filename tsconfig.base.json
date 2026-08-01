@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "incremental": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "baseUrl": ".",
+    "paths": {
+      "@iec62443/shared-types": ["packages/shared-types/src/index.ts"],
+      "@iec62443/shared-schemas": ["packages/shared-schemas/src/index.ts"],
+      "@iec62443/database": ["packages/database/src/index.ts"],
+      "@iec62443/ui": ["packages/ui/src/index.ts"],
+      "@iec62443/ui/primitives": ["packages/ui/src/primitives/index.ts"],
+      "@iec62443/ui/components": ["packages/ui/src/components/index.ts"],
+      "@iec62443/ui/charts": ["packages/ui/src/charts/index.ts"],
+      "@iec62443/ui/diagrams": ["packages/ui/src/diagrams/index.ts"],
+      "@iec62443/api-client": ["packages/api-client/src/index.ts"],
+      "@iec62443/auth": ["packages/auth/src/index.ts"],
+      "@iec62443/config": ["packages/config/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "dist", ".next", ".turbo"]
+}

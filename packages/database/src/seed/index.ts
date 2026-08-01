@@ -1,0 +1,444 @@
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import * as platformSchema from '../schema/platform/index.js';
+
+const SYSTEM_ROLES = [
+  {
+    id: '00000000-0000-0000-0000-000000000001',
+    name: 'platform_admin',
+    description: 'Cross-tenant platform administrator with system-level access',
+    isSystem: true,
+    permissions: [
+      'tenant:read', 'tenant:update', 'tenant:delete',
+      'user:impersonate',
+      'audit_log:read', 'audit_log:export',
+    ],
+  },
+  {
+    id: '00000000-0000-0000-0000-000000000002',
+    name: 'tenant_owner',
+    description: 'Full tenant control including billing and ownership',
+    isSystem: true,
+    permissions: [
+      'tenant:read', 'tenant:update', 'tenant:delete', 'tenant:manage_members', 'tenant:manage_billing',
+      'role:read', 'role:create', 'role:update', 'role:delete',
+      'user:read', 'user:create', 'user:update', 'user:delete',
+      'api_key:*', 'webhook:*', 'integration:*',
+      'assessment:read', 'assessment:create', 'assessment:update', 'assessment:delete', 'assessment:complete', 'assessment:export',
+      'assessment.response:read', 'assessment.response:write', 'assessment.response:review',
+      'assessment.template:read', 'assessment.template:create', 'assessment.template:update', 'assessment.template:delete',
+      'risk:read', 'risk:create', 'risk:update', 'risk:delete', 'risk:accept', 'risk:export',
+      'risk.register:read', 'risk.register:create', 'risk.register:update', 'risk.register:delete',
+      'risk.treatment:read', 'risk.treatment:create', 'risk.treatment:update', 'risk.treatment:delete',
+      'finding:read', 'finding:create', 'finding:update', 'finding:delete', 'finding:transition', 'finding:assign', 'finding:export',
+      'evidence:read', 'evidence:upload', 'evidence:update', 'evidence:delete', 'evidence:download', 'evidence:verify',
+      'zone:read', 'zone:create', 'zone:update', 'zone:delete',
+      'conduit:read', 'conduit:create', 'conduit:update', 'conduit:delete',
+      'purdue:read', 'purdue:create', 'purdue:update', 'purdue:delete',
+      'csms:read', 'csms:create', 'csms:update', 'csms:delete', 'csms:approve_policy',
+      'remediation:read', 'remediation:create', 'remediation:update', 'remediation:delete', 'remediation:verify', 'remediation:assign',
+      'asset:read', 'asset:create', 'asset:update', 'asset:delete', 'asset:import', 'asset:export',
+      'report:read', 'report:generate', 'report:download', 'report:delete',
+      'audit_log:read', 'audit_log:export',
+    ],
+  },
+  {
+    id: '00000000-0000-0000-0000-000000000003',
+    name: 'tenant_admin',
+    description: 'Tenant management without billing or ownership',
+    isSystem: true,
+    permissions: [
+      'tenant:read', 'tenant:update', 'tenant:manage_members',
+      'role:read', 'role:create', 'role:update',
+      'user:read', 'user:create', 'user:update', 'user:delete',
+      'api_key:*', 'webhook:*', 'integration:*',
+      'assessment:read', 'assessment:create', 'assessment:update', 'assessment:delete', 'assessment:complete', 'assessment:export',
+      'assessment.response:read', 'assessment.response:write', 'assessment.response:review',
+      'assessment.template:read', 'assessment.template:create', 'assessment.template:update',
+      'risk:read', 'risk:create', 'risk:update', 'risk:delete', 'risk:accept', 'risk:export',
+      'risk.register:read', 'risk.register:create', 'risk.register:update', 'risk.register:delete',
+      'risk.treatment:read', 'risk.treatment:create', 'risk.treatment:update',
+      'finding:read', 'finding:create', 'finding:update', 'finding:delete', 'finding:transition', 'finding:assign', 'finding:export',
+      'evidence:read', 'evidence:upload', 'evidence:update', 'evidence:delete', 'evidence:download', 'evidence:verify',
+      'zone:read', 'zone:create', 'zone:update', 'zone:delete',
+      'conduit:read', 'conduit:create', 'conduit:update', 'conduit:delete',
+      'purdue:read', 'purdue:create', 'purdue:update', 'purdue:delete',
+      'csms:read', 'csms:create', 'csms:update', 'csms:delete', 'csms:approve_policy',
+      'remediation:read', 'remediation:create', 'remediation:update', 'remediation:delete', 'remediation:verify', 'remediation:assign',
+      'asset:read', 'asset:create', 'asset:update', 'asset:delete', 'asset:import', 'asset:export',
+      'report:read', 'report:generate', 'report:download', 'report:delete',
+      'audit_log:read', 'audit_log:export',
+    ],
+  },
+  {
+    id: '00000000-0000-0000-0000-000000000004',
+    name: 'project_manager',
+    description: 'Manage engagements and oversee delivery',
+    isSystem: true,
+    permissions: [
+      'assessment:read', 'assessment:create', 'assessment:update', 'assessment:delete', 'assessment:complete', 'assessment:export',
+      'assessment.template:read', 'assessment.template:create', 'assessment.template:update',
+      'assessment.response:read', 'assessment.response:write', 'assessment.response:review',
+      'risk:read', 'risk:create', 'risk:update', 'risk:delete', 'risk:accept', 'risk:export',
+      'risk.register:read', 'risk.register:create', 'risk.register:update', 'risk.register:delete',
+      'risk.treatment:read', 'risk.treatment:create', 'risk.treatment:update',
+      'finding:read', 'finding:create', 'finding:update', 'finding:delete', 'finding:transition', 'finding:assign', 'finding:export',
+      'remediation:read', 'remediation:create', 'remediation:update', 'remediation:delete', 'remediation:verify', 'remediation:assign',
+      'report:read', 'report:generate', 'report:download', 'report:delete',
+      'asset:read', 'asset:create', 'asset:update', 'asset:delete', 'asset:import', 'asset:export',
+      'evidence:read', 'evidence:upload', 'evidence:update', 'evidence:download', 'evidence:verify',
+      'zone:read', 'zone:create', 'zone:update',
+      'conduit:read', 'conduit:create', 'conduit:update',
+      'purdue:read', 'purdue:create', 'purdue:update',
+    ],
+  },
+  {
+    id: '00000000-0000-0000-0000-000000000005',
+    name: 'lead_assessor',
+    description: 'Lead assessment execution',
+    isSystem: true,
+    permissions: [
+      'assessment:read', 'assessment:create', 'assessment:update', 'assessment:export',
+      'assessment.response:read', 'assessment.response:write', 'assessment.response:review',
+      'assessment.template:read',
+      'finding:read', 'finding:create', 'finding:update', 'finding:transition', 'finding:assign',
+      'evidence:read', 'evidence:upload', 'evidence:update', 'evidence:download', 'evidence:verify',
+      'risk:read', 'risk:create', 'risk:update',
+      'zone:read', 'zone:create', 'zone:update',
+      'conduit:read', 'conduit:create', 'conduit:update',
+      'purdue:read', 'purdue:create', 'purdue:update',
+      'asset:read', 'asset:create', 'asset:update',
+      'report:read', 'report:generate', 'report:download',
+      'csms:read', 'remediation:read',
+    ],
+  },
+  {
+    id: '00000000-0000-0000-0000-000000000006',
+    name: 'assessor',
+    description: 'Conduct assessments, record findings',
+    isSystem: true,
+    permissions: [
+      'assessment:read',
+      'assessment.response:read', 'assessment.response:write',
+      'finding:read', 'finding:create', 'finding:update',
+      'evidence:read', 'evidence:upload', 'evidence:download',
+      'zone:read', 'conduit:read', 'purdue:read', 'asset:read',
+      'risk:read', 'csms:read', 'remediation:read', 'report:read',
+    ],
+  },
+  {
+    id: '00000000-0000-0000-0000-000000000007',
+    name: 'quality_manager',
+    description: 'Review, approve, and ensure quality',
+    isSystem: true,
+    permissions: [
+      'assessment:read', 'assessment:complete', 'assessment:export',
+      'assessment.response:read', 'assessment.response:review',
+      'finding:read', 'finding:update', 'finding:transition',
+      'risk:read', 'risk:accept',
+      'evidence:read', 'evidence:verify',
+      'remediation:read', 'remediation:verify',
+      'csms:read', 'csms:approve_policy',
+      'report:read', 'report:generate', 'report:download',
+      'audit_log:read', 'audit_log:export',
+    ],
+  },
+  {
+    id: '00000000-0000-0000-0000-000000000008',
+    name: 'risk_manager',
+    description: 'Risk register ownership',
+    isSystem: true,
+    permissions: [
+      'risk:read', 'risk:create', 'risk:update', 'risk:delete', 'risk:accept', 'risk:export',
+      'risk.register:read', 'risk.register:create', 'risk.register:update',
+      'risk.treatment:read', 'risk.treatment:create', 'risk.treatment:update', 'risk.treatment:delete',
+      'finding:read', 'assessment:read', 'zone:read', 'asset:read',
+      'report:read', 'report:generate', 'report:download',
+    ],
+  },
+  {
+    id: '00000000-0000-0000-0000-000000000009',
+    name: 'viewer',
+    description: 'Read-only access for stakeholders',
+    isSystem: true,
+    permissions: [
+      'assessment:read', 'finding:read', 'risk:read',
+      'zone:read', 'conduit:read', 'purdue:read', 'csms:read',
+      'remediation:read', 'asset:read', 'evidence:read',
+      'report:read', 'report:download',
+    ],
+  },
+];
+
+export const IEC_62443_3_2_QUESTIONS: Array<{
+  section: string;
+  clauseRef: string;
+  questionText: string;
+  requirementId: string;
+  maxScore: number;
+  guidanceText: string;
+  sortOrder: number;
+}> = [
+  {
+    section: 'FR 1: Identification and Authentication Control',
+    clauseRef: '4.2.3.1',
+    questionText: 'Are all human users identified and authenticated before accessing the IACS?',
+    requirementId: 'SR 1.1',
+    maxScore: 4,
+    guidanceText: 'Verify that all users (operators, engineers, administrators) must authenticate before accessing any component within the IACS. This includes both local and remote access.',
+    sortOrder: 1,
+  },
+  {
+    section: 'FR 1: Identification and Authentication Control',
+    clauseRef: '4.2.3.2',
+    questionText: 'Are all software processes and devices identified and authenticated?',
+    requirementId: 'SR 1.2',
+    maxScore: 4,
+    guidanceText: 'Verify that software processes and devices authenticate before communicating on the IACS network. This includes mutual authentication between devices.',
+    sortOrder: 2,
+  },
+  {
+    section: 'FR 1: Identification and Authentication Control',
+    clauseRef: '4.2.3.3',
+    questionText: 'Are unique identifiers used for each user, software process, and device?',
+    requirementId: 'SR 1.1 RE 1',
+    maxScore: 4,
+    guidanceText: 'Verify that each entity has a unique identifier that cannot be shared or reused.',
+    sortOrder: 3,
+  },
+  {
+    section: 'FR 1: Identification and Authentication Control',
+    clauseRef: '4.2.3.4',
+    questionText: 'Is multi-factor authentication required for all remote access?',
+    requirementId: 'SR 1.1 RE 2',
+    maxScore: 4,
+    guidanceText: 'Verify that remote access requires at least two authentication factors (e.g., password + token, certificate + biometric).',
+    sortOrder: 4,
+  },
+  {
+    section: 'FR 2: Use Control',
+    clauseRef: '4.2.4.1',
+    questionText: 'Is access to the IACS authorized per the defined access control policy?',
+    requirementId: 'SR 2.1',
+    maxScore: 4,
+    guidanceText: 'Verify that access control policies are defined and enforced for all users and processes accessing the IACS.',
+    sortOrder: 5,
+  },
+  {
+    section: 'FR 2: Use Control',
+    clauseRef: '4.2.4.2',
+    questionText: 'Are role-based access controls implemented to enforce least privilege?',
+    requirementId: 'SR 2.1 RE 1',
+    maxScore: 4,
+    guidanceText: 'Verify that users are assigned roles with the minimum permissions necessary for their job function.',
+    sortOrder: 6,
+  },
+  {
+    section: 'FR 2: Use Control',
+    clauseRef: '4.2.4.3',
+    questionText: 'Is wireless access controlled and monitored?',
+    requirementId: 'SR 2.2',
+    maxScore: 4,
+    guidanceText: 'Verify that wireless access points are controlled, authenticated, and monitored for unauthorized access.',
+    sortOrder: 7,
+  },
+  {
+    section: 'FR 3: System Integrity',
+    clauseRef: '4.2.5.1',
+    questionText: 'Is the integrity of the IACS verified at startup and during operation?',
+    requirementId: 'SR 3.1',
+    maxScore: 4,
+    guidanceText: 'Verify that integrity checks are performed on critical system files and configurations at startup and periodically.',
+    sortOrder: 8,
+  },
+  {
+    section: 'FR 3: System Integrity',
+    clauseRef: '4.2.5.2',
+    questionText: 'Is malicious code protection implemented?',
+    requirementId: 'SR 3.2',
+    maxScore: 4,
+    guidanceText: 'Verify that malware protection is deployed and updated regularly on all applicable IACS components.',
+    sortOrder: 9,
+  },
+  {
+    section: 'FR 3: System Integrity',
+    clauseRef: '4.2.5.3',
+    questionText: 'Are security functionality verification mechanisms in place?',
+    requirementId: 'SR 3.3',
+    maxScore: 4,
+    guidanceText: 'Verify that security mechanisms are tested and verified to be operating correctly.',
+    sortOrder: 10,
+  },
+  {
+    section: 'FR 4: Data Confidentiality',
+    clauseRef: '4.2.6.1',
+    questionText: 'Is information at rest protected from unauthorized disclosure?',
+    requirementId: 'SR 4.1',
+    maxScore: 4,
+    guidanceText: 'Verify that sensitive data stored in the IACS is encrypted or otherwise protected from unauthorized access.',
+    sortOrder: 11,
+  },
+  {
+    section: 'FR 4: Data Confidentiality',
+    clauseRef: '4.2.6.2',
+    questionText: 'Is information in transit protected from unauthorized disclosure?',
+    requirementId: 'SR 4.2',
+    maxScore: 4,
+    guidanceText: 'Verify that network communications are encrypted using appropriate protocols (e.g., TLS 1.2+).',
+    sortOrder: 12,
+  },
+  {
+    section: 'FR 5: Restricted Data Flow',
+    clauseRef: '4.2.7.1',
+    questionText: 'Are zone boundaries defined and enforced with appropriate security measures?',
+    requirementId: 'SR 5.1',
+    maxScore: 4,
+    guidanceText: 'Verify that the IACS is partitioned into zones and conduits per the IEC 62443-3-2 model, with appropriate boundary controls.',
+    sortOrder: 13,
+  },
+  {
+    section: 'FR 5: Restricted Data Flow',
+    clauseRef: '4.2.7.2',
+    questionText: 'Are communication flows between zones controlled and monitored?',
+    requirementId: 'SR 5.2',
+    maxScore: 4,
+    guidanceText: 'Verify that all inter-zone communications pass through defined conduits with appropriate security controls.',
+    sortOrder: 14,
+  },
+  {
+    section: 'FR 6: Timely Response to Events',
+    clauseRef: '4.2.8.1',
+    questionText: 'Is audit logging enabled and are audit logs accessible?',
+    requirementId: 'SR 6.1',
+    maxScore: 4,
+    guidanceText: 'Verify that audit logging is enabled for all security-relevant events and logs are accessible for review.',
+    sortOrder: 15,
+  },
+  {
+    section: 'FR 6: Timely Response to Events',
+    clauseRef: '4.2.8.2',
+    questionText: 'Are security alerts generated and communicated to appropriate personnel?',
+    requirementId: 'SR 6.2',
+    maxScore: 4,
+    guidanceText: 'Verify that automated alerts are generated for security events and communicated to designated personnel.',
+    sortOrder: 16,
+  },
+  {
+    section: 'FR 7: Resource Availability',
+    clauseRef: '4.2.9.1',
+    questionText: 'Is the IACS protected against denial of service attacks?',
+    requirementId: 'SR 7.1',
+    maxScore: 4,
+    guidanceText: 'Verify that DoS protection mechanisms are in place, including network segmentation and rate limiting.',
+    sortOrder: 17,
+  },
+  {
+    section: 'FR 7: Resource Availability',
+    clauseRef: '4.2.9.2',
+    questionText: 'Is the IACS protected against resource exhaustion?',
+    requirementId: 'SR 7.2',
+    maxScore: 4,
+    guidanceText: 'Verify that resource limits are enforced to prevent exhaustion of critical system resources.',
+    sortOrder: 18,
+  },
+  {
+    section: 'FR 7: Resource Availability',
+    clauseRef: '4.2.9.3',
+    questionText: 'Are backup and recovery procedures in place?',
+    requirementId: 'SR 7.3',
+    maxScore: 4,
+    guidanceText: 'Verify that regular backups are performed and recovery procedures are tested.',
+    sortOrder: 19,
+  },
+  {
+    section: 'FR 7: Resource Availability',
+    clauseRef: '4.2.9.4',
+    questionText: 'Is the IACS protected against physical attacks?',
+    requirementId: 'SR 7.4',
+    maxScore: 4,
+    guidanceText: 'Verify that physical security measures are in place for IACS components.',
+    sortOrder: 20,
+  },
+];
+
+async function seed() {
+  const connectionString = process.env['DATABASE_URL'] ?? 'postgresql://iec62443:iec62443_dev@localhost:5432/iec62443_platform';
+
+  const pool = new Pool({ connectionString });
+  const db = drizzle(pool, { schema: platformSchema });
+
+  console.log('Seeding database...');
+
+  console.log('Seeding system roles...');
+  for (const role of SYSTEM_ROLES) {
+    await db.insert(platformSchema.roles).values({
+      id: role.id,
+      name: role.name,
+      description: role.description,
+      isSystem: role.isSystem,
+      permissions: role.permissions,
+      tenantId: null,
+    }).onConflictDoNothing();
+  }
+
+  console.log('Seeding demo tenant...');
+  const demoTenantId = '10000000-0000-0000-0000-000000000001';
+  await db.insert(platformSchema.tenants).values({
+    id: demoTenantId,
+    name: 'Demo Corporation',
+    slug: 'demo-corp',
+    schemaName: 'tenant_demo',
+    status: 'active',
+    plan: 'professional',
+    settings: {
+      locale: 'en',
+      timezone: 'UTC',
+      mfaRequired: false,
+      passwordExpiryDays: 90,
+      sessionTimeoutMinutes: 30,
+      maxConcurrentSessions: 5,
+    },
+    storageQuota: 10737418240n,
+    storageUsed: 0n,
+  }).onConflictDoNothing();
+
+  console.log('Seeding demo user...');
+  const demoUserId = '20000000-0000-0000-0000-000000000001';
+  await db.insert(platformSchema.users).values({
+    id: demoUserId,
+    email: 'admin@demo-corp.com',
+    passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$placeholder$placeholder',
+    firstName: 'Demo',
+    lastName: 'Admin',
+    mfaEnabled: false,
+    status: 'active',
+    failedAttempts: 0,
+  }).onConflictDoNothing();
+
+  console.log('Seeding demo tenant membership...');
+  await db.insert(platformSchema.tenantMemberships).values({
+    id: '30000000-0000-0000-0000-000000000001',
+    tenantId: demoTenantId,
+    userId: demoUserId,
+    role: 'tenant_owner',
+    status: 'active',
+    joinedAt: new Date(),
+  }).onConflictDoNothing();
+
+  console.log('Seeding demo user role...');
+  await db.insert(platformSchema.userRoles).values({
+    id: '40000000-0000-0000-0000-000000000001',
+    userId: demoUserId,
+    roleId: '00000000-0000-0000-0000-000000000002',
+    tenantId: demoTenantId,
+    grantedAt: new Date(),
+  }).onConflictDoNothing();
+
+  await pool.end();
+  console.log('Seed completed successfully.');
+}
+
+seed().catch((err) => {
+  console.error('Seed failed:', err);
+  process.exit(1);
+});

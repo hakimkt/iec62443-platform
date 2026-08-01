@@ -1,0 +1,102 @@
+'use client';
+
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useAuthStore } from '@/stores/auth-store';
+
+interface WebSocketContextValue {
+  connected: boolean;
+  subscribe: (event: string, handler: (data: unknown) => void) => () => void;
+}
+
+const WebSocketContext = createContext<WebSocketContextValue | null>(null);
+
+export function WebSocketProvider({ children }: { children: React.ReactNode }) {
+  const [connected, setConnected] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
+  const handlersRef = useRef<Map<string, Set<(data: unknown) => void>>>(new Map());
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const accessToken = useAuthStore((s) => s.accessToken);
+
+  const connect = useCallback(() => {
+    const wsUrl = process.env['NEXT_PUBLIC_WS_URL'] ?? 'ws://localhost:3001';
+    const token = accessToken ?? '';
+    const ws = new WebSocket(`${wsUrl}/ws?token=${token}`);
+
+    ws.onopen = () => {
+      setConnected(true);
+    };
+
+    ws.onclose = () => {
+      setConnected(false);
+      reconnectTimeoutRef.current = setTimeout(() => {
+        connect();
+      }, 3000);
+    };
+
+    ws.onerror = () => {
+      ws.close();
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data as string) as {
+          type: string;
+          data: unknown;
+        };
+        const handlers = handlersRef.current.get(message.type);
+        if (handlers) {
+          handlers.forEach((handler) => handler(message.data));
+        }
+      } catch {
+        // Ignore malformed messages
+      }
+    };
+
+    wsRef.current = ws;
+  }, [accessToken]);
+
+  useEffect(() => {
+    if (!accessToken) return;
+
+    connect();
+
+    return () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, [accessToken, connect]);
+
+  const subscribe = useCallback(
+    (event: string, handler: (data: unknown) => void) => {
+      if (!handlersRef.current.has(event)) {
+        handlersRef.current.set(event, new Set());
+      }
+      handlersRef.current.get(event)!.add(handler);
+
+      return () => {
+        handlersRef.current.get(event)?.delete(handler);
+      };
+    },
+    [],
+  );
+
+  const value = { connected, subscribe };
+
+  return (
+    <WebSocketContext.Provider value={value}>
+      {children}
+    </WebSocketContext.Provider>
+  );
+}
+
+export function useWebSocket(): WebSocketContextValue {
+  const context = useContext(WebSocketContext);
+  if (!context) {
+    throw new Error('useWebSocket must be used within a WebSocketProvider');
+  }
+  return context;
+}
