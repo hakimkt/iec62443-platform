@@ -85,6 +85,10 @@ export {
   reports,
 } from './schema/tenant/report.js';
 
+// ── Tenant Schema — Client & Project ─────────────────────────────────────
+export { clients } from './schema/tenant/client.js';
+export { projects } from './schema/tenant/project.js';
+
 // ── Database Factory ─────────────────────────────────────────────────────
 export { createDb, createTenantDb } from './db.js';
 

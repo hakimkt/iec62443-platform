@@ -63,3 +63,7 @@ export {
 export {
   reports,
 } from './report.js';
+
+// ── Client & Project ─────────────────────────────────────────────────────
+export { clients } from './client.js';
+export { projects } from './project.js';
