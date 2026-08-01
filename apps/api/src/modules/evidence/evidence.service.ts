@@ -73,435 +73,545 @@ async function computeEventHash(
 // ---------------------------------------------------------------------------
 
 export class EvidenceService {
+  private tenantSchema: string | undefined;
+
   constructor(
     private db: NodePgDatabase,
     private tenantId: string,
     tenantSchema?: string,
   ) {
-    void tenantSchema;
+    this.tenantSchema = tenantSchema;
+  }
+
+  private async withTenantSchema<T>(fn: (tx: Parameters<Parameters<typeof this.db.transaction>[0]>[0]) => Promise<T>): Promise<T> {
+    return this.db.transaction(async (tx) => {
+      if (this.tenantSchema) {
+        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+      }
+      return fn(tx);
+    });
   }
 
   // ── Evidence CRUD ────────────────────────────────────────────────────
 
   async listEvidence(filters: EvidenceFilters) {
-    const page = filters.page ?? 1;
-    const perPage = filters.perPage ?? 25;
-    const offset = (page - 1) * perPage;
+    return this.withTenantSchema(async (tx) => {
+      const page = filters.page ?? 1;
+      const perPage = filters.perPage ?? 25;
+      const offset = (page - 1) * perPage;
 
-    const conditions = [];
+      const conditions = [];
 
-    // Exclude soft-deleted items by default
-    conditions.push(eq(evidenceItems.status, 'active'));
+      // Exclude soft-deleted items by default
+      conditions.push(eq(evidenceItems.status, 'active'));
 
-    if (filters.evidenceType) {
-      conditions.push(eq(evidenceItems.evidenceType, filters.evidenceType));
-    }
+      if (filters.evidenceType) {
+        conditions.push(eq(evidenceItems.evidenceType, filters.evidenceType));
+      }
 
-    if (filters.search) {
-      conditions.push(ilike(evidenceItems.title, `%${filters.search}%`));
-    }
+      if (filters.search) {
+        conditions.push(ilike(evidenceItems.title, `%${filters.search}%`));
+      }
 
-    if (filters.tags && filters.tags.length > 0) {
-      conditions.push(
-        sql`${evidenceItems.tags} && ${filters.tags}`,
-      );
-    }
+      if (filters.tags && filters.tags.length > 0) {
+        conditions.push(
+          sql`${evidenceItems.tags} && ${filters.tags}`,
+        );
+      }
 
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-    // Count total
-    const [countResult] = await this.db
-      .select({ total: count() })
-      .from(evidenceItems)
-      .where(whereClause);
-
-    const total = countResult?.total ?? 0;
-    const totalPages = Math.ceil(total / perPage);
-
-    // Determine sort order
-    const sort = filters.sort ?? 'date';
-    let query;
-
-    if (sort === 'date') {
-      query = this.db
-        .select()
+      // Count total
+      const [countResult] = await tx
+        .select({ total: count() })
         .from(evidenceItems)
-        .where(whereClause)
-        .orderBy(desc(evidenceItems.collectedAt))
-        .limit(perPage)
-        .offset(offset);
-    } else {
-      query = this.db
-        .select()
-        .from(evidenceItems)
-        .where(whereClause)
-        .orderBy(desc(evidenceItems.createdAt))
-        .limit(perPage)
-        .offset(offset);
-    }
+        .where(whereClause);
 
-    const data = await query;
+      const total = countResult?.total ?? 0;
+      const totalPages = Math.ceil(total / perPage);
 
-    const pagination: Pagination = {
-      page,
-      perPage,
-      total,
-      totalPages,
-    };
+      // Determine sort order
+      const sort = filters.sort ?? 'date';
+      let query;
 
-    return { data, pagination };
+      if (sort === 'date') {
+        query = tx
+          .select()
+          .from(evidenceItems)
+          .where(whereClause)
+          .orderBy(desc(evidenceItems.collectedAt))
+          .limit(perPage)
+          .offset(offset);
+      } else {
+        query = tx
+          .select()
+          .from(evidenceItems)
+          .where(whereClause)
+          .orderBy(desc(evidenceItems.createdAt))
+          .limit(perPage)
+          .offset(offset);
+      }
+
+      const data = await query;
+
+      const pagination: Pagination = {
+        page,
+        perPage,
+        total,
+        totalPages,
+      };
+
+      return { data, pagination };
+    });
   }
 
   async getEvidence(id: string) {
-    const [item] = await this.db
-      .select()
-      .from(evidenceItems)
-      .where(eq(evidenceItems.id, id))
-      .limit(1);
+    return this.withTenantSchema(async (tx) => {
+      const [item] = await tx
+        .select()
+        .from(evidenceItems)
+        .where(eq(evidenceItems.id, id))
+        .limit(1);
 
-    if (!item) {
-      throw Object.assign(new Error('Evidence not found'), {
-        statusCode: 404,
-        code: 'EVIDENCE_NOT_FOUND',
-      });
-    }
+      if (!item) {
+        throw Object.assign(new Error('Evidence not found'), {
+          statusCode: 404,
+          code: 'EVIDENCE_NOT_FOUND',
+        });
+      }
 
-    return item;
+      return item;
+    });
   }
 
   async createEvidence(data: CreateEvidenceInput, userId: string) {
-    const [newItem] = await this.db
-      .insert(evidenceItems)
-      .values({
-        title: data.title,
-        description: data.description ?? null,
-        evidenceType: data.evidenceType,
-        sha256Hash: null,
-        collectedBy: userId,
-        retentionUntil: data.retentionUntil ?? null,
-        tags: data.tags ?? [],
-        metadata: {},
-      })
-      .returning();
+    return this.withTenantSchema(async (tx) => {
+      const [newItem] = await tx
+        .insert(evidenceItems)
+        .values({
+          title: data.title,
+          description: data.description ?? null,
+          evidenceType: data.evidenceType,
+          sha256Hash: null,
+          collectedBy: userId,
+          retentionUntil: data.retentionUntil ?? null,
+          tags: data.tags ?? [],
+          metadata: {},
+        })
+        .returning();
 
-    if (!newItem) {
-      throw Object.assign(new Error('Failed to create evidence item'), {
-        statusCode: 500,
-        code: 'EVIDENCE_CREATE_FAILED',
+      if (!newItem) {
+        throw Object.assign(new Error('Failed to create evidence item'), {
+          statusCode: 500,
+          code: 'EVIDENCE_CREATE_FAILED',
+        });
+      }
+
+      // Create chain-of-custody 'created' event
+      await tx.insert(chainOfCustody).values({
+        evidenceId: newItem.id,
+        eventType: 'created',
+        userId,
+        details: {
+          title: data.title,
+          evidenceType: data.evidenceType,
+        },
       });
-    }
 
-    // Create chain-of-custody 'created' event
-    await this.db.insert(chainOfCustody).values({
-      evidenceId: newItem.id,
-      eventType: 'created',
-      userId,
-      details: {
-        title: data.title,
-        evidenceType: data.evidenceType,
-      },
+      // Audit
+      await this.createAuditEvent(tx, {
+        userId,
+        eventType: 'evidence.created',
+        entityType: 'evidence',
+        entityId: newItem.id,
+        action: 'create',
+        details: { title: data.title, evidenceType: data.evidenceType },
+      });
+
+      return newItem;
     });
-
-    // Audit
-    await this.createAuditEvent({
-      userId,
-      eventType: 'evidence.created',
-      entityType: 'evidence',
-      entityId: newItem.id,
-      action: 'create',
-      details: { title: data.title, evidenceType: data.evidenceType },
-    });
-
-    return newItem;
   }
 
   async updateEvidence(id: string, data: UpdateEvidenceInput, userId: string) {
-    await this.getEvidence(id);
+    return this.withTenantSchema(async (tx) => {
+      // Verify evidence exists (inline to use tx)
+      const [item] = await tx
+        .select()
+        .from(evidenceItems)
+        .where(eq(evidenceItems.id, id))
+        .limit(1);
 
-    const updateData: Record<string, unknown> = {
-      updatedAt: new Date(),
-    };
+      if (!item) {
+        throw Object.assign(new Error('Evidence not found'), {
+          statusCode: 404,
+          code: 'EVIDENCE_NOT_FOUND',
+        });
+      }
 
-    if (data.title !== undefined) updateData['title'] = data.title;
-    if (data.description !== undefined) updateData['description'] = data.description;
-    if (data.tags !== undefined) updateData['tags'] = data.tags;
+      const updateData: Record<string, unknown> = {
+        updatedAt: new Date(),
+      };
 
-    const [updated] = await this.db
-      .update(evidenceItems)
-      .set(updateData)
-      .where(eq(evidenceItems.id, id))
-      .returning();
+      if (data.title !== undefined) updateData['title'] = data.title;
+      if (data.description !== undefined) updateData['description'] = data.description;
+      if (data.tags !== undefined) updateData['tags'] = data.tags;
 
-    if (!updated) {
-      throw Object.assign(new Error('Failed to update evidence item'), {
-        statusCode: 500,
-        code: 'EVIDENCE_UPDATE_FAILED',
+      const [updated] = await tx
+        .update(evidenceItems)
+        .set(updateData)
+        .where(eq(evidenceItems.id, id))
+        .returning();
+
+      if (!updated) {
+        throw Object.assign(new Error('Failed to update evidence item'), {
+          statusCode: 500,
+          code: 'EVIDENCE_UPDATE_FAILED',
+        });
+      }
+
+      // Create chain-of-custody 'updated' event
+      await tx.insert(chainOfCustody).values({
+        evidenceId: id,
+        eventType: 'updated',
+        userId,
+        details: { updatedFields: Object.keys(data) },
       });
-    }
 
-    // Create chain-of-custody 'updated' event
-    await this.db.insert(chainOfCustody).values({
-      evidenceId: id,
-      eventType: 'updated',
-      userId,
-      details: { updatedFields: Object.keys(data) },
+      // Audit
+      await this.createAuditEvent(tx, {
+        userId,
+        eventType: 'evidence.updated',
+        entityType: 'evidence',
+        entityId: id,
+        action: 'update',
+        details: { updatedFields: Object.keys(data) },
+      });
+
+      return updated;
     });
-
-    // Audit
-    await this.createAuditEvent({
-      userId,
-      eventType: 'evidence.updated',
-      entityType: 'evidence',
-      entityId: id,
-      action: 'update',
-      details: { updatedFields: Object.keys(data) },
-    });
-
-    return updated;
   }
 
   async deleteEvidence(id: string, userId: string) {
-    const item = await this.getEvidence(id);
+    return this.withTenantSchema(async (tx) => {
+      // Verify evidence exists (inline to use tx)
+      const [item] = await tx
+        .select()
+        .from(evidenceItems)
+        .where(eq(evidenceItems.id, id))
+        .limit(1);
 
-    // Soft delete: set status to 'archived' and record deletion metadata
-    await this.db
-      .update(evidenceItems)
-      .set({
-        status: 'archived',
-        deletedAt: new Date(),
-        deletedBy: userId,
-        updatedAt: new Date(),
-      })
-      .where(eq(evidenceItems.id, id));
+      if (!item) {
+        throw Object.assign(new Error('Evidence not found'), {
+          statusCode: 404,
+          code: 'EVIDENCE_NOT_FOUND',
+        });
+      }
 
-    // Create chain-of-custody 'deleted' event (never delete custody records)
-    await this.db.insert(chainOfCustody).values({
-      evidenceId: id,
-      eventType: 'deleted',
-      userId,
-      details: {
-        title: item.title,
-        previousStatus: item.status,
-      },
-    });
+      // Soft delete: set status to 'archived' and record deletion metadata
+      await tx
+        .update(evidenceItems)
+        .set({
+          status: 'archived',
+          deletedAt: new Date(),
+          deletedBy: userId,
+          updatedAt: new Date(),
+        })
+        .where(eq(evidenceItems.id, id));
 
-    // Audit
-    await this.createAuditEvent({
-      userId,
-      eventType: 'evidence.deleted',
-      entityType: 'evidence',
-      entityId: id,
-      action: 'delete',
-      details: { title: item.title, softDelete: true },
+      // Create chain-of-custody 'deleted' event (never delete custody records)
+      await tx.insert(chainOfCustody).values({
+        evidenceId: id,
+        eventType: 'deleted',
+        userId,
+        details: {
+          title: item.title,
+          previousStatus: item.status,
+        },
+      });
+
+      // Audit
+      await this.createAuditEvent(tx, {
+        userId,
+        eventType: 'evidence.deleted',
+        entityType: 'evidence',
+        entityId: id,
+        action: 'delete',
+        details: { title: item.title, softDelete: true },
+      });
     });
   }
 
   // ── Evidence Links ───────────────────────────────────────────────────
 
   async getLinks(evidenceId: string) {
-    // Verify evidence exists
-    await this.getEvidence(evidenceId);
+    return this.withTenantSchema(async (tx) => {
+      // Verify evidence exists (inline to use tx)
+      const [item] = await tx
+        .select()
+        .from(evidenceItems)
+        .where(eq(evidenceItems.id, evidenceId))
+        .limit(1);
 
-    return this.db
-      .select()
-      .from(evidenceLinks)
-      .where(eq(evidenceLinks.evidenceId, evidenceId))
-      .orderBy(evidenceLinks.createdAt);
+      if (!item) {
+        throw Object.assign(new Error('Evidence not found'), {
+          statusCode: 404,
+          code: 'EVIDENCE_NOT_FOUND',
+        });
+      }
+
+      return tx
+        .select()
+        .from(evidenceLinks)
+        .where(eq(evidenceLinks.evidenceId, evidenceId))
+        .orderBy(evidenceLinks.createdAt);
+    });
   }
 
   async linkEvidence(evidenceId: string, data: LinkEvidenceInput, userId: string) {
-    // Verify evidence exists
-    await this.getEvidence(evidenceId);
+    return this.withTenantSchema(async (tx) => {
+      // Verify evidence exists (inline to use tx)
+      const [item] = await tx
+        .select()
+        .from(evidenceItems)
+        .where(eq(evidenceItems.id, evidenceId))
+        .limit(1);
 
-    // Validate entity type
-    if (!VALID_ENTITY_TYPES.includes(data.entityType as typeof VALID_ENTITY_TYPES[number])) {
-      throw Object.assign(
-        new Error(`Invalid entity type '${data.entityType}'. Must be one of: ${VALID_ENTITY_TYPES.join(', ')}`),
-        {
-          statusCode: 400,
-          code: 'INVALID_ENTITY_TYPE',
-        },
-      );
-    }
+      if (!item) {
+        throw Object.assign(new Error('Evidence not found'), {
+          statusCode: 404,
+          code: 'EVIDENCE_NOT_FOUND',
+        });
+      }
 
-    // Check for duplicate link
-    const [existingLink] = await this.db
-      .select({ id: evidenceLinks.id })
-      .from(evidenceLinks)
-      .where(
-        and(
-          eq(evidenceLinks.evidenceId, evidenceId),
-          eq(evidenceLinks.entityType, data.entityType),
-          eq(evidenceLinks.entityId, data.entityId),
-        ),
-      )
-      .limit(1);
+      // Validate entity type
+      if (!VALID_ENTITY_TYPES.includes(data.entityType as typeof VALID_ENTITY_TYPES[number])) {
+        throw Object.assign(
+          new Error(`Invalid entity type '${data.entityType}'. Must be one of: ${VALID_ENTITY_TYPES.join(', ')}`),
+          {
+            statusCode: 400,
+            code: 'INVALID_ENTITY_TYPE',
+          },
+        );
+      }
 
-    if (existingLink) {
-      throw Object.assign(
-        new Error('Evidence is already linked to this entity'),
-        {
-          statusCode: 409,
-          code: 'EVIDENCE_ALREADY_LINKED',
-        },
-      );
-    }
+      // Check for duplicate link
+      const [existingLink] = await tx
+        .select({ id: evidenceLinks.id })
+        .from(evidenceLinks)
+        .where(
+          and(
+            eq(evidenceLinks.evidenceId, evidenceId),
+            eq(evidenceLinks.entityType, data.entityType),
+            eq(evidenceLinks.entityId, data.entityId),
+          ),
+        )
+        .limit(1);
 
-    const [newLink] = await this.db
-      .insert(evidenceLinks)
-      .values({
+      if (existingLink) {
+        throw Object.assign(
+          new Error('Evidence is already linked to this entity'),
+          {
+            statusCode: 409,
+            code: 'EVIDENCE_ALREADY_LINKED',
+          },
+        );
+      }
+
+      const [newLink] = await tx
+        .insert(evidenceLinks)
+        .values({
+          evidenceId,
+          entityType: data.entityType,
+          entityId: data.entityId,
+        })
+        .returning();
+
+      if (!newLink) {
+        throw Object.assign(new Error('Failed to create evidence link'), {
+          statusCode: 500,
+          code: 'EVIDENCE_LINK_FAILED',
+        });
+      }
+
+      // Create chain-of-custody 'linked' event
+      await tx.insert(chainOfCustody).values({
         evidenceId,
-        entityType: data.entityType,
-        entityId: data.entityId,
-      })
-      .returning();
-
-    if (!newLink) {
-      throw Object.assign(new Error('Failed to create evidence link'), {
-        statusCode: 500,
-        code: 'EVIDENCE_LINK_FAILED',
+        eventType: 'linked',
+        userId,
+        details: {
+          entityType: data.entityType,
+          entityId: data.entityId,
+          linkId: newLink.id,
+        },
       });
-    }
 
-    // Create chain-of-custody 'linked' event
-    await this.db.insert(chainOfCustody).values({
-      evidenceId,
-      eventType: 'linked',
-      userId,
-      details: {
-        entityType: data.entityType,
-        entityId: data.entityId,
-        linkId: newLink.id,
-      },
+      // Audit
+      await this.createAuditEvent(tx, {
+        userId,
+        eventType: 'evidence.linked',
+        entityType: 'evidence',
+        entityId: evidenceId,
+        action: 'update',
+        details: { entityType: data.entityType, entityId: data.entityId, linkId: newLink.id },
+      });
+
+      return newLink;
     });
-
-    // Audit
-    await this.createAuditEvent({
-      userId,
-      eventType: 'evidence.linked',
-      entityType: 'evidence',
-      entityId: evidenceId,
-      action: 'update',
-      details: { entityType: data.entityType, entityId: data.entityId, linkId: newLink.id },
-    });
-
-    return newLink;
   }
 
   async unlinkEvidence(evidenceId: string, linkId: string, userId: string) {
-    // Verify evidence exists
-    await this.getEvidence(evidenceId);
+    return this.withTenantSchema(async (tx) => {
+      // Verify evidence exists (inline to use tx)
+      const [item] = await tx
+        .select()
+        .from(evidenceItems)
+        .where(eq(evidenceItems.id, evidenceId))
+        .limit(1);
 
-    // Find the link
-    const [link] = await this.db
-      .select()
-      .from(evidenceLinks)
-      .where(
-        and(
-          eq(evidenceLinks.id, linkId),
-          eq(evidenceLinks.evidenceId, evidenceId),
-        ),
-      )
-      .limit(1);
+      if (!item) {
+        throw Object.assign(new Error('Evidence not found'), {
+          statusCode: 404,
+          code: 'EVIDENCE_NOT_FOUND',
+        });
+      }
 
-    if (!link) {
-      throw Object.assign(new Error('Evidence link not found'), {
-        statusCode: 404,
-        code: 'EVIDENCE_LINK_NOT_FOUND',
+      // Find the link
+      const [link] = await tx
+        .select()
+        .from(evidenceLinks)
+        .where(
+          and(
+            eq(evidenceLinks.id, linkId),
+            eq(evidenceLinks.evidenceId, evidenceId),
+          ),
+        )
+        .limit(1);
+
+      if (!link) {
+        throw Object.assign(new Error('Evidence link not found'), {
+          statusCode: 404,
+          code: 'EVIDENCE_LINK_NOT_FOUND',
+        });
+      }
+
+      // Delete the link
+      await tx
+        .delete(evidenceLinks)
+        .where(eq(evidenceLinks.id, linkId));
+
+      // Create chain-of-custody 'unlinked' event
+      await tx.insert(chainOfCustody).values({
+        evidenceId,
+        eventType: 'unlinked',
+        userId,
+        details: {
+          entityType: link.entityType,
+          entityId: link.entityId,
+          linkId,
+        },
       });
-    }
 
-    // Delete the link
-    await this.db
-      .delete(evidenceLinks)
-      .where(eq(evidenceLinks.id, linkId));
-
-    // Create chain-of-custody 'unlinked' event
-    await this.db.insert(chainOfCustody).values({
-      evidenceId,
-      eventType: 'unlinked',
-      userId,
-      details: {
-        entityType: link.entityType,
-        entityId: link.entityId,
-        linkId,
-      },
-    });
-
-    // Audit
-    await this.createAuditEvent({
-      userId,
-      eventType: 'evidence.unlinked',
-      entityType: 'evidence',
-      entityId: evidenceId,
-      action: 'update',
-      details: { entityType: link.entityType, entityId: link.entityId, linkId },
+      // Audit
+      await this.createAuditEvent(tx, {
+        userId,
+        eventType: 'evidence.unlinked',
+        entityType: 'evidence',
+        entityId: evidenceId,
+        action: 'update',
+        details: { entityType: link.entityType, entityId: link.entityId, linkId },
+      });
     });
   }
 
   // ── Chain of Custody ─────────────────────────────────────────────────
 
   async getChainOfCustody(evidenceId: string) {
-    // Verify evidence exists
-    await this.getEvidence(evidenceId);
+    return this.withTenantSchema(async (tx) => {
+      // Verify evidence exists (inline to use tx)
+      const [item] = await tx
+        .select()
+        .from(evidenceItems)
+        .where(eq(evidenceItems.id, evidenceId))
+        .limit(1);
 
-    return this.db
-      .select()
-      .from(chainOfCustody)
-      .where(eq(chainOfCustody.evidenceId, evidenceId))
-      .orderBy(chainOfCustody.createdAt);
+      if (!item) {
+        throw Object.assign(new Error('Evidence not found'), {
+          statusCode: 404,
+          code: 'EVIDENCE_NOT_FOUND',
+        });
+      }
+
+      return tx
+        .select()
+        .from(chainOfCustody)
+        .where(eq(chainOfCustody.evidenceId, evidenceId))
+        .orderBy(chainOfCustody.createdAt);
+    });
   }
 
   // ── Verification ─────────────────────────────────────────────────────
 
   async verifyEvidence(evidenceId: string) {
-    const item = await this.getEvidence(evidenceId);
-
-    // If no hash was ever stored, the evidence cannot be verified
-    if (!item.sha256Hash || item.sha256Hash === '') {
-      return {
-        verified: false,
-        hash: null,
-        reason: 'No SHA-256 hash on record',
-      };
-    }
-
-    // If the evidence has a file reference, re-compute the hash from the stored file
-    if (item.fileId) {
-      // Look up the file record to get the storage key
-      const [file] = await this.db
+    return this.withTenantSchema(async (tx) => {
+      const [item] = await tx
         .select()
-        .from(evidenceFiles)
-        .where(eq(evidenceFiles.id, item.fileId))
+        .from(evidenceItems)
+        .where(eq(evidenceItems.id, evidenceId))
         .limit(1);
 
-      if (file) {
-        // In production, fetch the file from S3/MinIO and re-compute the hash.
-        // For now, we check the stored metadata against the recorded hash.
-        // A full implementation would:
-        //   1. Fetch the file from the storage backend (S3/MinIO)
-        //   2. Compute SHA-256 of the file content
-        //   3. Compare with the stored sha256Hash
-        //   4. Return verified=true only if they match
+      if (!item) {
+        throw Object.assign(new Error('Evidence not found'), {
+          statusCode: 404,
+          code: 'EVIDENCE_NOT_FOUND',
+        });
+      }
+
+      // If no hash was ever stored, the evidence cannot be verified
+      if (!item.sha256Hash || item.sha256Hash === '') {
         return {
-          verified: true,
-          hash: item.sha256Hash,
-          fileId: item.fileId,
-          storageKey: file.storageKey,
-          note: 'Hash verification requires file content access — verify against storage backend in production',
+          verified: false,
+          hash: null,
+          reason: 'No SHA-256 hash on record',
         };
       }
-    }
 
-    // For evidence without a file (e.g., interview notes, certificates),
-    // verify that the hash is present and properly formatted
-    const hashValid = /^[a-f0-9]{64}$/.test(item.sha256Hash);
+      // If the evidence has a file reference, re-compute the hash from the stored file
+      if (item.fileId) {
+        // Look up the file record to get the storage key
+        const [file] = await tx
+          .select()
+          .from(evidenceFiles)
+          .where(eq(evidenceFiles.id, item.fileId))
+          .limit(1);
 
-    return {
-      verified: hashValid,
-      hash: hashValid ? item.sha256Hash : null,
-      reason: hashValid ? undefined : 'Stored hash is not a valid SHA-256 hex digest',
-    };
+        if (file) {
+          // In production, fetch the file from S3/MinIO and re-compute the hash.
+          // For now, we check the stored metadata against the recorded hash.
+          // A full implementation would:
+          //   1. Fetch the file from the storage backend (S3/MinIO)
+          //   2. Compute SHA-256 of the file content
+          //   3. Compare with the stored sha256Hash
+          //   4. Return verified=true only if they match
+          return {
+            verified: true,
+            hash: item.sha256Hash,
+            fileId: item.fileId,
+            storageKey: file.storageKey,
+            note: 'Hash verification requires file content access — verify against storage backend in production',
+          };
+        }
+      }
+
+      // For evidence without a file (e.g., interview notes, certificates),
+      // verify that the hash is present and properly formatted
+      const hashValid = /^[a-f0-9]{64}$/.test(item.sha256Hash);
+
+      return {
+        verified: hashValid,
+        hash: hashValid ? item.sha256Hash : null,
+        reason: hashValid ? undefined : 'Stored hash is not a valid SHA-256 hex digest',
+      };
+    });
   }
 
   // ── File Upload ──────────────────────────────────────────────────────
@@ -511,114 +621,132 @@ export class EvidenceService {
     fileData: { filename: string; mimetype: string; toBuffer: () => Promise<Buffer> },
     userId: string,
   ) {
-    // Verify evidence item exists before uploading
-    await this.getEvidence(evidenceId);
+    return this.withTenantSchema(async (tx) => {
+      // Verify evidence item exists before uploading (inline to use tx)
+      const [item] = await tx
+        .select()
+        .from(evidenceItems)
+        .where(eq(evidenceItems.id, evidenceId))
+        .limit(1);
 
-    // Read the file content into a buffer
-    const buffer = await fileData.toBuffer();
-    const fileSize = BigInt(buffer.length);
+      if (!item) {
+        throw Object.assign(new Error('Evidence not found'), {
+          statusCode: 404,
+          code: 'EVIDENCE_NOT_FOUND',
+        });
+      }
 
-    // Compute SHA-256 hash of the file content for integrity verification
-    const sha256Hash = crypto.createHash('sha256').update(buffer).digest('hex');
+      // Read the file content into a buffer
+      const buffer = await fileData.toBuffer();
+      const fileSize = BigInt(buffer.length);
 
-    // Create a file record in the evidenceFiles table
-    const storageKey = `evidence/${evidenceId}/${fileData.filename}`;
-    const [fileRecord] = await this.db
-      .insert(evidenceFiles)
-      .values({
-        storageBackend: 's3',
-        storageKey,
-        bucket: process.env['S3_BUCKET'] ?? 'iec62443-evidence',
-      })
-      .returning();
+      // Compute SHA-256 hash of the file content for integrity verification
+      const sha256Hash = crypto.createHash('sha256').update(buffer).digest('hex');
 
-    if (!fileRecord) {
-      throw Object.assign(new Error('Failed to create file record'), {
-        statusCode: 500,
-        code: 'FILE_RECORD_CREATE_FAILED',
+      // Create a file record in the evidenceFiles table
+      const storageKey = `evidence/${evidenceId}/${fileData.filename}`;
+      const [fileRecord] = await tx
+        .insert(evidenceFiles)
+        .values({
+          storageBackend: 's3',
+          storageKey,
+          bucket: process.env['S3_BUCKET'] ?? 'iec62443-evidence',
+        })
+        .returning();
+
+      if (!fileRecord) {
+        throw Object.assign(new Error('Failed to create file record'), {
+          statusCode: 500,
+          code: 'FILE_RECORD_CREATE_FAILED',
+        });
+      }
+
+      // Update the evidence item with file metadata and hash
+      const [updated] = await tx
+        .update(evidenceItems)
+        .set({
+          fileId: fileRecord.id,
+          fileName: fileData.filename,
+          fileSize,
+          mimeType: fileData.mimetype,
+          sha256Hash,
+          updatedAt: new Date(),
+        })
+        .where(eq(evidenceItems.id, evidenceId))
+        .returning();
+
+      if (!updated) {
+        throw Object.assign(new Error('Failed to update evidence item'), {
+          statusCode: 500,
+          code: 'EVIDENCE_UPDATE_FAILED',
+        });
+      }
+
+      // Add chain of custody entry
+      await tx.insert(chainOfCustody).values({
+        evidenceId,
+        eventType: 'file_uploaded',
+        userId,
+        details: {
+          fileName: fileData.filename,
+          fileSize: buffer.length,
+          mimeType: fileData.mimetype,
+          sha256Hash,
+        },
       });
-    }
 
-    // Update the evidence item with file metadata and hash
-    const [updated] = await this.db
-      .update(evidenceItems)
-      .set({
+      // Create audit event
+      await this.createAuditEvent(tx, {
+        userId,
+        eventType: 'evidence.file_uploaded',
+        entityType: 'evidence',
+        entityId: evidenceId,
+        action: 'update',
+        details: { fileName: fileData.filename, sha256Hash },
+      });
+
+      return {
+        id: updated.id,
+        fileName: updated.fileName,
+        fileSize: updated.fileSize,
+        mimeType: updated.mimeType,
+        sha256Hash: updated.sha256Hash,
         fileId: fileRecord.id,
-        fileName: fileData.filename,
-        fileSize,
-        mimeType: fileData.mimetype,
-        sha256Hash,
-        updatedAt: new Date(),
-      })
-      .where(eq(evidenceItems.id, evidenceId))
-      .returning();
-
-    if (!updated) {
-      throw Object.assign(new Error('Failed to update evidence item'), {
-        statusCode: 500,
-        code: 'EVIDENCE_UPDATE_FAILED',
-      });
-    }
-
-    // Add chain of custody entry
-    await this.db.insert(chainOfCustody).values({
-      evidenceId,
-      eventType: 'file_uploaded',
-      userId,
-      details: {
-        fileName: fileData.filename,
-        fileSize: buffer.length,
-        mimeType: fileData.mimetype,
-        sha256Hash,
-      },
+      };
     });
-
-    // Create audit event
-    await this.createAuditEvent({
-      userId,
-      eventType: 'evidence.file_uploaded',
-      entityType: 'evidence',
-      entityId: evidenceId,
-      action: 'update',
-      details: { fileName: fileData.filename, sha256Hash },
-    });
-
-    return {
-      id: updated.id,
-      fileName: updated.fileName,
-      fileSize: updated.fileSize,
-      mimeType: updated.mimeType,
-      sha256Hash: updated.sha256Hash,
-      fileId: fileRecord.id,
-    };
   }
 
   // ── Storage Quota ────────────────────────────────────────────────────
 
   async getStorageQuota() {
-    // Placeholder: tenant storage quota not directly accessible from tenant schema
-    return {
-      quotaBytes: 10737418240,
-      usedBytes: 0,
-      usagePct: 0,
-    };
+    return this.withTenantSchema(async (_tx) => {
+      // Placeholder: tenant storage quota not directly accessible from tenant schema
+      return {
+        quotaBytes: 10737418240,
+        usedBytes: 0,
+        usagePct: 0,
+      };
+    });
   }
 
   // ── Private helpers ──────────────────────────────────────────────────
 
-  private async createAuditEvent(params: {
-    userId: string;
-    eventType: string;
-    entityType: string;
-    entityId: string;
-    action: 'create' | 'update' | 'delete' | 'read';
-    details: Record<string, unknown>;
-    ipAddress?: string | null;
-    userAgent?: string | null;
-  }): Promise<void> {
+  private async createAuditEvent(
+    tx: Parameters<Parameters<typeof this.db.transaction>[0]>[0],
+    params: {
+      userId: string;
+      eventType: string;
+      entityType: string;
+      entityId: string;
+      action: 'create' | 'update' | 'delete' | 'read';
+      details: Record<string, unknown>;
+      ipAddress?: string | null;
+      userAgent?: string | null;
+    },
+  ): Promise<void> {
     try {
       // Get the last audit event hash for chaining (tenant-scoped)
-      const [lastEvent] = await this.db
+      const [lastEvent] = await tx
         .select({ eventHash: auditEvents.eventHash })
         .from(auditEvents)
         .where(eq(auditEvents.tenantId, this.tenantId))
@@ -639,7 +767,7 @@ export class EvidenceService {
       });
       const eventHash = await computeEventHash(dataToHash, previousHash);
 
-      await this.db.insert(auditEvents).values({
+      await tx.insert(auditEvents).values({
         tenantId: this.tenantId,
         userId: params.userId,
         eventType: params.eventType,
