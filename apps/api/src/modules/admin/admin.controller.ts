@@ -86,7 +86,7 @@ export class AdminController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const member = await this.adminService.inviteMember(
@@ -118,7 +118,7 @@ export class AdminController {
       );
     }
 
-    const updatedBy = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const updatedBy = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.adminService.updateMember(userId, parsed.data.role, updatedBy);
@@ -136,7 +136,7 @@ export class AdminController {
   async removeMember(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { userId } = request.params as { userId: string };
-    const removedBy = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const removedBy = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.adminService.removeMember(userId, removedBy);
@@ -173,7 +173,7 @@ export class AdminController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const role = await this.adminService.createRole(
@@ -200,7 +200,7 @@ export class AdminController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.adminService.updateRole(id, {
@@ -218,7 +218,7 @@ export class AdminController {
   async deleteRole(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.adminService.deleteRole(id, userId);
@@ -255,7 +255,7 @@ export class AdminController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const key = await this.adminService.createApiKey(
@@ -276,7 +276,7 @@ export class AdminController {
   async revokeApiKey(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.adminService.revokeApiKey(id, userId);
@@ -337,7 +337,7 @@ export class AdminController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const settings = await this.adminService.updateTenantSettings(

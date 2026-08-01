@@ -103,7 +103,7 @@ export class CSMSController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const framework = await this.csmsService.createFramework(
@@ -134,7 +134,7 @@ export class CSMSController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const framework = await this.csmsService.updateFramework(id, {
@@ -156,7 +156,7 @@ export class CSMSController {
   async deleteFramework(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.csmsService.deleteFramework(id, userId);
@@ -222,7 +222,7 @@ export class CSMSController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const element = await this.csmsService.createElement(frameworkId, {
@@ -259,7 +259,7 @@ export class CSMSController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const data = parsed.data as Record<string, unknown>;
@@ -288,7 +288,7 @@ export class CSMSController {
   async deleteElement(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.csmsService.deleteElement(id, userId);
@@ -353,7 +353,7 @@ export class CSMSController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const policy = await this.csmsService.createPolicy(frameworkId, {
@@ -387,7 +387,7 @@ export class CSMSController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const data = parsed.data as Record<string, unknown>;
@@ -414,7 +414,7 @@ export class CSMSController {
   async approvePolicy(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const policy = await this.csmsService.approvePolicy(id, userId);
@@ -432,7 +432,7 @@ export class CSMSController {
   async deletePolicy(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.csmsService.deletePolicy(id, userId);
@@ -479,7 +479,7 @@ export class CSMSController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const plan = await this.csmsService.createImprovementPlan(frameworkId, {

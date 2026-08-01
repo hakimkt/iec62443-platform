@@ -126,7 +126,7 @@ export class ReportController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const report = await this.reportService.createReport(
@@ -161,7 +161,7 @@ export class ReportController {
   async deleteReport(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const deleted = await this.reportService.deleteReport(id, userId);

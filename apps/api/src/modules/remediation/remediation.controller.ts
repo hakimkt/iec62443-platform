@@ -103,7 +103,7 @@ export class RemediationController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const plan = await this.remediationService.createPlan(
@@ -139,7 +139,7 @@ export class RemediationController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const data = parsed.data as Record<string, unknown>;
@@ -168,7 +168,7 @@ export class RemediationController {
   async deletePlan(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.remediationService.deletePlan(id, userId);
@@ -234,7 +234,7 @@ export class RemediationController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const action = await this.remediationService.createAction(
@@ -276,7 +276,7 @@ export class RemediationController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const data = parsed.data as Record<string, unknown>;
@@ -306,7 +306,7 @@ export class RemediationController {
   async deleteAction(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.remediationService.deleteAction(id, userId);
@@ -353,7 +353,7 @@ export class RemediationController {
       );
     }
 
-    const userId = (request.user as { id: string } | undefined)?.id ?? 'system';
+    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const verification = await this.remediationService.verifyAction(
