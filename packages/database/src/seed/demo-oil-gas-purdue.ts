@@ -1,4 +1,5 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { eq } from 'drizzle-orm';
 import { Pool } from 'pg';
 
 import * as tenantSchema from '../schema/tenant/index.js';
@@ -1814,6 +1815,19 @@ async function seed() {
 
   console.log('Seeding Industrial Oil and Gas — Purdue Model...');
   console.log('='.repeat(60));
+
+  // Idempotency guard: skip if Purdue model already exists
+  const [existing] = await tenantDb
+    .select({ id: tenantSchema.models.id })
+    .from(tenantSchema.models)
+    .where(eq(tenantSchema.models.id, PURDUE_MODEL.id))
+    .limit(1);
+  if (existing) {
+    console.log('Purdue model data already seeded. Skipping.');
+    await tenantPool.end();
+    await pool.end();
+    return;
+  }
 
   // ── 1. Additional Zones ──────────────────────────────────────────────
   console.log('\n[1/6] Creating additional zones...');

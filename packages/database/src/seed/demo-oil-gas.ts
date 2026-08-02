@@ -1,5 +1,5 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { desc, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { Pool } from 'pg';
 import crypto from 'node:crypto';
 
@@ -280,6 +280,18 @@ async function seed() {
 
   const pool = new Pool({ connectionString });
   const db = drizzle(pool, { schema: platformSchema });
+
+  // Idempotency guard: skip if tenant already exists
+  const [existing] = await db
+    .select({ id: platformSchema.tenants.id })
+    .from(platformSchema.tenants)
+    .where(eq(platformSchema.tenants.id, TENANT_ID))
+    .limit(1);
+  if (existing) {
+    console.log('Demo tenant already seeded. Skipping.');
+    await pool.end();
+    return;
+  }
 
   console.log('Seeding Industrial Oil and Gas demo tenant...');
   console.log('='.repeat(60));

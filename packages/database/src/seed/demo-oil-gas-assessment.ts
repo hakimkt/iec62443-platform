@@ -1,5 +1,5 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { desc, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { Pool } from 'pg';
 import crypto from 'node:crypto';
 
@@ -756,6 +756,19 @@ async function seed() {
     options: `-c search_path=${TENANT_SCHEMA},public`,
   });
   const tenantDb = drizzle(tenantPool, { schema: tenantSchema });
+
+  // Idempotency guard: skip if engagement already exists
+  const [existing] = await tenantDb
+    .select({ id: tenantSchema.engagements.id })
+    .from(tenantSchema.engagements)
+    .where(eq(tenantSchema.engagements.id, ENGAGEMENT_ID))
+    .limit(1);
+  if (existing) {
+    console.log('Assessment data already seeded. Skipping.');
+    await tenantPool.end();
+    await pool.end();
+    return;
+  }
 
   // ── 1. Assessment Template ───────────────────────────────────────────
   console.log('\n[1/9] Creating assessment template...');

@@ -1,5 +1,5 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { desc, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { Pool } from 'pg';
 import crypto from 'node:crypto';
 
@@ -715,6 +715,19 @@ async function seed() {
     options: `-c search_path=${TENANT_SCHEMA},public`,
   });
   const tenantDb = drizzle(tenantPool, { schema: tenantSchema });
+
+  // Idempotency guard: skip if CSMS framework already exists
+  const [existing] = await tenantDb
+    .select({ id: tenantSchema.frameworks.id })
+    .from(tenantSchema.frameworks)
+    .where(eq(tenantSchema.frameworks.id, FRAMEWORK_ID))
+    .limit(1);
+  if (existing) {
+    console.log('Governance data already seeded. Skipping.');
+    await tenantPool.end();
+    await pool.end();
+    return;
+  }
 
   // ── 1. CSMS Framework ────────────────────────────────────────────────
   console.log('\n[1/8] Creating CSMS framework...');
