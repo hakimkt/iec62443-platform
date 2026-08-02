@@ -1,118 +1,178 @@
 # IEC 62443 Cybersecurity Management Platform
 
-A multi-tenant, enterprise-grade SaaS application for managing industrial cybersecurity assessments, risk registers, zone/conduit modeling, and CSMS compliance per IEC 62443 standards.
+A full-stack platform for managing IEC 62443 industrial cybersecurity compliance — assessments, risk analysis, asset inventory, zone/conduit modeling, Purdue Model visualization, remediation tracking, and CSMS management.
 
 ## Architecture
 
-- **Frontend:** Next.js 15, React 19, Tailwind CSS 4, Radix UI
-- **Backend:** Fastify 5, Node.js 22, TypeScript
-- **Database:** PostgreSQL 16, Drizzle ORM
-- **Cache:** Redis 7
-- **Storage:** MinIO / S3
-- **Events:** NATS 2
-- **Search:** OpenSearch 2
-- **Queue:** BullMQ (Redis-backed)
+| Layer | App | Stack |
+|-------|-----|-------|
+| **Web** | `apps/web` | Next.js 15, React 19, Tailwind CSS 4, Radix UI, Recharts, XYFlow |
+| **API** | `apps/api` | Fastify 5, Drizzle ORM, PostgreSQL, JWT + RBAC auth |
+| **Worker** | `apps/worker` | BullMQ, Puppeteer (PDF/report generation) |
+| **Shared** | `packages/*` | shared-types, shared-schemas, database, auth, api-client, ui, config |
 
-## Getting Started
+**Infrastructure** (Docker Compose): PostgreSQL 16, Redis 7, MinIO, NATS 2 (JetStream), OpenSearch 2
 
-### Prerequisites
+## Prerequisites
 
-- Node.js 22+
-- pnpm 10+
-- Docker & Docker Compose
+- **Node.js** ≥ 22.0.0
+- **pnpm** 10.12.1 (corepack recommended: `corepack enable && corepack prepare pnpm@10.12.1 --activate`)
+- **Docker** & Docker Compose (for infrastructure services)
 
-### Setup
+## Quick Start
 
-1. **Install dependencies:**
-   ```bash
-   pnpm install
-   ```
+### 1. Clone and install
 
-2. **Start infrastructure services:**
-   ```bash
-   docker compose -f infrastructure/docker/docker-compose.dev.yml up -d
-   ```
+```bash
+git clone <repo-url> && cd iec62443-platform
+pnpm install
+```
 
-3. **Copy environment variables:**
-   ```bash
-   cp .env.example .env
-   ```
+### 2. Start infrastructure
 
-4. **Generate database migrations:**
-   ```bash
-   pnpm db:generate
-   ```
+```bash
+docker compose -f infrastructure/docker/docker-compose.dev.yml up -d
+```
 
-5. **Run database migrations:**
-   ```bash
-   pnpm db:migrate
-   ```
+Wait for all services to report healthy:
 
-6. **Seed the database:**
-   ```bash
-   pnpm db:seed
-   ```
+```bash
+docker compose -f infrastructure/docker/docker-compose.dev.yml ps
+```
 
-7. **Start development servers:**
-   ```bash
-   pnpm dev
-   ```
+### 3. Configure environment
 
-### Access Points
+```bash
+cp .env.example .env
+```
+
+The defaults in `.env.example` match the Docker Compose services, so you can start developing without changes. For production, change at minimum:
+
+- `DATABASE_URL`
+- `JWT_SECRET`
+- `S3_ACCESS_KEY` / `S3_SECRET_KEY`
+
+### 4. Database setup
+
+```bash
+# Generate Drizzle migrations
+pnpm db:generate
+
+# Apply migrations
+pnpm db:migrate
+
+# Seed with demo data
+pnpm db:seed
+```
+
+### 5. Start the development servers
+
+```bash
+pnpm dev
+```
+
+This starts all three apps concurrently via Turborepo:
 
 | Service | URL |
-|---|---|
-| Web Application | http://localhost:3000 |
-| API Server | http://localhost:4000 |
-| API Documentation | http://localhost:4000/api/docs |
+|---------|-----|
+| Web UI | http://localhost:3000 |
+| API server | http://localhost:4000 |
+| API docs (Swagger) | http://localhost:4000/documentation |
 | MinIO Console | http://localhost:9001 |
 
-## Monorepo Structure
+## Project Structure
 
 ```
 iec62443-platform/
 ├── apps/
-│   ├── web/                    # Next.js frontend
-│   ├── api/                    # Fastify backend
-│   └── worker/                 # Background job worker
+│   ├── api/          # Fastify 5 REST API
+│   ├── web/          # Next.js 15 frontend
+│   └── worker/       # BullMQ background jobs
 ├── packages/
-│   ├── shared-types/           # Shared TypeScript types
-│   ├── shared-schemas/         # Zod validation schemas
-│   ├── database/               # Drizzle schema + migrations
-│   ├── ui/                     # Shared UI components
-│   ├── api-client/             # Typed API client
-│   ├── auth/                   # Authentication utilities
-│   └── config/                 # Shared configuration
+│   ├── api-client/   # Typed API client (fetch-based)
+│   ├── auth/         # JWT, RBAC, MFA utilities
+│   ├── config/       # Shared configuration
+│   ├── database/     # Drizzle ORM schema + queries
+│   ├── shared-schemas/ # Zod validation schemas
+│   ├── shared-types/   # TypeScript type definitions
+│   └── ui/           # Component library + Tailwind preset
 ├── infrastructure/
-│   ├── docker/                 # Docker Compose files
-│   ├── terraform/              # IaC definitions
-│   └── helm/                   # Kubernetes charts
-└── doc/                        # Project documentation
+│   ├── docker/       # Docker Compose for local dev
+│   ├── migrations/   # SQL migration files
+│   ├── helm/         # Kubernetes Helm charts
+│   └── terraform/    # Infrastructure as code
+└── doc/              # Project documentation
 ```
 
-## Development
-
-### Commands
+## Available Scripts
 
 | Command | Description |
-|---|---|
-| `pnpm dev` | Start all services in dev mode |
-| `pnpm build` | Build all packages |
-| `pnpm lint` | Run ESLint across all packages |
-| `pnpm type-check` | Run TypeScript type checking |
+|---------|-------------|
+| `pnpm dev` | Start all apps in dev mode (watch) |
+| `pnpm build` | Production build (all packages + apps) |
+| `pnpm lint` | ESLint across the monorepo |
+| `pnpm type-check` | TypeScript `--noEmit` across all packages |
 | `pnpm test` | Run all tests |
-| `pnpm test:unit` | Run unit tests only |
-| `pnpm format` | Format code with Prettier |
-
-### Database
-
-| Command | Description |
-|---|---|
+| `pnpm test:unit` | Unit tests only |
+| `pnpm test:e2e` | End-to-end tests |
+| `pnpm format` | Prettier write |
+| `pnpm format:check` | Prettier check |
+| `pnpm clean` | Remove all build artifacts and node_modules |
 | `pnpm db:generate` | Generate Drizzle migrations |
 | `pnpm db:migrate` | Apply migrations |
-| `pnpm db:seed` | Seed database with initial data |
-| `pnpm db:studio` | Open Drizzle Studio |
+| `pnpm db:seed` | Seed database with demo data |
+| `pnpm db:studio` | Open Drizzle Studio (DB browser) |
+
+## Running Individual Apps
+
+```bash
+# API only
+pnpm --filter @iec62443/api dev
+
+# Web only
+pnpm --filter @iec62443/web dev
+
+# Worker only
+pnpm --filter @iec62443/worker dev
+```
+
+## Running Tests
+
+```bash
+# All tests
+pnpm test
+
+# Specific package
+pnpm --filter @iec62443/api test
+
+# Watch mode
+pnpm --filter @iec62443/api vitest --watch
+```
+
+## Infrastructure Services
+
+The Docker Compose stack in `infrastructure/docker/docker-compose.dev.yml` provides:
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| PostgreSQL 16 | 5432 | Primary database |
+| Redis 7 | 6379 | Job queue, caching, sessions |
+| MinIO | 9000 / 9001 | S3-compatible evidence storage |
+| NATS 2 | 4222 / 8222 | Event messaging (JetStream) |
+| OpenSearch 2 | 9200 | Audit log search & analytics |
+
+Stop all services:
+
+```bash
+docker compose -f infrastructure/docker/docker-compose.dev.yml down
+```
+
+Wipe data and start fresh:
+
+```bash
+docker compose -f infrastructure/docker/docker-compose.dev.yml down -v
+```
 
 ## License
 
-Proprietary — All rights reserved.
+UNLICENSED — proprietary software.
