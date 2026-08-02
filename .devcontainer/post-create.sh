@@ -24,7 +24,12 @@ echo "=== Running database migrations ==="
 pnpm db:migrate
 
 echo "=== Seeding database ==="
-pnpm db:seed || true
+pnpm db:seed
+pnpm db:seed:demo-oil-gas
+pnpm db:seed:demo-oil-gas-ot
+pnpm db:seed:demo-oil-gas-assessment
+pnpm db:seed:demo-oil-gas-governance
+pnpm db:seed:demo-oil-gas-purdue
 
 echo "=== Setup complete ==="
 echo "Run 'pnpm dev' to start the development servers."
