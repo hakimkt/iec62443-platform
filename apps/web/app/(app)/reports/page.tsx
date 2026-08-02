@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { useReports, useDeleteReport } from '@/hooks/useReports';
+import { getApiBaseUrl } from '@/lib/codespace';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   pending: { label: 'Pending', color: 'bg-surface-100 text-surface-600', icon: Clock },
@@ -63,7 +64,7 @@ export default function ReportsPage() {
   };
 
   const handleDownload = async (id: string) => {
-    const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
+    const apiUrl = getApiBaseUrl();
     const token = localStorage.getItem('auth-storage');
     let authToken = '';
     try {

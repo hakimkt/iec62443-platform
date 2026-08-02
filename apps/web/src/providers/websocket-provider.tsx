@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useAuthStore } from '@/stores/auth-store';
+import { getWsBaseUrl } from '@/lib/codespace';
 
 interface WebSocketContextValue {
   connected: boolean;
@@ -22,7 +23,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const accessToken = useAuthStore((s) => s.accessToken);
 
   const connect = useCallback(() => {
-    const wsUrl = process.env['NEXT_PUBLIC_WS_URL'];
+    const wsUrl = getWsBaseUrl();
     if (!wsUrl) return;
 
     const token = accessToken ?? '';
