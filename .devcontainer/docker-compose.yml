@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ../..:/workspace:cached
+      - ../..:/workspaces/iec62443-platform:cached
     command: sleep infinity
     environment:
       DATABASE_URL: postgresql://iec62443:iec62443_dev@postgres:5432/iec62443_platform

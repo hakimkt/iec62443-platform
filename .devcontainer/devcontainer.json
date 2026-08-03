@@ -2,7 +2,7 @@
   "name": "IEC 62443 Platform",
   "dockerComposeFile": ["docker-compose.yml"],
   "service": "app",
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/workspaces/iec62443-platform",
   "forwardPorts": [3000, 4000, 5432],
   "portsAttributes": {
     "3000": { "label": "Web UI", "onAutoForward": "notify" },
@@ -24,6 +24,6 @@
       }
     }
   },
-  "postCreateCommand": "bash /workspace/.devcontainer/post-create.sh",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
   "remoteUser": "node"
 }
