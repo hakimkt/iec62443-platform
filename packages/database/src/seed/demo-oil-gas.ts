@@ -247,51 +247,15 @@ const TENANT_SCHEMA_DDL = `
 CREATE SCHEMA IF NOT EXISTS ${TENANT_SCHEMA};
 `;
 
-const TENANT_TABLES_DDL = `
--- Clients table
-CREATE TABLE IF NOT EXISTS ${TENANT_SCHEMA}.clients (
-    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name            VARCHAR(255) NOT NULL,
-    industry        VARCHAR(100),
-    description     TEXT,
-    contact_name    VARCHAR(200),
-    contact_email   VARCHAR(320),
-    contact_phone   VARCHAR(50),
-    website         TEXT,
-    address         TEXT,
-    status          VARCHAR(20) NOT NULL DEFAULT 'active'
-                    CHECK (status IN ('active', 'inactive', 'archived')),
-    metadata        JSONB DEFAULT '{}',
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
-);
+// ── Full tenant schema from migration file ──────────────────────────────
 
--- Projects table
-CREATE TABLE IF NOT EXISTS ${TENANT_SCHEMA}.projects (
-    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name            VARCHAR(500) NOT NULL,
-    description     TEXT,
-    type            VARCHAR(50) NOT NULL
-                    CHECK (type IN ('risk_assessment', 'gap_analysis', 'csms_assessment',
-                                    'network_segmentation', 'remediation', 'compliance_audit',
-                                    'consulting', 'custom')),
-    status          VARCHAR(30) NOT NULL DEFAULT 'planning'
-                    CHECK (status IN ('planning', 'active', 'in_progress', 'on_hold',
-                                      'completed', 'cancelled')),
-    client_id       UUID REFERENCES ${TENANT_SCHEMA}.clients(id),
-    owner_id        UUID,
-    start_date      DATE,
-    target_date     DATE,
-    completed_at    TIMESTAMPTZ,
-    metadata        JSONB DEFAULT '{}',
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS idx_projects_status ON ${TENANT_SCHEMA}.projects(status);
-CREATE INDEX IF NOT EXISTS idx_projects_client_id ON ${TENANT_SCHEMA}.projects(client_id);
-CREATE INDEX IF NOT EXISTS idx_projects_type ON ${TENANT_SCHEMA}.projects(type);
-`;
+async function loadFullTenantSchema(pool: Pool): Promise<void> {
+  const fs = await import('node:fs');
+  const path = new URL('../../infrastructure/migrations/001_tenant_schema.sql', import.meta.url)
+    .pathname.replace(/^\/+/, '/');
+  const ddl = fs.readFileSync(path, 'utf-8').replace(/\{SCHEMA\}/g, TENANT_SCHEMA);
+  await pool.query(ddl);
+}
 
 // ── Seed ─────────────────────────────────────────────────────────────────
 
@@ -357,7 +321,7 @@ async function seed() {
       .values({
         id: user.id,
         email: user.email,
-        passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$placeholder$placeholder',
+        passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$dNtwf7mfTaKAowUaYrkIpQ$7Iti5LIGiRJcI97NV2pATzMQMgs2/SMFFAqcVIlyMC8',
         firstName: user.firstName,
         lastName: user.lastName,
         mfaEnabled: false,
@@ -406,7 +370,7 @@ async function seed() {
   console.log('[5/7] Creating tenant schema and tables...');
 
   await pool.query(TENANT_SCHEMA_DDL);
-  await pool.query(TENANT_TABLES_DDL);
+  await loadFullTenantSchema(pool);
 
   // ── 6. Tenant-scoped Data (Clients, Projects) ────────────────────────
   console.log('[6/7] Seeding tenant data (clients, projects)...');

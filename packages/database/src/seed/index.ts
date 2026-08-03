@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as platformSchema from '../schema/platform/index.js';
@@ -688,6 +689,20 @@ async function seed() {
     })
     .onConflictDoNothing();
 
+  console.log('Creating demo tenant schema...');
+  await db.execute(sql`CREATE SCHEMA IF NOT EXISTS tenant_demo`);
+  const tenantSchemaPath = new URL(
+    '../../infrastructure/migrations/001_tenant_schema.sql',
+    import.meta.url,
+  ).pathname.replace(/^\/+/, '/');
+  try {
+    const fs = await import('node:fs');
+    const ddl = fs.readFileSync(tenantSchemaPath, 'utf-8').replace(/\{SCHEMA\}/g, 'tenant_demo');
+    await pool.query(ddl);
+  } catch {
+    console.log('  (tenant schema tables may already exist, skipping)');
+  }
+
   console.log('Seeding demo user...');
   const demoUserId = '20000000-0000-0000-0000-000000000001';
   await db
@@ -695,7 +710,7 @@ async function seed() {
     .values({
       id: demoUserId,
       email: 'admin@demo-corp.com',
-      passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$placeholder$placeholder',
+      passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$dNtwf7mfTaKAowUaYrkIpQ$7Iti5LIGiRJcI97NV2pATzMQMgs2/SMFFAqcVIlyMC8',
       firstName: 'Demo',
       lastName: 'Admin',
       mfaEnabled: false,

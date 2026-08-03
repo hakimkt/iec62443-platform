@@ -23,7 +23,10 @@ echo "  PostgreSQL is ready"
 echo "=== Running database migrations ==="
 pnpm db:migrate
 
-echo "=== Seeding database ==="
+echo "=== Running platform schema migration ==="
+psql "$DATABASE_URL" -f infrastructure/migrations/000_platform_schema.sql || true
+
+echo "=== Seeding database (creates tenants + tenant schemas) ==="
 pnpm db:seed
 pnpm db:seed:demo-oil-gas
 pnpm db:seed:demo-oil-gas-ot
