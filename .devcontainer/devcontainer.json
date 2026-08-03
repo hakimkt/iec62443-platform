@@ -3,15 +3,11 @@
   "dockerComposeFile": ["docker-compose.yml"],
   "service": "app",
   "workspaceFolder": "/workspace",
-  "forwardPorts": [3000, 4000, 5432, 6379, 9000, 9001, 9200],
+  "forwardPorts": [3000, 4000, 5432],
   "portsAttributes": {
     "3000": { "label": "Web UI", "onAutoForward": "notify" },
     "4000": { "label": "API Server", "onAutoForward": "notify" },
-    "5432": { "label": "PostgreSQL", "onAutoForward": "silent" },
-    "6379": { "label": "Redis", "onAutoForward": "silent" },
-    "9000": { "label": "MinIO API", "onAutoForward": "silent" },
-    "9001": { "label": "MinIO Console", "onAutoForward": "notify" },
-    "9200": { "label": "OpenSearch", "onAutoForward": "silent" }
+    "5432": { "label": "PostgreSQL", "onAutoForward": "silent" }
   },
   "customizations": {
     "vscode": {
