@@ -1,8 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type {
+  CommunicationRule,
+  PurdueAssetMapping,
+  PurdueComplianceResult,
+  PurdueLevelDefinition,
+  PurdueModel,
+} from '@iec62443/shared-types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiClient } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
-
-import type { PurdueModel, PurdueLevelDefinition, PurdueAssetMapping, CommunicationRule, PurdueComplianceResult } from '@iec62443/shared-types';
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -54,9 +59,7 @@ export function usePurdueModel(id: string | null) {
   return useQuery({
     queryKey: queryKeys.purdue.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<PurdueModel>>(
-        `/purdue-models/${id}`,
-      );
+      const result = await client.get<SingleResponse<PurdueModel>>(`/purdue-models/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -68,11 +71,13 @@ export function useCreatePurdueModel() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { name: string; facilityId?: string; description?: string; isDefault?: boolean }) => {
-      const result = await client.post<SingleResponse<PurdueModel>>(
-        '/purdue-models',
-        data,
-      );
+    mutationFn: async (data: {
+      name: string;
+      facilityId?: string;
+      description?: string;
+      isDefault?: boolean;
+    }) => {
+      const result = await client.post<SingleResponse<PurdueModel>>('/purdue-models', data);
       return result.data;
     },
     onSuccess: () => {
@@ -87,10 +92,7 @@ export function useUpdatePurdueModel() {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: { id: string; [key: string]: unknown }) => {
-      const result = await client.patch<SingleResponse<PurdueModel>>(
-        `/purdue-models/${id}`,
-        data,
-      );
+      const result = await client.patch<SingleResponse<PurdueModel>>(`/purdue-models/${id}`, data);
       return result.data;
     },
     onSuccess: (_data, variables) => {
@@ -136,7 +138,17 @@ export function useCreatePurdueLevel() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ modelId, ...data }: { modelId: string; levelNumber: number; name: string; description?: string; color?: string; sortOrder?: number }) => {
+    mutationFn: async ({
+      modelId,
+      ...data
+    }: {
+      modelId: string;
+      levelNumber: number;
+      name: string;
+      description?: string;
+      color?: string;
+      sortOrder?: number;
+    }) => {
       const result = await client.post<SingleResponse<PurdueLevelDefinition>>(
         `/purdue-models/${modelId}/levels`,
         data,
@@ -155,7 +167,15 @@ export function useUpdatePurdueLevel() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ modelId, levelId, ...data }: { modelId: string; levelId: string; [key: string]: unknown }) => {
+    mutationFn: async ({
+      modelId,
+      levelId,
+      ...data
+    }: {
+      modelId: string;
+      levelId: string;
+      [key: string]: unknown;
+    }) => {
       const result = await client.patch<SingleResponse<PurdueLevelDefinition>>(
         `/purdue-models/${modelId}/levels/${levelId}`,
         data,
@@ -204,7 +224,14 @@ export function useAddPurdueAssetMapping() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ modelId, ...data }: { modelId: string; assetId: string; levelId: string }) => {
+    mutationFn: async ({
+      modelId,
+      ...data
+    }: {
+      modelId: string;
+      assetId: string;
+      levelId: string;
+    }) => {
       const result = await client.post<SingleResponse<PurdueAssetMapping>>(
         `/purdue-models/${modelId}/mappings`,
         data,
@@ -255,7 +282,17 @@ export function useCreateCommunicationRule() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ modelId, ...data }: { modelId: string; sourceLevelId: string; targetLevelId: string; isAllowed?: boolean; condition?: string; protocol?: string }) => {
+    mutationFn: async ({
+      modelId,
+      ...data
+    }: {
+      modelId: string;
+      sourceLevelId: string;
+      targetLevelId: string;
+      isAllowed?: boolean;
+      condition?: string;
+      protocol?: string;
+    }) => {
       const result = await client.post<SingleResponse<CommunicationRule>>(
         `/purdue-models/${modelId}/rules`,
         data,
@@ -274,7 +311,15 @@ export function useUpdateCommunicationRule() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ modelId, ruleId, ...data }: { modelId: string; ruleId: string; [key: string]: unknown }) => {
+    mutationFn: async ({
+      modelId,
+      ruleId,
+      ...data
+    }: {
+      modelId: string;
+      ruleId: string;
+      [key: string]: unknown;
+    }) => {
       const result = await client.patch<SingleResponse<CommunicationRule>>(
         `/purdue-models/${modelId}/rules/${ruleId}`,
         data,

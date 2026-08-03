@@ -1,12 +1,10 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-
 import {
-  uploadEvidenceSchema,
-  updateEvidenceSchema,
   linkEvidenceSchema,
   paginationSchema,
+  updateEvidenceSchema,
+  uploadEvidenceSchema,
 } from '@iec62443/shared-schemas';
-
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { EvidenceService } from './evidence.service.js';
 
 // ---------------------------------------------------------------------------
@@ -91,14 +89,15 @@ export class EvidenceController {
     if (query['evidenceType']) filters.evidenceType = query['evidenceType'];
     if (query['search']) filters.search = query['search'];
     if (query['tags']) {
-      filters.tags = query['tags'].split(',').map((t) => t.trim()).filter(Boolean);
+      filters.tags = query['tags']
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
     }
 
     try {
       const result = await this.evidenceService.listEvidence(filters);
-      return reply.status(200).send(
-        paginatedResponse(result.data, result.pagination, request.id),
-      );
+      return reply.status(200).send(paginatedResponse(result.data, result.pagination, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -113,16 +112,16 @@ export class EvidenceController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -140,9 +139,9 @@ export class EvidenceController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id));
     }
 
     try {
@@ -160,9 +159,9 @@ export class EvidenceController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id));
     }
 
     const parsed = updateEvidenceSchema.safeParse(request.body);
@@ -171,16 +170,16 @@ export class EvidenceController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -198,16 +197,16 @@ export class EvidenceController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -225,9 +224,9 @@ export class EvidenceController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id));
     }
 
     try {
@@ -245,9 +244,9 @@ export class EvidenceController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id));
     }
 
     const parsed = linkEvidenceSchema.safeParse(request.body);
@@ -256,16 +255,16 @@ export class EvidenceController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -284,22 +283,22 @@ export class EvidenceController {
     const linkId = params['linkId'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id));
     }
 
     if (!linkId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Link ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Link ID is required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -317,9 +316,9 @@ export class EvidenceController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id));
     }
 
     try {
@@ -337,9 +336,9 @@ export class EvidenceController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id));
     }
 
     try {
@@ -357,26 +356,32 @@ export class EvidenceController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
       // @fastify/multipart augments FastifyRequest with file() at runtime
-      const req = request as FastifyRequest & { file: () => Promise<{ filename: string; mimetype: string; toBuffer: () => Promise<Buffer> } | null> };
+      const req = request as FastifyRequest & {
+        file: () => Promise<{
+          filename: string;
+          mimetype: string;
+          toBuffer: () => Promise<Buffer>;
+        } | null>;
+      };
       const data = await req.file();
       if (!data) {
-        return reply.status(400).send(
-          errorResponse('VALIDATION_ERROR', 'No file uploaded', request.id),
-        );
+        return reply
+          .status(400)
+          .send(errorResponse('VALIDATION_ERROR', 'No file uploaded', request.id));
       }
 
       const result = await this.evidenceService.uploadFile(id, data, userId);
@@ -420,12 +425,16 @@ export class EvidenceController {
       request.log.warn(error);
     }
 
-    return reply.status(statusCode).send(
-      errorResponse(
-        code,
-        statusCode >= 500 ? 'An unexpected error occurred.' : (err.message ?? 'An error occurred'),
-        request.id,
-      ),
-    );
+    return reply
+      .status(statusCode)
+      .send(
+        errorResponse(
+          code,
+          statusCode >= 500
+            ? 'An unexpected error occurred.'
+            : (err.message ?? 'An error occurred'),
+          request.id,
+        ),
+      );
   }
 }

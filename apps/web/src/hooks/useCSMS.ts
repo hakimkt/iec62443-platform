@@ -1,8 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type {
+  CSMS_POLICY,
+  CSMSElement,
+  CSMSFramework,
+  CSMSGapAnalysis,
+  CSMSImprovementPlan,
+} from '@iec62443/shared-types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiClient } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
-
-import type { CSMSFramework, CSMSElement, CSMS_POLICY, CSMSImprovementPlan, CSMSGapAnalysis } from '@iec62443/shared-types';
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -56,9 +61,7 @@ export function useCSMSFramework(id: string | null) {
   return useQuery({
     queryKey: queryKeys.csms.frameworks.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<CSMSFramework>>(
-        `/csms/frameworks/${id}`,
-      );
+      const result = await client.get<SingleResponse<CSMSFramework>>(`/csms/frameworks/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -70,14 +73,8 @@ export function useCreateFramework() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
-      name: string;
-      version?: string;
-    }) => {
-      const result = await client.post<SingleResponse<CSMSFramework>>(
-        '/csms/frameworks',
-        data,
-      );
+    mutationFn: async (data: { name: string; version?: string }) => {
+      const result = await client.post<SingleResponse<CSMSFramework>>('/csms/frameworks', data);
       return result.data;
     },
     onSuccess: () => {
@@ -140,7 +137,8 @@ export function useCSMSElements(params: ElementListParams = {}) {
       if (params.perPage) queryParams['perPage'] = String(params.perPage);
       if (params.frameworkId) queryParams['frameworkId'] = params.frameworkId;
       if (params.category) queryParams['category'] = params.category;
-      if (params.implementationStatus) queryParams['implementationStatus'] = params.implementationStatus;
+      if (params.implementationStatus)
+        queryParams['implementationStatus'] = params.implementationStatus;
 
       const result = await client.get<PaginatedResponse<CSMSElement>>(
         '/csms/elements',
@@ -157,9 +155,7 @@ export function useCSMSElement(id: string | null) {
   return useQuery({
     queryKey: queryKeys.csms.elements.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<CSMSElement>>(
-        `/csms/elements/${id}`,
-      );
+      const result = await client.get<SingleResponse<CSMSElement>>(`/csms/elements/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -171,7 +167,10 @@ export function useCreateElement() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ frameworkId, ...data }: {
+    mutationFn: async ({
+      frameworkId,
+      ...data
+    }: {
       frameworkId: string;
       category: string;
       title: string;
@@ -200,10 +199,7 @@ export function useUpdateElement() {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: { id: string; [key: string]: unknown }) => {
-      const result = await client.patch<SingleResponse<CSMSElement>>(
-        `/csms/elements/${id}`,
-        data,
-      );
+      const result = await client.patch<SingleResponse<CSMSElement>>(`/csms/elements/${id}`, data);
       return result.data;
     },
     onSuccess: (_data, variables) => {
@@ -263,9 +259,7 @@ export function useCSMSPolicy(id: string | null) {
   return useQuery({
     queryKey: queryKeys.csms.policies.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<CSMS_POLICY>>(
-        `/csms/policies/${id}`,
-      );
+      const result = await client.get<SingleResponse<CSMS_POLICY>>(`/csms/policies/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -277,7 +271,10 @@ export function useCreatePolicy() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ frameworkId, ...data }: {
+    mutationFn: async ({
+      frameworkId,
+      ...data
+    }: {
       frameworkId: string;
       title: string;
       version?: string;
@@ -304,10 +301,7 @@ export function useUpdatePolicy() {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: { id: string; [key: string]: unknown }) => {
-      const result = await client.patch<SingleResponse<CSMS_POLICY>>(
-        `/csms/policies/${id}`,
-        data,
-      );
+      const result = await client.patch<SingleResponse<CSMS_POLICY>>(`/csms/policies/${id}`, data);
       return result.data;
     },
     onSuccess: (_data, variables) => {
@@ -372,7 +366,10 @@ export function useCreateImprovementPlan() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ frameworkId, ...data }: {
+    mutationFn: async ({
+      frameworkId,
+      ...data
+    }: {
       frameworkId: string;
       elementId: string;
       title: string;

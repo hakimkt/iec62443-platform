@@ -31,7 +31,12 @@ export const assetCriticalitySchema = z.enum([
   'non_critical',
 ]);
 
-export const operationalStatusSchema = z.enum(['operational', 'maintenance', 'decommissioned', 'standby']);
+export const operationalStatusSchema = z.enum([
+  'operational',
+  'maintenance',
+  'decommissioned',
+  'standby',
+]);
 
 export const relationshipTypeSchema = z.enum([
   'communicates_with',

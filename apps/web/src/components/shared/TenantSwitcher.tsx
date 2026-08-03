@@ -1,8 +1,8 @@
 'use client';
 
 import { cn } from '@iec62443/ui';
-import { Button } from '@iec62443/ui/primitives';
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -10,8 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@iec62443/ui/primitives';
+import { Building2, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/providers/auth-provider';
-import { ChevronDown, Building2 } from 'lucide-react';
 
 export function TenantSwitcher() {
   const { tenants, currentTenantId, switchTenant } = useAuth();

@@ -1,8 +1,6 @@
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import { remediationRoutes } from './routes.js';
 
 // ---------------------------------------------------------------------------
@@ -13,10 +11,7 @@ export interface RemediationModuleOptions {
   connectionString?: string;
 }
 
-async function remediationModule(
-  app: FastifyInstance,
-  _options: RemediationModuleOptions,
-) {
+async function remediationModule(app: FastifyInstance, _options: RemediationModuleOptions) {
   const db = app.db as unknown as NodePgDatabase;
 
   await app.register(remediationRoutes, { db });

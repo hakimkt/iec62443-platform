@@ -31,6 +31,7 @@
 **IEC 62443 Reference:** Part 3-2 (Security levels), Part 3-3 (System security requirements)
 
 #### Responsibilities
+
 - Create and manage assessment engagements
 - Configure assessment scope (which IEC 62443 parts/clauses to assess)
 - Define assessment templates aligned to IEC 62443 SL-T (target security level)
@@ -39,25 +40,28 @@
 - Version assessment results for historical comparison
 
 #### Key Entities
-| Entity | Description |
-|---|---|
-| `Assessment` | Top-level engagement; scoped to a system/facility |
-| `AssessmentTemplate` | Reusable questionnaire templates (IEC 62443-3-2, -3-3, -4-1, -4-2) |
-| `AssessmentQuestion` | Individual requirement/countermeasure to evaluate |
-| `AssessmentResponse` | Assessor's evaluation of a question |
-| `AssessmentScorecard` | Aggregated scoring (current SL, target SL, gap) |
-| `AssessmentMilestone` | Progress tracking checkpoints |
+
+| Entity                | Description                                                        |
+| --------------------- | ------------------------------------------------------------------ |
+| `Assessment`          | Top-level engagement; scoped to a system/facility                  |
+| `AssessmentTemplate`  | Reusable questionnaire templates (IEC 62443-3-2, -3-3, -4-1, -4-2) |
+| `AssessmentQuestion`  | Individual requirement/countermeasure to evaluate                  |
+| `AssessmentResponse`  | Assessor's evaluation of a question                                |
+| `AssessmentScorecard` | Aggregated scoring (current SL, target SL, gap)                    |
+| `AssessmentMilestone` | Progress tracking checkpoints                                      |
 
 #### Assessment Types
-| Type | IEC 62443 Part | Purpose |
-|---|---|---|
-| Gap Assessment | 3-2 | Identify gaps between current and target security level |
-| System Assessment | 3-3 | Evaluate system-level security requirements |
-| Component Assessment | 4-2 | Evaluate product/component security capabilities |
-| CSMS Assessment | 2-1 | Assess cybersecurity management system maturity |
-| Custom Assessment | — | Client-specific assessment frameworks |
+
+| Type                 | IEC 62443 Part | Purpose                                                 |
+| -------------------- | -------------- | ------------------------------------------------------- |
+| Gap Assessment       | 3-2            | Identify gaps between current and target security level |
+| System Assessment    | 3-3            | Evaluate system-level security requirements             |
+| Component Assessment | 4-2            | Evaluate product/component security capabilities        |
+| CSMS Assessment      | 2-1            | Assess cybersecurity management system maturity         |
+| Custom Assessment    | —              | Client-specific assessment frameworks                   |
 
 #### Scoring Model
+
 ```
 Security Level (SL) Scale:
   SL 0 — No security
@@ -81,6 +85,7 @@ Per-requirement scoring:
 **IEC 62443 Reference:** Part 3-2 (Risk-based approach), ISO 27005 alignment
 
 #### Responsibilities
+
 - Maintain the OT risk register
 - Perform risk identification, analysis, and evaluation
 - Define risk treatment plans (mitigate, transfer, accept, avoid)
@@ -90,18 +95,20 @@ Per-requirement scoring:
 - Support risk reassessment workflows
 
 #### Key Entities
-| Entity | Description |
-|---|---|
-| `RiskRegister` | Container for all risks within a scope |
-| `Risk` | Individual risk with likelihood, impact, and treatment |
-| `RiskCategory` | Classification (safety, operational, environmental, financial) |
-| `RiskAssessment` | Point-in-time risk evaluation |
-| `RiskTreatment` | Planned or applied treatment action |
-| `RiskAcceptance` | Formal risk acceptance with approval chain |
-| `ThreatScenario` | Threat modeling linked to risks |
-| `RiskMatrix` | Configurable likelihood × impact matrix |
+
+| Entity           | Description                                                    |
+| ---------------- | -------------------------------------------------------------- |
+| `RiskRegister`   | Container for all risks within a scope                         |
+| `Risk`           | Individual risk with likelihood, impact, and treatment         |
+| `RiskCategory`   | Classification (safety, operational, environmental, financial) |
+| `RiskAssessment` | Point-in-time risk evaluation                                  |
+| `RiskTreatment`  | Planned or applied treatment action                            |
+| `RiskAcceptance` | Formal risk acceptance with approval chain                     |
+| `ThreatScenario` | Threat modeling linked to risks                                |
+| `RiskMatrix`     | Configurable likelihood × impact matrix                        |
 
 #### Risk Scoring
+
 ```
 Risk Score = Likelihood × Impact
 
@@ -134,6 +141,7 @@ Risk Appetite Thresholds:
 **IEC 62443 Reference:** Part 3-2 (Zones and conduits model)
 
 #### Responsibilities
+
 - Define security zones with assigned security levels
 - Model conduits (communication paths between zones)
 - Assign assets to zones
@@ -143,17 +151,19 @@ Risk Appetite Thresholds:
 - Zone segmentation compliance checking
 
 #### Key Entities
-| Entity | Description |
-|---|---|
-| `Zone` | Security zone with assigned SL, boundary definition |
-| `Conduit` | Communication path between two zones |
-| `ZoneHierarchy` | Parent-child zone nesting (sub-zones) |
-| `ZoneMembership` | Asset-to-zone assignment |
-| `ConduitSecurityReq` | Security requirements for a conduit |
-| `ZoneTopology` | Visual layout / diagram coordinates |
-| `SegmentationRule` | Firewall/ACL rules enforcing zone boundaries |
+
+| Entity               | Description                                         |
+| -------------------- | --------------------------------------------------- |
+| `Zone`               | Security zone with assigned SL, boundary definition |
+| `Conduit`            | Communication path between two zones                |
+| `ZoneHierarchy`      | Parent-child zone nesting (sub-zones)               |
+| `ZoneMembership`     | Asset-to-zone assignment                            |
+| `ConduitSecurityReq` | Security requirements for a conduit                 |
+| `ZoneTopology`       | Visual layout / diagram coordinates                 |
+| `SegmentationRule`   | Firewall/ACL rules enforcing zone boundaries        |
 
 #### Zone Classification
+
 ```
 Zone Types:
   • Process Control Zone
@@ -180,6 +190,7 @@ Conduit Types:
 **IEC 62443 Reference:** Part 3-2 (Reference architecture), ISA-95 alignment
 
 #### Responsibilities
+
 - Model the Purdue Enterprise Reference Architecture (PERA)
 - Assign assets to Purdue levels (0–5)
 - Validate communication paths against Purdue segmentation rules
@@ -188,14 +199,16 @@ Conduit Types:
 - Generate Purdue compliance reports
 
 #### Key Entities
-| Entity | Description |
-|---|---|
-| `PurdueLevel` | Standard levels (0–5, with optional sub-levels) |
-| `PurdueModel` | Instance of a Purdue model for a facility |
-| `PurdueAssetMapping` | Asset assignment to a Purdue level |
-| `CommunicationRule` | Allowed/disallowed inter-level communications |
+
+| Entity               | Description                                     |
+| -------------------- | ----------------------------------------------- |
+| `PurdueLevel`        | Standard levels (0–5, with optional sub-levels) |
+| `PurdueModel`        | Instance of a Purdue model for a facility       |
+| `PurdueAssetMapping` | Asset assignment to a Purdue level              |
+| `CommunicationRule`  | Allowed/disallowed inter-level communications   |
 
 #### Purdue Level Definitions
+
 ```
 Level 5 — Enterprise Network (corporate IT, ERP, email)
 Level 4 — Business Planning & Logistics (site-level business systems)
@@ -214,6 +227,7 @@ Level 0 — Physical Process (sensors, actuators, drives, motors)
 **IEC 62443 Reference:** Part 2-1 (CSMS requirements)
 
 #### Responsibilities
+
 - Author and maintain CSMS policies and procedures
 - Map CSMS elements to IEC 62443-2-1 requirements
 - Track CSMS implementation status across the organization
@@ -222,18 +236,20 @@ Level 0 — Physical Process (sensors, actuators, drives, motors)
 - Support continuous improvement tracking
 
 #### Key Entities
-| Entity | Description |
-|---|---|
-| `CSMSFramework` | Top-level CSMS instance for an organization |
-| `CSElement` | Individual CSMS element (policy, procedure, guideline) |
-| `CSRequirement` | IEC 62443-2-1 requirement mapping |
-| `CSPolicy` | Policy document with version history |
-| `CSProcedure` | Implementation procedure linked to policy |
-| `CSGapAnalysis` | Gap assessment against CSMS requirements |
-| `CSImprovementPlan` | Continuous improvement tracking |
-| `CSReviewCycle` | Periodic review schedule and records |
+
+| Entity              | Description                                            |
+| ------------------- | ------------------------------------------------------ |
+| `CSMSFramework`     | Top-level CSMS instance for an organization            |
+| `CSElement`         | Individual CSMS element (policy, procedure, guideline) |
+| `CSRequirement`     | IEC 62443-2-1 requirement mapping                      |
+| `CSPolicy`          | Policy document with version history                   |
+| `CSProcedure`       | Implementation procedure linked to policy              |
+| `CSGapAnalysis`     | Gap assessment against CSMS requirements               |
+| `CSImprovementPlan` | Continuous improvement tracking                        |
+| `CSReviewCycle`     | Periodic review schedule and records                   |
 
 #### CSMS Categories (IEC 62443-2-1)
+
 ```
 1. Risk Assessment
 2. Addressing Risk
@@ -258,6 +274,7 @@ Level 0 — Physical Process (sensors, actuators, drives, motors)
 **Bounded Context:** `findings`
 
 #### Responsibilities
+
 - Record assessment findings (vulnerabilities, gaps, observations)
 - Classify findings by severity, category, and IEC 62443 requirement
 - Link findings to risks, zones, assets, and evidence
@@ -266,18 +283,20 @@ Level 0 — Physical Process (sensors, actuators, drives, motors)
 - Finding deduplication and merging
 
 #### Key Entities
-| Entity | Description |
-|---|---|
-| `Finding` | Individual finding with severity, status, and metadata |
-| `FindingCategory` | Classification taxonomy |
-| `FindingSeverity` | Severity levels (Critical, High, Medium, Low, Info) |
-| `FindingEvidence` | Link to supporting evidence |
-| `FindingRemediation` | Remediation action linked to finding |
-| `FindingAssignment` | Assignment to responsible party |
-| `FindingComment` | Discussion thread on a finding |
-| `FindingHistory` | State transition audit trail |
+
+| Entity               | Description                                            |
+| -------------------- | ------------------------------------------------------ |
+| `Finding`            | Individual finding with severity, status, and metadata |
+| `FindingCategory`    | Classification taxonomy                                |
+| `FindingSeverity`    | Severity levels (Critical, High, Medium, Low, Info)    |
+| `FindingEvidence`    | Link to supporting evidence                            |
+| `FindingRemediation` | Remediation action linked to finding                   |
+| `FindingAssignment`  | Assignment to responsible party                        |
+| `FindingComment`     | Discussion thread on a finding                         |
+| `FindingHistory`     | State transition audit trail                           |
 
 #### Finding Lifecycle
+
 ```
 [Created] ──► [Draft] ──► [Submitted] ──► [Acknowledged]
                                               │
@@ -310,6 +329,7 @@ Level 0 — Physical Process (sensors, actuators, drives, motors)
 **Bounded Context:** `evidence`
 
 #### Responsibilities
+
 - Upload, store, and manage evidence artifacts
 - Support multiple evidence types (documents, screenshots, configs, logs)
 - Cryptographic hashing for evidence integrity verification
@@ -318,16 +338,18 @@ Level 0 — Physical Process (sensors, actuators, drives, motors)
 - Retention policy enforcement
 
 #### Key Entities
-| Entity | Description |
-|---|---|
-| `Evidence` | Evidence record with metadata and integrity hash |
-| `EvidenceFile` | Binary file stored in object storage |
-| `EvidenceLink` | Association between evidence and domain entities |
-| `EvidenceChainOfCustody` | Access and transfer log |
-| `EvidenceRetention` | Retention policy and disposal schedule |
-| `EvidenceTag` | Classification and tagging |
+
+| Entity                   | Description                                      |
+| ------------------------ | ------------------------------------------------ |
+| `Evidence`               | Evidence record with metadata and integrity hash |
+| `EvidenceFile`           | Binary file stored in object storage             |
+| `EvidenceLink`           | Association between evidence and domain entities |
+| `EvidenceChainOfCustody` | Access and transfer log                          |
+| `EvidenceRetention`      | Retention policy and disposal schedule           |
+| `EvidenceTag`            | Classification and tagging                       |
 
 #### Evidence Types
+
 ```
 • Configuration snapshots (firewall rules, PLC programs)
 • Network captures (PCAP files)
@@ -346,6 +368,7 @@ Level 0 — Physical Process (sensors, actuators, drives, motors)
 **Bounded Context:** `remediation`
 
 #### Responsibilities
+
 - Create and manage remediation plans for findings
 - Track remediation progress with milestones
 - Assign ownership and deadlines
@@ -354,14 +377,15 @@ Level 0 — Physical Process (sensors, actuators, drives, motors)
 - Integrate with external ticketing systems (Jira, Azure DevOps)
 
 #### Key Entities
-| Entity | Description |
-|---|---|
-| `RemediationPlan` | Top-level plan grouping related actions |
-| `RemediationAction` | Individual action item |
-| `RemediationMilestone` | Progress checkpoint |
-| `RemediationVerification` | Post-remediation validation |
-| `RemediationBudget` | Cost tracking and approval |
-| `ExternalTicket` | Link to external issue tracker |
+
+| Entity                    | Description                             |
+| ------------------------- | --------------------------------------- |
+| `RemediationPlan`         | Top-level plan grouping related actions |
+| `RemediationAction`       | Individual action item                  |
+| `RemediationMilestone`    | Progress checkpoint                     |
+| `RemediationVerification` | Post-remediation validation             |
+| `RemediationBudget`       | Cost tracking and approval              |
+| `ExternalTicket`          | Link to external issue tracker          |
 
 ---
 
@@ -370,6 +394,7 @@ Level 0 — Physical Process (sensors, actuators, drives, motors)
 **Bounded Context:** `asset`
 
 #### Responsibilities
+
 - Maintain OT asset inventory
 - Classify assets by type, criticality, and Purdue level
 - Track asset attributes (vendor, model, firmware, serial)
@@ -378,15 +403,16 @@ Level 0 — Physical Process (sensors, actuators, drives, motors)
 - Link assets to zones, risks, and findings
 
 #### Key Entities
-| Entity | Description |
-|---|---|
-| `Asset` | Individual OT/IT asset |
-| `AssetType` | Classification (PLC, HMI, switch, server, etc.) |
-| `AssetCriticality` | Business/safety criticality rating |
-| `AssetFirmware` | Firmware version tracking |
-| `AssetNetworkInfo` | IP, MAC, network segment |
-| `AssetRelationship` | Asset-to-asset connections |
-| `AssetImportJob` | Bulk import tracking |
+
+| Entity              | Description                                     |
+| ------------------- | ----------------------------------------------- |
+| `Asset`             | Individual OT/IT asset                          |
+| `AssetType`         | Classification (PLC, HMI, switch, server, etc.) |
+| `AssetCriticality`  | Business/safety criticality rating              |
+| `AssetFirmware`     | Firmware version tracking                       |
+| `AssetNetworkInfo`  | IP, MAC, network segment                        |
+| `AssetRelationship` | Asset-to-asset connections                      |
+| `AssetImportJob`    | Bulk import tracking                            |
 
 ---
 
@@ -395,6 +421,7 @@ Level 0 — Physical Process (sensors, actuators, drives, motors)
 **Bounded Context:** `reporting`
 
 #### Responsibilities
+
 - Generate IEC 62443 compliance reports
 - Executive summary dashboards
 - Risk heat maps and trend charts
@@ -405,6 +432,7 @@ Level 0 — Physical Process (sensors, actuators, drives, motors)
 - Customizable report templates
 
 #### Report Types
+
 ```
 • Assessment Summary Report
 • Risk Register Report
@@ -513,4 +541,4 @@ Asset          ●     ●       ●       ◌      ◌     ●      ●      �
 
 ---
 
-*Next: [Database Entity Model →](database-design.md)*
+_Next: [Database Entity Model →](database-design.md)_

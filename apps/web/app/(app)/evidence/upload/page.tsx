@@ -1,15 +1,21 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
-import { Textarea } from '@iec62443/ui/primitives';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@iec62443/ui/primitives';
-import { ArrowLeft } from 'lucide-react';
-import { useCreateEvidence } from '@/hooks/useEvidence';
 import type { EvidenceType } from '@iec62443/shared-types';
+import {
+  Button,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+} from '@iec62443/ui/primitives';
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useCreateEvidence } from '@/hooks/useEvidence';
 
 const typeOptions: { value: EvidenceType; label: string }[] = [
   { value: 'document', label: 'Document' },
@@ -44,7 +50,12 @@ export default function UploadEvidencePage() {
       description: form.description || undefined,
       evidenceType: form.evidenceType,
       retentionUntil: form.retentionUntil || undefined,
-      tags: form.tags ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
+      tags: form.tags
+        ? form.tags
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : undefined,
     });
 
     router.push('/evidence');
@@ -69,19 +80,36 @@ export default function UploadEvidencePage() {
           <h3 className="text-sm font-medium text-surface-700">Evidence Details</h3>
           <div className="space-y-1">
             <Label>Title *</Label>
-            <Input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
+            <Input
+              value={form.title}
+              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              required
+            />
           </div>
           <div className="space-y-1">
             <Label>Description</Label>
-            <Textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} />
+            <Textarea
+              value={form.description}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              rows={3}
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>Evidence Type *</Label>
-              <Select value={form.evidenceType} onValueChange={(v) => setForm((f) => ({ ...f, evidenceType: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+              <Select
+                value={form.evidenceType}
+                onValueChange={(v) => setForm((f) => ({ ...f, evidenceType: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
                 <SelectContent>
-                  {typeOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                  {typeOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -96,20 +124,33 @@ export default function UploadEvidencePage() {
           </div>
           <div className="space-y-1">
             <Label>Tags (comma-separated)</Label>
-            <Input value={form.tags} onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))} placeholder="e.g. firewall, compliance, quarterly" />
+            <Input
+              value={form.tags}
+              onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))}
+              placeholder="e.g. firewall, compliance, quarterly"
+            />
           </div>
         </div>
 
         <div className="rounded-lg border border-dashed border-surface-300 bg-surface-50 p-8 text-center">
-          <p className="text-sm text-surface-500">File upload will be available after storage backend configuration.</p>
-          <p className="mt-1 text-xs text-surface-400">Evidence records can be created with metadata only for now.</p>
+          <p className="text-sm text-surface-500">
+            File upload will be available after storage backend configuration.
+          </p>
+          <p className="mt-1 text-xs text-surface-400">
+            Evidence records can be created with metadata only for now.
+          </p>
         </div>
 
         <div className="flex items-center justify-end gap-3">
           <Button variant="secondary" type="button" onClick={() => router.push('/evidence')}>
             Cancel
           </Button>
-          <Button variant="primary" type="submit" disabled={!form.title || !form.evidenceType} loading={createEvidence.isPending}>
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={!form.title || !form.evidenceType}
+            loading={createEvidence.isPending}
+          >
             Create Evidence
           </Button>
         </div>

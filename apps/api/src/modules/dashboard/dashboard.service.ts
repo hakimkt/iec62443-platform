@@ -1,18 +1,16 @@
-import { eq, and, desc, count, sql } from 'drizzle-orm';
-
+import {
+  assets,
+  engagements,
+  entries,
+  findings,
+  remediationActions,
+  scorecards,
+  zones,
+} from '@iec62443/database';
+import { and, count, desc, eq, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 type DbOrTx = NodePgDatabase | Parameters<Parameters<NodePgDatabase['transaction']>[0]>[0];
-
-import {
-  findings,
-  entries,
-  scorecards,
-  engagements,
-  assets,
-  zones,
-  remediationActions,
-} from '@iec62443/database';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -106,7 +104,9 @@ export class DashboardService {
     return this.db.transaction(async (tx) => {
       // Set search_path inside the transaction so all queries use the tenant schema
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const findingCounts = await this.getFindingCounts(tx);
@@ -142,7 +142,9 @@ export class DashboardService {
   async getRiskHeatMap(registerId?: string): Promise<RiskHeatMapData> {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const conditions = [];
@@ -187,7 +189,13 @@ export class DashboardService {
       return {
         cells,
         labels: {
-          likelihood: ['1 - Rare', '2 - Unlikely', '3 - Possible', '4 - Likely', '5 - Almost Certain'],
+          likelihood: [
+            '1 - Rare',
+            '2 - Unlikely',
+            '3 - Possible',
+            '4 - Likely',
+            '5 - Almost Certain',
+          ],
           impact: ['1 - Negligible', '2 - Minor', '3 - Moderate', '4 - Major', '5 - Catastrophic'],
         },
       };
@@ -197,7 +205,9 @@ export class DashboardService {
   async getAssessmentProgress(): Promise<AssessmentProgressItem[]> {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const rows = await tx
@@ -226,7 +236,9 @@ export class DashboardService {
   async getRecentFindings(): Promise<RecentFindingItem[]> {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const rows = await tx
@@ -255,7 +267,9 @@ export class DashboardService {
   async getRemediationStatus(): Promise<RemediationStatus> {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const statusCounts = await tx
@@ -291,8 +305,14 @@ export class DashboardService {
 
   private async getFindingCounts(db: DbOrTx = this.db) {
     const totalResult = await db.select({ count: count() }).from(findings);
-    const openResult = await db.select({ count: count() }).from(findings).where(eq(findings.status, 'open'));
-    const criticalResult = await db.select({ count: count() }).from(findings).where(eq(findings.severity, 'critical'));
+    const openResult = await db
+      .select({ count: count() })
+      .from(findings)
+      .where(eq(findings.status, 'open'));
+    const criticalResult = await db
+      .select({ count: count() })
+      .from(findings)
+      .where(eq(findings.severity, 'critical'));
 
     return {
       total: totalResult[0]?.count ?? 0,
@@ -303,7 +323,10 @@ export class DashboardService {
 
   private async getRiskCounts(db: DbOrTx = this.db) {
     const totalResult = await db.select({ count: count() }).from(entries);
-    const highResult = await db.select({ count: count() }).from(entries).where(eq(entries.riskLevel, 'high'));
+    const highResult = await db
+      .select({ count: count() })
+      .from(entries)
+      .where(eq(entries.riskLevel, 'high'));
 
     return {
       total: totalResult[0]?.count ?? 0,
@@ -312,8 +335,14 @@ export class DashboardService {
   }
 
   private async getAssessmentCounts(db: DbOrTx = this.db) {
-    const activeResult = await db.select({ count: count() }).from(engagements).where(eq(engagements.status, 'in_progress'));
-    const completedResult = await db.select({ count: count() }).from(engagements).where(eq(engagements.status, 'completed'));
+    const activeResult = await db
+      .select({ count: count() })
+      .from(engagements)
+      .where(eq(engagements.status, 'in_progress'));
+    const completedResult = await db
+      .select({ count: count() })
+      .from(engagements)
+      .where(eq(engagements.status, 'completed'));
 
     return {
       active: activeResult[0]?.count ?? 0,
@@ -324,7 +353,10 @@ export class DashboardService {
 
   private async getRemediationCounts(db: DbOrTx = this.db) {
     const totalResult = await db.select({ count: count() }).from(remediationActions);
-    const overdueResult = await db.select({ count: count() }).from(remediationActions).where(eq(remediationActions.status, 'overdue'));
+    const overdueResult = await db
+      .select({ count: count() })
+      .from(remediationActions)
+      .where(eq(remediationActions.status, 'overdue'));
 
     return {
       total: totalResult[0]?.count ?? 0,

@@ -1,8 +1,7 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { desc, eq, sql } from 'drizzle-orm';
-import { Pool } from 'pg';
 import crypto from 'node:crypto';
-
+import { desc, eq, sql } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 import * as platformSchema from '../schema/platform/index.js';
 import * as tenantSchema from '../schema/tenant/index.js';
 
@@ -70,7 +69,8 @@ const QUESTIONS = [
     requirementId: 'SR 1.1',
     foundationRequirement: 'FR-1',
     maxScore: 4,
-    guidanceText: 'Verify that all users — operators, engineers, administrators — must authenticate before accessing any component within the IACS. This includes both local and remote access.',
+    guidanceText:
+      'Verify that all users — operators, engineers, administrators — must authenticate before accessing any component within the IACS. This includes both local and remote access.',
     sortOrder: 1,
   },
   {
@@ -81,18 +81,21 @@ const QUESTIONS = [
     requirementId: 'SR 1.1 RE 2',
     foundationRequirement: 'FR-1',
     maxScore: 4,
-    guidanceText: 'Verify that remote access requires at least two authentication factors (e.g., password + token, certificate + biometric). Applies to all personnel accessing OT systems remotely.',
+    guidanceText:
+      'Verify that remote access requires at least two authentication factors (e.g., password + token, certificate + biometric). Applies to all personnel accessing OT systems remotely.',
     sortOrder: 2,
   },
   {
     id: 'a2000000-0000-0000-0000-000000000003',
     section: 'FR-1: Identification and Authentication Control',
     clauseRef: '4.3.1.3',
-    questionText: 'Are all software processes and devices identified and authenticated before communicating on the IACS network?',
+    questionText:
+      'Are all software processes and devices identified and authenticated before communicating on the IACS network?',
     requirementId: 'SR 1.2',
     foundationRequirement: 'FR-1',
     maxScore: 4,
-    guidanceText: 'Verify that software processes and devices authenticate before communicating on the IACS network. This includes mutual authentication between devices.',
+    guidanceText:
+      'Verify that software processes and devices authenticate before communicating on the IACS network. This includes mutual authentication between devices.',
     sortOrder: 3,
   },
   // FR-2: Use Control
@@ -104,7 +107,8 @@ const QUESTIONS = [
     requirementId: 'SR 2.1',
     foundationRequirement: 'FR-2',
     maxScore: 4,
-    guidanceText: 'Verify that access control policies are defined and enforced for all users and processes accessing the IACS. Confirm role-based access control is implemented.',
+    guidanceText:
+      'Verify that access control policies are defined and enforced for all users and processes accessing the IACS. Confirm role-based access control is implemented.',
     sortOrder: 4,
   },
   {
@@ -115,7 +119,8 @@ const QUESTIONS = [
     requirementId: 'SR 2.1 RE 1',
     foundationRequirement: 'FR-2',
     maxScore: 4,
-    guidanceText: 'Verify that users are assigned roles with the minimum permissions necessary for their job function. Confirm that no users have excessive privileges.',
+    guidanceText:
+      'Verify that users are assigned roles with the minimum permissions necessary for their job function. Confirm that no users have excessive privileges.',
     sortOrder: 5,
   },
   // FR-3: System Integrity
@@ -127,7 +132,8 @@ const QUESTIONS = [
     requirementId: 'SR 3.1',
     foundationRequirement: 'FR-3',
     maxScore: 4,
-    guidanceText: 'Verify that integrity checks are performed on critical system files and configurations at startup and periodically during operation.',
+    guidanceText:
+      'Verify that integrity checks are performed on critical system files and configurations at startup and periodically during operation.',
     sortOrder: 6,
   },
   {
@@ -138,7 +144,8 @@ const QUESTIONS = [
     requirementId: 'SR 3.2',
     foundationRequirement: 'FR-3',
     maxScore: 4,
-    guidanceText: 'Verify that malware protection is deployed and updated regularly on all applicable IACS components. Confirm whitelisting or signature-based approaches.',
+    guidanceText:
+      'Verify that malware protection is deployed and updated regularly on all applicable IACS components. Confirm whitelisting or signature-based approaches.',
     sortOrder: 7,
   },
   // FR-4: Data Confidentiality
@@ -150,7 +157,8 @@ const QUESTIONS = [
     requirementId: 'SR 4.1',
     foundationRequirement: 'FR-4',
     maxScore: 4,
-    guidanceText: 'Verify that sensitive data stored in the IACS is encrypted or otherwise protected from unauthorized access.',
+    guidanceText:
+      'Verify that sensitive data stored in the IACS is encrypted or otherwise protected from unauthorized access.',
     sortOrder: 8,
   },
   {
@@ -161,7 +169,8 @@ const QUESTIONS = [
     requirementId: 'SR 4.2',
     foundationRequirement: 'FR-4',
     maxScore: 4,
-    guidanceText: 'Verify that network communications are encrypted using appropriate protocols (e.g., TLS 1.2+). Confirm that plaintext protocols are not used for sensitive data.',
+    guidanceText:
+      'Verify that network communications are encrypted using appropriate protocols (e.g., TLS 1.2+). Confirm that plaintext protocols are not used for sensitive data.',
     sortOrder: 9,
   },
   // FR-5: Restricted Data Flow
@@ -173,7 +182,8 @@ const QUESTIONS = [
     requirementId: 'SR 5.1',
     foundationRequirement: 'FR-5',
     maxScore: 4,
-    guidanceText: 'Verify that the IACS is partitioned into zones and conduits per the IEC 62443-3-2 model, with appropriate boundary controls.',
+    guidanceText:
+      'Verify that the IACS is partitioned into zones and conduits per the IEC 62443-3-2 model, with appropriate boundary controls.',
     sortOrder: 10,
   },
   {
@@ -184,7 +194,8 @@ const QUESTIONS = [
     requirementId: 'SR 5.2',
     foundationRequirement: 'FR-5',
     maxScore: 4,
-    guidanceText: 'Verify that all inter-zone communications pass through defined conduits with appropriate security controls. Confirm DPI is enabled for industrial protocols.',
+    guidanceText:
+      'Verify that all inter-zone communications pass through defined conduits with appropriate security controls. Confirm DPI is enabled for industrial protocols.',
     sortOrder: 11,
   },
   // FR-6: Timely Response to Events
@@ -196,7 +207,8 @@ const QUESTIONS = [
     requirementId: 'SR 6.1',
     foundationRequirement: 'FR-6',
     maxScore: 4,
-    guidanceText: 'Verify that audit logging is enabled for all security-relevant events and logs are accessible for review. Confirm log retention and tamper protection.',
+    guidanceText:
+      'Verify that audit logging is enabled for all security-relevant events and logs are accessible for review. Confirm log retention and tamper protection.',
     sortOrder: 12,
   },
   // FR-7: Resource Availability
@@ -208,7 +220,8 @@ const QUESTIONS = [
     requirementId: 'SR 7.1',
     foundationRequirement: 'FR-7',
     maxScore: 4,
-    guidanceText: 'Verify that DoS protection mechanisms are in place, including network segmentation and rate limiting.',
+    guidanceText:
+      'Verify that DoS protection mechanisms are in place, including network segmentation and rate limiting.',
     sortOrder: 13,
   },
   {
@@ -219,7 +232,8 @@ const QUESTIONS = [
     requirementId: 'SR 7.3',
     foundationRequirement: 'FR-7',
     maxScore: 4,
-    guidanceText: 'Verify that regular backups are performed and recovery procedures are tested. Confirm backup integrity verification and off-site storage.',
+    guidanceText:
+      'Verify that regular backups are performed and recovery procedures are tested. Confirm backup integrity verification and off-site storage.',
     sortOrder: 14,
   },
 ] as const;
@@ -258,45 +272,178 @@ const ENGAGEMENT = {
 
 const RESPONSES = [
   // SR 1.1 — Partial
-  { questionId: 'a2000000-0000-0000-0000-000000000001', score: 2, maturityLevel: 2, assessorNotes: 'Local authentication is implemented on SCADA servers and HMI stations. However, some legacy field devices still use shared credentials. No centralized identity management for OT assets.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000001',
+    score: 2,
+    maturityLevel: 2,
+    assessorNotes:
+      'Local authentication is implemented on SCADA servers and HMI stations. However, some legacy field devices still use shared credentials. No centralized identity management for OT assets.',
+  },
   // SR 1.1 RE 2 — Failed (no MFA for remote)
-  { questionId: 'a2000000-0000-0000-0000-000000000002', score: 1, maturityLevel: 1, assessorNotes: 'MFA is enforced on the jump server (CyberArk) but not on the engineering workstation direct access path. Engineers can bypass the jump server and connect directly to PLCs via PROFINET without MFA.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000002',
+    score: 1,
+    maturityLevel: 1,
+    assessorNotes:
+      'MFA is enforced on the jump server (CyberArk) but not on the engineering workstation direct access path. Engineers can bypass the jump server and connect directly to PLCs via PROFINET without MFA.',
+  },
   // SR 1.2 — Partial
-  { questionId: 'a2000000-0000-0000-0000-000000000003', score: 2, maturityLevel: 2, assessorNotes: 'SCADA servers and historian authenticate via Active Directory. PLCs and RTUs do not support device-level authentication. PROFINET device identification is not enforced.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000003',
+    score: 2,
+    maturityLevel: 2,
+    assessorNotes:
+      'SCADA servers and historian authenticate via Active Directory. PLCs and RTUs do not support device-level authentication. PROFINET device identification is not enforced.',
+  },
   // SR 2.1 — Compliant
-  { questionId: 'a2000000-0000-0000-0000-000000000004', score: 4, maturityLevel: 3, assessorNotes: 'Role-based access control is well implemented. Operator, engineer, and administrator roles are defined with appropriate permissions. Access is enforced at the SCADA application and OS level.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000004',
+    score: 4,
+    maturityLevel: 3,
+    assessorNotes:
+      'Role-based access control is well implemented. Operator, engineer, and administrator roles are defined with appropriate permissions. Access is enforced at the SCADA application and OS level.',
+  },
   // SR 2.1 RE 1 — Compliant
-  { questionId: 'a2000000-0000-0000-0000-000000000005', score: 4, maturityLevel: 3, assessorNotes: 'Least privilege is enforced. Engineers have read-only access to production SCADA; write access requires change management approval. Operators cannot modify control logic.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000005',
+    score: 4,
+    maturityLevel: 3,
+    assessorNotes:
+      'Least privilege is enforced. Engineers have read-only access to production SCADA; write access requires change management approval. Operators cannot modify control logic.',
+  },
   // SR 3.1 — Partial
-  { questionId: 'a2000000-0000-0000-0000-000000000006', score: 2, maturityLevel: 2, assessorNotes: 'Integrity verification is performed on SCADA servers during startup. PLC firmware integrity is not verified at runtime. No automated integrity monitoring for configuration files.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000006',
+    score: 2,
+    maturityLevel: 2,
+    assessorNotes:
+      'Integrity verification is performed on SCADA servers during startup. PLC firmware integrity is not verified at runtime. No automated integrity monitoring for configuration files.',
+  },
   // SR 3.2 — Partial
-  { questionId: 'a2000000-0000-0000-0000-000000000007', score: 2, maturityLevel: 2, assessorNotes: 'Application whitelisting is deployed on SCADA servers and engineering workstation. No malware protection on PLCs or RTUs (not supported by vendor). Signature updates are quarterly, not real-time.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000007',
+    score: 2,
+    maturityLevel: 2,
+    assessorNotes:
+      'Application whitelisting is deployed on SCADA servers and engineering workstation. No malware protection on PLCs or RTUs (not supported by vendor). Signature updates are quarterly, not real-time.',
+  },
   // SR 4.1 — Compliant
-  { questionId: 'a2000000-0000-0000-0000-000000000008', score: 4, maturityLevel: 3, assessorNotes: 'Data at rest is encrypted on SCADA servers (BitLocker) and historian database (TDE). Backup tapes are encrypted. SIS controller has no data-at-rest encryption capability (not applicable).' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000008',
+    score: 4,
+    maturityLevel: 3,
+    assessorNotes:
+      'Data at rest is encrypted on SCADA servers (BitLocker) and historian database (TDE). Backup tapes are encrypted. SIS controller has no data-at-rest encryption capability (not applicable).',
+  },
   // SR 4.2 — Partial
-  { questionId: 'a2000000-0000-0000-0000-000000000009', score: 2, maturityLevel: 2, assessorNotes: 'OPC UA traffic is encrypted. However, PROFINET and Modbus/TCP traffic between SCADA and PLCs is unencrypted (protocol limitation). iDMZ proxy traffic is encrypted.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000009',
+    score: 2,
+    maturityLevel: 2,
+    assessorNotes:
+      'OPC UA traffic is encrypted. However, PROFINET and Modbus/TCP traffic between SCADA and PLCs is unencrypted (protocol limitation). iDMZ proxy traffic is encrypted.',
+  },
   // SR 5.1 — Partial
-  { questionId: 'a2000000-0000-0000-0000-000000000010', score: 2, maturityLevel: 2, assessorNotes: 'Zones are defined per IEC 62443-3-2. iDMZ is implemented with FortiGate firewall. However, the engineering workstation has direct PROFINET access to the PLC zone without traversing the iDMZ, bypassing the zone boundary.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000010',
+    score: 2,
+    maturityLevel: 2,
+    assessorNotes:
+      'Zones are defined per IEC 62443-3-2. iDMZ is implemented with FortiGate firewall. However, the engineering workstation has direct PROFINET access to the PLC zone without traversing the iDMZ, bypassing the zone boundary.',
+  },
   // SR 5.2 — Partial
-  { questionId: 'a2000000-0000-0000-0000-000000000011', score: 2, maturityLevel: 2, assessorNotes: 'Inter-zone traffic is partially controlled. iDMZ firewall enforces DPI for Modbus/TCP and OPC UA. However, PROFINET traffic between SCADA and PLC zones is not inspected. No traffic monitoring for SIS zone.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000011',
+    score: 2,
+    maturityLevel: 2,
+    assessorNotes:
+      'Inter-zone traffic is partially controlled. iDMZ firewall enforces DPI for Modbus/TCP and OPC UA. However, PROFINET traffic between SCADA and PLC zones is not inspected. No traffic monitoring for SIS zone.',
+  },
   // SR 6.1 — Compliant
-  { questionId: 'a2000000-0000-0000-0000-000000000012', score: 4, maturityLevel: 3, assessorNotes: 'Audit logging is comprehensive. SCADA application logs, Windows Event Logs, and firewall logs are all collected centrally. Log retention is 1 year with tamper-evident hash chain.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000012',
+    score: 4,
+    maturityLevel: 3,
+    assessorNotes:
+      'Audit logging is comprehensive. SCADA application logs, Windows Event Logs, and firewall logs are all collected centrally. Log retention is 1 year with tamper-evident hash chain.',
+  },
   // SR 7.1 — Failed
-  { questionId: 'a2000000-0000-0000-0000-000000000013', score: 1, maturityLevel: 1, assessorNotes: 'No DoS protection on the OT network. Industrial switch has no rate limiting. PROFINET and Modbus/TCP traffic is not rate-limited. PLCs are vulnerable to network flood attacks.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000013',
+    score: 1,
+    maturityLevel: 1,
+    assessorNotes:
+      'No DoS protection on the OT network. Industrial switch has no rate limiting. PROFINET and Modbus/TCP traffic is not rate-limited. PLCs are vulnerable to network flood attacks.',
+  },
   // SR 7.3 — Failed
-  { questionId: 'a2000000-0000-0000-0000-000000000014', score: 1, maturityLevel: 1, assessorNotes: 'Backup procedures exist for SCADA servers and historian. However, PLC program backups are not automated and are not regularly tested. SIS configuration backup is manual. No documented recovery time objectives.' },
+  {
+    questionId: 'a2000000-0000-0000-0000-000000000014',
+    score: 1,
+    maturityLevel: 1,
+    assessorNotes:
+      'Backup procedures exist for SCADA servers and historian. However, PLC program backups are not automated and are not regularly tested. SIS configuration backup is manual. No documented recovery time objectives.',
+  },
 ] as const;
 
 // ── Scorecards ───────────────────────────────────────────────────────────
 
 const SCORECARDS = [
-  { category: 'FR-1: Identification and Authentication Control', currentSl: 1, targetSl: 3, totalQuestions: 3, answeredCount: 3, compliancePct: '50.00' },
-  { category: 'FR-2: Use Control', currentSl: 3, targetSl: 3, totalQuestions: 2, answeredCount: 2, compliancePct: '100.00' },
-  { category: 'FR-3: System Integrity', currentSl: 2, targetSl: 3, totalQuestions: 2, answeredCount: 2, compliancePct: '50.00' },
-  { category: 'FR-4: Data Confidentiality', currentSl: 2, targetSl: 3, totalQuestions: 2, answeredCount: 2, compliancePct: '75.00' },
-  { category: 'FR-5: Restricted Data Flow', currentSl: 2, targetSl: 3, totalQuestions: 2, answeredCount: 2, compliancePct: '50.00' },
-  { category: 'FR-6: Timely Response to Events', currentSl: 3, targetSl: 3, totalQuestions: 1, answeredCount: 1, compliancePct: '100.00' },
-  { category: 'FR-7: Resource Availability', currentSl: 1, targetSl: 3, totalQuestions: 2, answeredCount: 2, compliancePct: '25.00' },
+  {
+    category: 'FR-1: Identification and Authentication Control',
+    currentSl: 1,
+    targetSl: 3,
+    totalQuestions: 3,
+    answeredCount: 3,
+    compliancePct: '50.00',
+  },
+  {
+    category: 'FR-2: Use Control',
+    currentSl: 3,
+    targetSl: 3,
+    totalQuestions: 2,
+    answeredCount: 2,
+    compliancePct: '100.00',
+  },
+  {
+    category: 'FR-3: System Integrity',
+    currentSl: 2,
+    targetSl: 3,
+    totalQuestions: 2,
+    answeredCount: 2,
+    compliancePct: '50.00',
+  },
+  {
+    category: 'FR-4: Data Confidentiality',
+    currentSl: 2,
+    targetSl: 3,
+    totalQuestions: 2,
+    answeredCount: 2,
+    compliancePct: '75.00',
+  },
+  {
+    category: 'FR-5: Restricted Data Flow',
+    currentSl: 2,
+    targetSl: 3,
+    totalQuestions: 2,
+    answeredCount: 2,
+    compliancePct: '50.00',
+  },
+  {
+    category: 'FR-6: Timely Response to Events',
+    currentSl: 3,
+    targetSl: 3,
+    totalQuestions: 1,
+    answeredCount: 1,
+    compliancePct: '100.00',
+  },
+  {
+    category: 'FR-7: Resource Availability',
+    currentSl: 1,
+    targetSl: 3,
+    totalQuestions: 2,
+    answeredCount: 2,
+    compliancePct: '25.00',
+  },
 ] as const;
 
 // ── Findings ─────────────────────────────────────────────────────────────
@@ -317,7 +464,12 @@ const FINDINGS = [
     assignedTo: OT_MANAGER_ID,
     dueDate: '2026-06-30',
     source: 'manual',
-    metadata: { cveRefs: ['CVE-2024-XXXXX', 'CVE-2025-XXXXX'], vendorAdvisory: 'SSA-XXXXX', patchAvailable: true, patchVersion: 'V2.9.4' },
+    metadata: {
+      cveRefs: ['CVE-2024-XXXXX', 'CVE-2025-XXXXX'],
+      vendorAdvisory: 'SSA-XXXXX',
+      patchAvailable: true,
+      patchVersion: 'V2.9.4',
+    },
   },
   {
     id: 'b1000000-0000-0000-0000-000000000002',
@@ -334,7 +486,10 @@ const FINDINGS = [
     assignedTo: OT_MANAGER_ID,
     dueDate: '2026-09-30',
     source: 'manual',
-    metadata: { segmentationGap: 'SCADA-to-PLC direct path', bypassPath: 'Engineering WS → PROFINET → PLC' },
+    metadata: {
+      segmentationGap: 'SCADA-to-PLC direct path',
+      bypassPath: 'Engineering WS → PROFINET → PLC',
+    },
   },
   {
     id: 'b1000000-0000-0000-0000-000000000003',
@@ -351,7 +506,10 @@ const FINDINGS = [
     assignedTo: LEAD_ASSESSOR_ID,
     dueDate: '2026-07-31',
     source: 'manual',
-    metadata: { authGap: 'Engineering WS direct PROFINET without MFA', currentControl: 'Jump server MFA only' },
+    metadata: {
+      authGap: 'Engineering WS direct PROFINET without MFA',
+      currentControl: 'Jump server MFA only',
+    },
   },
   {
     id: 'b1000000-0000-0000-0000-000000000004',
@@ -368,7 +526,14 @@ const FINDINGS = [
     assignedTo: COMPLIANCE_ID,
     dueDate: '2026-10-31',
     source: 'manual',
-    metadata: { missingAssets: ['RTU at Tank Farm Area 7', 'Remote Controller at Wellhead Area 9', '~40 field instruments'], currentProcess: 'Manual spreadsheet' },
+    metadata: {
+      missingAssets: [
+        'RTU at Tank Farm Area 7',
+        'Remote Controller at Wellhead Area 9',
+        '~40 field instruments',
+      ],
+      currentProcess: 'Manual spreadsheet',
+    },
   },
   {
     id: 'b1000000-0000-0000-0000-000000000005',
@@ -402,7 +567,14 @@ const FINDINGS = [
     assignedTo: COMPLIANCE_ID,
     dueDate: '2026-12-31',
     source: 'manual',
-    metadata: { missingDocuments: ['IACS Security Policy', 'OT Incident Response Plan', 'Security Awareness Training Program', 'Control Logic Change Management Procedure'] },
+    metadata: {
+      missingDocuments: [
+        'IACS Security Policy',
+        'OT Incident Response Plan',
+        'Security Awareness Training Program',
+        'Control Logic Change Management Procedure',
+      ],
+    },
   },
 ] as const;
 
@@ -427,12 +599,14 @@ const RISK_ENTRIES = [
       'An external threat actor gains unauthorized access to the OT network through insufficient segmentation between the enterprise IT and OT environments. The engineering workstation direct path to PLCs bypasses the iDMZ, creating a lateral movement vector. If exploited, the attacker could manipulate process control, cause safety system failures, or disrupt production operations.',
     category: 'safety',
     threatSource: 'External threat actor',
-    vulnerability: 'Insufficient network segmentation between IT and OT; engineering workstation bypasses iDMZ',
+    vulnerability:
+      'Insufficient network segmentation between IT and OT; engineering workstation bypasses iDMZ',
     threatCategory: 'deliberate',
     threatCapability: 'high',
     attackVector: 'network',
     vulnerabilityClass: 'configuration',
-    threatScenario: 'Attacker compromises enterprise IT network via phishing, pivots through engineering workstation to PLC zone, modifies control logic or safety instrumented functions.',
+    threatScenario:
+      'Attacker compromises enterprise IT network via phishing, pivots through engineering workstation to PLC zone, modifies control logic or safety instrumented functions.',
     assetIds: [ASSET_ENGWS, ASSET_FW, ASSET_PLC, ASSET_SAFETY_PLC],
     zoneIds: [ZONE_IDMZ, ZONE_SCADA, ZONE_PLC, ZONE_SIS],
     likelihood: 4,
@@ -457,7 +631,8 @@ const RISK_ENTRIES = [
     threatCapability: 'moderate',
     attackVector: 'network',
     vulnerabilityClass: 'implementation',
-    threatScenario: 'Attacker exploits PROFINET vulnerability to gain code execution on PLC, modifies control logic or safety functions, causes process upset or safety incident.',
+    threatScenario:
+      'Attacker exploits PROFINET vulnerability to gain code execution on PLC, modifies control logic or safety functions, causes process upset or safety incident.',
     cveRefs: ['CVE-2024-XXXXX', 'CVE-2025-XXXXX'],
     assetIds: [ASSET_PLC, ASSET_SAFETY_PLC],
     zoneIds: [ZONE_PLC, ZONE_SIS],
@@ -478,12 +653,14 @@ const RISK_ENTRIES = [
       'Denial-of-service attack against the SCADA application server or historian server could cause loss of operator visibility into the refining process. Without real-time process monitoring, operators cannot detect abnormal conditions, respond to alarms, or take corrective action. This could lead to process upsets, environmental releases, or safety incidents. The OT network currently has no DoS protection mechanisms.',
     category: 'operational',
     threatSource: 'External threat actor',
-    vulnerability: 'No DoS protection on OT network; no rate limiting on industrial switches; no traffic monitoring on PLC zone',
+    vulnerability:
+      'No DoS protection on OT network; no rate limiting on industrial switches; no traffic monitoring on PLC zone',
     threatCategory: 'deliberate',
     threatCapability: 'moderate',
     attackVector: 'network',
     vulnerabilityClass: 'design',
-    threatScenario: 'Attacker floods the SCADA network with PROFINET or Modbus/TCP traffic, overwhelming the SCADA server and historian. Operators lose visibility for extended period.',
+    threatScenario:
+      'Attacker floods the SCADA network with PROFINET or Modbus/TCP traffic, overwhelming the SCADA server and historian. Operators lose visibility for extended period.',
     assetIds: [ASSET_SCADA, ASSET_HISTORIAN],
     zoneIds: [ZONE_SCADA],
     likelihood: 3,
@@ -504,7 +681,8 @@ const TREATMENTS = [
   {
     riskId: 'c2000000-0000-0000-0000-000000000001',
     type: 'mitigate',
-    description: 'Implement network segmentation hardening: remove direct PROFINET path from engineering workstation to PLC zone, enforce all engineering traffic through iDMZ jump server with MFA and session recording. Deploy micro-segmentation rules on the industrial firewall.',
+    description:
+      'Implement network segmentation hardening: remove direct PROFINET path from engineering workstation to PLC zone, enforce all engineering traffic through iDMZ jump server with MFA and session recording. Deploy micro-segmentation rules on the industrial firewall.',
     responsibleId: OT_MANAGER_ID,
     targetDate: '2026-09-30',
     status: 'in_progress',
@@ -513,7 +691,8 @@ const TREATMENTS = [
   {
     riskId: 'c2000000-0000-0000-0000-000000000002',
     type: 'mitigate',
-    description: 'Deploy PLC firmware patches (V2.9.4) via the patch management server during next scheduled maintenance window. Implement firmware integrity verification at startup. Establish quarterly firmware review cycle.',
+    description:
+      'Deploy PLC firmware patches (V2.9.4) via the patch management server during next scheduled maintenance window. Implement firmware integrity verification at startup. Establish quarterly firmware review cycle.',
     responsibleId: OT_MANAGER_ID,
     targetDate: '2026-06-30',
     status: 'planned',
@@ -522,7 +701,8 @@ const TREATMENTS = [
   {
     riskId: 'c2000000-0000-0000-0000-000000000003',
     type: 'mitigate',
-    description: 'Deploy DoS protection on the industrial firewall and industrial switch. Implement rate limiting for PROFINET and Modbus/TCP traffic. Deploy network monitoring with anomaly detection for the SCADA zone. Establish network baseline and alert thresholds.',
+    description:
+      'Deploy DoS protection on the industrial firewall and industrial switch. Implement rate limiting for PROFINET and Modbus/TCP traffic. Deploy network monitoring with anomaly detection for the SCADA zone. Establish network baseline and alert thresholds.',
     responsibleId: OT_MANAGER_ID,
     targetDate: '2026-12-31',
     status: 'planned',
@@ -546,7 +726,8 @@ const EVIDENCE_ITEMS = [
   {
     id: 'd1000000-0000-0000-0000-000000000001',
     title: 'OT Network Architecture Diagram',
-    description: 'Comprehensive network architecture diagram showing all IEC 62443 zones, conduits, and asset placements. Includes Purdue model mapping, VLAN assignments, and firewall placement. Updated 2026-01-20.',
+    description:
+      'Comprehensive network architecture diagram showing all IEC 62443 zones, conduits, and asset placements. Includes Purdue model mapping, VLAN assignments, and firewall placement. Updated 2026-01-20.',
     evidenceType: 'document',
     status: 'active',
     fileName: 'OT_Network_Architecture_v3.2.pdf',
@@ -561,7 +742,8 @@ const EVIDENCE_ITEMS = [
   {
     id: 'd1000000-0000-0000-0000-000000000002',
     title: 'Industrial Firewall Configuration Export',
-    description: 'FortiGate Rugged 70F firewall rule configuration export showing all ACL rules, DPI policies, NAT rules, and zone-to-zone traffic policies. Includes both iDMZ and SCADA zone firewall rules.',
+    description:
+      'FortiGate Rugged 70F firewall rule configuration export showing all ACL rules, DPI policies, NAT rules, and zone-to-zone traffic policies. Includes both iDMZ and SCADA zone firewall rules.',
     evidenceType: 'config',
     status: 'active',
     fileName: 'FortiGate_Rugged70F_config_2026-01-22.conf',
@@ -576,7 +758,8 @@ const EVIDENCE_ITEMS = [
   {
     id: 'd1000000-0000-0000-0000-000000000003',
     title: 'PLC Inventory and Firmware Status',
-    description: 'Complete inventory of all PLCs and controllers in the refinery, including firmware versions, patch status, CVE exposure, and last maintenance dates. Includes both Siemens S7-1500 and S7-1500F controllers.',
+    description:
+      'Complete inventory of all PLCs and controllers in the refinery, including firmware versions, patch status, CVE exposure, and last maintenance dates. Includes both Siemens S7-1500 and S7-1500F controllers.',
     evidenceType: 'document',
     status: 'active',
     fileName: 'PLC_Inventory_Firmware_Status_2026-01.xlsx',
@@ -591,7 +774,8 @@ const EVIDENCE_ITEMS = [
   {
     id: 'd1000000-0000-0000-0000-000000000004',
     title: 'OT Vulnerability Assessment Report',
-    description: 'Tenable.ot vulnerability scan report for the refinery OT network. Covers all discovered assets, identified vulnerabilities with CVSS scores, and recommended remediation actions. Scan performed 2026-01-18.',
+    description:
+      'Tenable.ot vulnerability scan report for the refinery OT network. Covers all discovered assets, identified vulnerabilities with CVSS scores, and recommended remediation actions. Scan performed 2026-01-18.',
     evidenceType: 'scan_result',
     status: 'active',
     fileName: 'Tenable_OT_VulnScan_2026-01-18.pdf',
@@ -601,12 +785,21 @@ const EVIDENCE_ITEMS = [
     collectedBy: LEAD_ASSESSOR_ID,
     retentionUntil: '2029-01-18',
     tags: ['vulnerability', 'scan', 'tenable', 'cvss'],
-    metadata: { scanner: 'Tenable.ot', scanDate: '2026-01-18', totalVulns: 47, critical: 2, high: 8, medium: 22, low: 15 },
+    metadata: {
+      scanner: 'Tenable.ot',
+      scanDate: '2026-01-18',
+      totalVulns: 47,
+      critical: 2,
+      high: 8,
+      medium: 22,
+      low: 15,
+    },
   },
   {
     id: 'd1000000-0000-0000-0000-000000000005',
     title: 'OT Security Policies and Procedures',
-    description: 'Collection of existing security policies and procedures applicable to the OT environment. Includes network access policy, acceptable use policy, and change management procedure. Note: Several IEC 62443-2-1 required policies are missing (see finding F-006).',
+    description:
+      'Collection of existing security policies and procedures applicable to the OT environment. Includes network access policy, acceptable use policy, and change management procedure. Note: Several IEC 62443-2-1 required policies are missing (see finding F-006).',
     evidenceType: 'document',
     status: 'active',
     fileName: 'OT_Security_Policies_Collection.pdf',
@@ -616,12 +809,25 @@ const EVIDENCE_ITEMS = [
     collectedBy: COMPLIANCE_ID,
     retentionUntil: '2029-01-22',
     tags: ['policy', 'security', 'governance', 'csms'],
-    metadata: { existingPolicies: ['Network Access Policy', 'Acceptable Use Policy', 'Change Management Procedure'], missingPolicies: ['IACS Security Policy', 'OT Incident Response Plan', 'Security Awareness Training Program', 'Control Logic Change Management Procedure'] },
+    metadata: {
+      existingPolicies: [
+        'Network Access Policy',
+        'Acceptable Use Policy',
+        'Change Management Procedure',
+      ],
+      missingPolicies: [
+        'IACS Security Policy',
+        'OT Incident Response Plan',
+        'Security Awareness Training Program',
+        'Control Logic Change Management Procedure',
+      ],
+    },
   },
   {
     id: 'd1000000-0000-0000-0000-000000000006',
     title: 'Backup and Recovery Procedures',
-    description: 'Backup and recovery procedures for the SCADA server and historian. Includes backup schedule, retention policy, and restore procedures. Note: Does not cover PLC program backups or SIS configuration backups.',
+    description:
+      'Backup and recovery procedures for the SCADA server and historian. Includes backup schedule, retention policy, and restore procedures. Note: Does not cover PLC program backups or SIS configuration backups.',
     evidenceType: 'document',
     status: 'active',
     fileName: 'Backup_Recovery_Procedures_v2.1.pdf',
@@ -631,7 +837,11 @@ const EVIDENCE_ITEMS = [
     collectedBy: OT_MANAGER_ID,
     retentionUntil: '2029-01-22',
     tags: ['backup', 'recovery', 'procedures', 'bcp'],
-    metadata: { coverage: 'SCADA servers and historian only', missing: 'PLC program backups, SIS configuration backups', lastTestDate: '2025-06-15' },
+    metadata: {
+      coverage: 'SCADA servers and historian only',
+      missing: 'PLC program backups, SIS configuration backups',
+      lastTestDate: '2025-06-15',
+    },
   },
 ] as const;
 
@@ -640,41 +850,143 @@ const EVIDENCE_ITEMS = [
 // Links evidence to findings, engagements, and assessment requirements
 const EVIDENCE_LINKS = [
   // Network architecture diagram → engagement, findings
-  { evidenceId: 'd1000000-0000-0000-0000-000000000001', entityType: 'engagement', entityId: ENGAGEMENT_ID },
-  { evidenceId: 'd1000000-0000-0000-0000-000000000001', entityType: 'finding', entityId: 'b1000000-0000-0000-0000-000000000002' }, // segmentation finding
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000001',
+    entityType: 'engagement',
+    entityId: ENGAGEMENT_ID,
+  },
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000001',
+    entityType: 'finding',
+    entityId: 'b1000000-0000-0000-0000-000000000002',
+  }, // segmentation finding
   // Firewall config → engagement, segmentation finding
-  { evidenceId: 'd1000000-0000-0000-0000-000000000002', entityType: 'engagement', entityId: ENGAGEMENT_ID },
-  { evidenceId: 'd1000000-0000-0000-0000-000000000002', entityType: 'finding', entityId: 'b1000000-0000-0000-0000-000000000002' }, // segmentation finding
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000002',
+    entityType: 'engagement',
+    entityId: ENGAGEMENT_ID,
+  },
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000002',
+    entityType: 'finding',
+    entityId: 'b1000000-0000-0000-0000-000000000002',
+  }, // segmentation finding
   // PLC inventory → firmware finding, engagement
-  { evidenceId: 'd1000000-0000-0000-0000-000000000003', entityType: 'engagement', entityId: ENGAGEMENT_ID },
-  { evidenceId: 'd1000000-0000-0000-0000-000000000003', entityType: 'finding', entityId: 'b1000000-0000-0000-0000-000000000001' }, // firmware finding
-  { evidenceId: 'd1000000-0000-0000-0000-000000000003', entityType: 'finding', entityId: 'b1000000-0000-0000-0000-000000000004' }, // asset inventory finding
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000003',
+    entityType: 'engagement',
+    entityId: ENGAGEMENT_ID,
+  },
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000003',
+    entityType: 'finding',
+    entityId: 'b1000000-0000-0000-0000-000000000001',
+  }, // firmware finding
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000003',
+    entityType: 'finding',
+    entityId: 'b1000000-0000-0000-0000-000000000004',
+  }, // asset inventory finding
   // Vulnerability report → firmware finding, unsupported Windows finding, engagement
-  { evidenceId: 'd1000000-0000-0000-0000-000000000004', entityType: 'engagement', entityId: ENGAGEMENT_ID },
-  { evidenceId: 'd1000000-0000-0000-0000-000000000004', entityType: 'finding', entityId: 'b1000000-0000-0000-0000-000000000001' }, // firmware finding
-  { evidenceId: 'd1000000-0000-0000-0000-000000000004', entityType: 'finding', entityId: 'b1000000-0000-0000-0000-000000000005' }, // unsupported Windows finding
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000004',
+    entityType: 'engagement',
+    entityId: ENGAGEMENT_ID,
+  },
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000004',
+    entityType: 'finding',
+    entityId: 'b1000000-0000-0000-0000-000000000001',
+  }, // firmware finding
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000004',
+    entityType: 'finding',
+    entityId: 'b1000000-0000-0000-0000-000000000005',
+  }, // unsupported Windows finding
   // Security policies → documentation finding, engagement
-  { evidenceId: 'd1000000-0000-0000-0000-000000000005', entityType: 'engagement', entityId: ENGAGEMENT_ID },
-  { evidenceId: 'd1000000-0000-0000-0000-000000000005', entityType: 'finding', entityId: 'b1000000-0000-0000-0000-000000000006' }, // documentation finding
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000005',
+    entityType: 'engagement',
+    entityId: ENGAGEMENT_ID,
+  },
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000005',
+    entityType: 'finding',
+    entityId: 'b1000000-0000-0000-0000-000000000006',
+  }, // documentation finding
   // Backup procedures → engagement, DoS finding (SR 7)
-  { evidenceId: 'd1000000-0000-0000-0000-000000000006', entityType: 'engagement', entityId: ENGAGEMENT_ID },
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000006',
+    entityType: 'engagement',
+    entityId: ENGAGEMENT_ID,
+  },
   // Link evidence to specific assessment requirements (using question IDs as entity proxies)
-  { evidenceId: 'd1000000-0000-0000-0000-000000000001', entityType: 'requirement', entityId: 'a2000000-0000-0000-0000-000000000010' }, // SR 5.1
-  { evidenceId: 'd1000000-0000-0000-0000-000000000002', entityType: 'requirement', entityId: 'a2000000-0000-0000-0000-000000000011' }, // SR 5.2
-  { evidenceId: 'd1000000-0000-0000-0000-000000000003', entityType: 'requirement', entityId: 'a2000000-0000-0000-0000-000000000006' }, // SR 3.1
-  { evidenceId: 'd1000000-0000-0000-0000-000000000004', entityType: 'requirement', entityId: 'a2000000-0000-0000-0000-000000000007' }, // SR 3.2
-  { evidenceId: 'd1000000-0000-0000-0000-000000000006', entityType: 'requirement', entityId: 'a2000000-0000-0000-0000-000000000014' }, // SR 7.3
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000001',
+    entityType: 'requirement',
+    entityId: 'a2000000-0000-0000-0000-000000000010',
+  }, // SR 5.1
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000002',
+    entityType: 'requirement',
+    entityId: 'a2000000-0000-0000-0000-000000000011',
+  }, // SR 5.2
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000003',
+    entityType: 'requirement',
+    entityId: 'a2000000-0000-0000-0000-000000000006',
+  }, // SR 3.1
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000004',
+    entityType: 'requirement',
+    entityId: 'a2000000-0000-0000-0000-000000000007',
+  }, // SR 3.2
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000006',
+    entityType: 'requirement',
+    entityId: 'a2000000-0000-0000-0000-000000000014',
+  }, // SR 7.3
 ] as const;
 
 // ── Chain of Custody ─────────────────────────────────────────────────────
 
 const CUSTODY_EVENTS = [
-  { evidenceId: 'd1000000-0000-0000-0000-000000000001', eventType: 'created', userId: LEAD_ASSESSOR_ID, details: { action: 'Document collected during site assessment' } },
-  { evidenceId: 'd1000000-0000-0000-0000-000000000002', eventType: 'created', userId: LEAD_ASSESSOR_ID, details: { action: 'Configuration export from FortiGate management interface' } },
-  { evidenceId: 'd1000000-0000-0000-0000-000000000003', eventType: 'created', userId: LEAD_ASSESSOR_ID, details: { action: 'Inventory spreadsheet provided by OT team' } },
-  { evidenceId: 'd1000000-0000-0000-0000-000000000004', eventType: 'created', userId: LEAD_ASSESSOR_ID, details: { action: 'Scan report generated from Tenable.ot console' } },
-  { evidenceId: 'd1000000-0000-0000-0000-000000000005', eventType: 'created', userId: COMPLIANCE_ID, details: { action: 'Policy documents provided by compliance team' } },
-  { evidenceId: 'd1000000-0000-0000-0000-000000000006', eventType: 'created', userId: OT_MANAGER_ID, details: { action: 'Procedures document provided by OT operations' } },
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000001',
+    eventType: 'created',
+    userId: LEAD_ASSESSOR_ID,
+    details: { action: 'Document collected during site assessment' },
+  },
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000002',
+    eventType: 'created',
+    userId: LEAD_ASSESSOR_ID,
+    details: { action: 'Configuration export from FortiGate management interface' },
+  },
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000003',
+    eventType: 'created',
+    userId: LEAD_ASSESSOR_ID,
+    details: { action: 'Inventory spreadsheet provided by OT team' },
+  },
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000004',
+    eventType: 'created',
+    userId: LEAD_ASSESSOR_ID,
+    details: { action: 'Scan report generated from Tenable.ot console' },
+  },
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000005',
+    eventType: 'created',
+    userId: COMPLIANCE_ID,
+    details: { action: 'Policy documents provided by compliance team' },
+  },
+  {
+    evidenceId: 'd1000000-0000-0000-0000-000000000006',
+    eventType: 'created',
+    userId: OT_MANAGER_ID,
+    details: { action: 'Procedures document provided by OT operations' },
+  },
 ] as const;
 
 // ── Audit Event Helpers ──────────────────────────────────────────────────
@@ -773,32 +1085,38 @@ async function seed() {
   // ── 1. Assessment Template ───────────────────────────────────────────
   console.log('\n[1/9] Creating assessment template...');
 
-  await tenantDb.insert(tenantSchema.templates).values({
-    id: TEMPLATE.id,
-    name: TEMPLATE.name,
-    description: TEMPLATE.description,
-    iecPart: TEMPLATE.iecPart,
-    version: TEMPLATE.version,
-    isSystem: TEMPLATE.isSystem,
-    sections: TEMPLATE.sections,
-  }).onConflictDoNothing();
+  await tenantDb
+    .insert(tenantSchema.templates)
+    .values({
+      id: TEMPLATE.id,
+      name: TEMPLATE.name,
+      description: TEMPLATE.description,
+      iecPart: TEMPLATE.iecPart,
+      version: TEMPLATE.version,
+      isSystem: TEMPLATE.isSystem,
+      sections: TEMPLATE.sections,
+    })
+    .onConflictDoNothing();
 
   // ── 2. Assessment Questions ──────────────────────────────────────────
   console.log('[2/9] Creating assessment questions...');
 
   for (const q of QUESTIONS) {
-    await tenantDb.insert(tenantSchema.questions).values({
-      id: q.id,
-      templateId: TEMPLATE_ID,
-      section: q.section,
-      clauseRef: q.clauseRef,
-      questionText: q.questionText,
-      requirementId: q.requirementId,
-      foundationRequirement: q.foundationRequirement,
-      maxScore: q.maxScore,
-      guidanceText: q.guidanceText,
-      sortOrder: q.sortOrder,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.questions)
+      .values({
+        id: q.id,
+        templateId: TEMPLATE_ID,
+        section: q.section,
+        clauseRef: q.clauseRef,
+        questionText: q.questionText,
+        requirementId: q.requirementId,
+        foundationRequirement: q.foundationRequirement,
+        maxScore: q.maxScore,
+        guidanceText: q.guidanceText,
+        sortOrder: q.sortOrder,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 3. Engagement ───────────────────────────────────────────────────
@@ -810,53 +1128,62 @@ async function seed() {
   console.log('[4/9] Creating assessment responses...');
 
   for (const r of RESPONSES) {
-    await tenantDb.insert(tenantSchema.responses).values({
-      engagementId: ENGAGEMENT_ID,
-      questionId: r.questionId,
-      score: r.score,
-      maturityLevel: r.maturityLevel,
-      assessorNotes: r.assessorNotes,
-      answeredBy: LEAD_ASSESSOR_ID,
-      answeredAt: new Date(),
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.responses)
+      .values({
+        engagementId: ENGAGEMENT_ID,
+        questionId: r.questionId,
+        score: r.score,
+        maturityLevel: r.maturityLevel,
+        assessorNotes: r.assessorNotes,
+        answeredBy: LEAD_ASSESSOR_ID,
+        answeredAt: new Date(),
+      })
+      .onConflictDoNothing();
   }
 
   // ── 5. Scorecards ───────────────────────────────────────────────────
   console.log('[5/9] Creating scorecards...');
 
   for (const sc of SCORECARDS) {
-    await tenantDb.insert(tenantSchema.scorecards).values({
-      engagementId: ENGAGEMENT_ID,
-      category: sc.category,
-      currentSl: sc.currentSl,
-      targetSl: sc.targetSl,
-      totalQuestions: sc.totalQuestions,
-      answeredCount: sc.answeredCount,
-      compliancePct: sc.compliancePct,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.scorecards)
+      .values({
+        engagementId: ENGAGEMENT_ID,
+        category: sc.category,
+        currentSl: sc.currentSl,
+        targetSl: sc.targetSl,
+        totalQuestions: sc.totalQuestions,
+        answeredCount: sc.answeredCount,
+        compliancePct: sc.compliancePct,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 6. Findings ─────────────────────────────────────────────────────
   console.log('[6/9] Creating findings...');
 
   for (const f of FINDINGS) {
-    await tenantDb.insert(tenantSchema.findings).values({
-      id: f.id,
-      engagementId: ENGAGEMENT_ID,
-      title: f.title,
-      description: f.description,
-      severity: f.severity,
-      status: f.status,
-      category: f.category,
-      subcategory: f.subcategory,
-      iecRequirement: f.iecRequirement,
-      assetIds: [...f.assetIds],
-      zoneIds: [...f.zoneIds],
-      assignedTo: f.assignedTo,
-      dueDate: new Date(f.dueDate),
-      source: f.source,
-      metadata: f.metadata,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.findings)
+      .values({
+        id: f.id,
+        engagementId: ENGAGEMENT_ID,
+        title: f.title,
+        description: f.description,
+        severity: f.severity,
+        status: f.status,
+        category: f.category,
+        subcategory: f.subcategory,
+        iecRequirement: f.iecRequirement,
+        assetIds: [...f.assetIds],
+        zoneIds: [...f.zoneIds],
+        assignedTo: f.assignedTo,
+        dueDate: new Date(f.dueDate),
+        source: f.source,
+        metadata: f.metadata,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 7. Risk Register & Entries ──────────────────────────────────────
@@ -864,92 +1191,110 @@ async function seed() {
 
   await tenantDb.insert(tenantSchema.registers).values(RISK_REGISTER).onConflictDoNothing();
 
-  await tenantDb.insert(tenantSchema.matrixConfig).values({
-    id: 'c3000000-0000-0000-0000-000000000001',
-    registerId: MATRIX_CONFIG.registerId,
-    likelihoodLabels: MATRIX_CONFIG.likelihoodLabels,
-    impactLabels: MATRIX_CONFIG.impactLabels,
-    thresholds: MATRIX_CONFIG.thresholds,
-    colorScheme: MATRIX_CONFIG.colorScheme,
-  }).onConflictDoNothing();
+  await tenantDb
+    .insert(tenantSchema.matrixConfig)
+    .values({
+      id: 'c3000000-0000-0000-0000-000000000001',
+      registerId: MATRIX_CONFIG.registerId,
+      likelihoodLabels: MATRIX_CONFIG.likelihoodLabels,
+      impactLabels: MATRIX_CONFIG.impactLabels,
+      thresholds: MATRIX_CONFIG.thresholds,
+      colorScheme: MATRIX_CONFIG.colorScheme,
+    })
+    .onConflictDoNothing();
 
   for (const r of RISK_ENTRIES) {
-    await tenantDb.insert(tenantSchema.entries).values({
-      id: r.id,
-      registerId: REGISTER_ID,
-      title: r.title,
-      description: r.description,
-      category: r.category,
-      threatSource: r.threatSource,
-      vulnerability: r.vulnerability,
-      threatCategory: r.threatCategory,
-      threatCapability: r.threatCapability,
-      attackVector: r.attackVector,
-      vulnerabilityClass: r.vulnerabilityClass,
-      threatScenario: r.threatScenario,
-      cveRefs: [...((r as { cveRefs?: string[] }).cveRefs ?? [])],
-      assetIds: [...r.assetIds],
-      zoneIds: [...r.zoneIds],
-      likelihood: r.likelihood,
-      impact: r.impact,
-      treatment: r.treatment,
-      residualLikelihood: r.residualLikelihood,
-      residualImpact: r.residualImpact,
-      riskOwnerId: r.riskOwnerId,
-      iecRequirement: r.iecRequirement,
-      status: r.status,
-      reassessBy: r.reassessBy,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.entries)
+      .values({
+        id: r.id,
+        registerId: REGISTER_ID,
+        title: r.title,
+        description: r.description,
+        category: r.category,
+        threatSource: r.threatSource,
+        vulnerability: r.vulnerability,
+        threatCategory: r.threatCategory,
+        threatCapability: r.threatCapability,
+        attackVector: r.attackVector,
+        vulnerabilityClass: r.vulnerabilityClass,
+        threatScenario: r.threatScenario,
+        cveRefs: [...((r as { cveRefs?: string[] }).cveRefs ?? [])],
+        assetIds: [...r.assetIds],
+        zoneIds: [...r.zoneIds],
+        likelihood: r.likelihood,
+        impact: r.impact,
+        treatment: r.treatment,
+        residualLikelihood: r.residualLikelihood,
+        residualImpact: r.residualImpact,
+        riskOwnerId: r.riskOwnerId,
+        iecRequirement: r.iecRequirement,
+        status: r.status,
+        reassessBy: r.reassessBy,
+      })
+      .onConflictDoNothing();
   }
 
   for (const t of TREATMENTS) {
-    await tenantDb.insert(tenantSchema.treatments).values({
-      riskId: t.riskId,
-      type: t.type,
-      description: t.description,
-      responsibleId: t.responsibleId,
-      targetDate: t.targetDate,
-      status: t.status,
-      costEstimate: t.costEstimate,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.treatments)
+      .values({
+        riskId: t.riskId,
+        type: t.type,
+        description: t.description,
+        responsibleId: t.responsibleId,
+        targetDate: t.targetDate,
+        status: t.status,
+        costEstimate: t.costEstimate,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 8. Evidence & Links ─────────────────────────────────────────────
   console.log('[8/9] Creating evidence items and links...');
 
   for (const e of EVIDENCE_ITEMS) {
-    await tenantDb.insert(tenantSchema.items).values({
-      id: e.id,
-      title: e.title,
-      description: e.description,
-      evidenceType: e.evidenceType,
-      status: e.status,
-      fileName: e.fileName,
-      fileSize: e.fileSize,
-      mimeType: e.mimeType,
-      sha256Hash: e.sha256Hash,
-      collectedBy: e.collectedBy,
-      retentionUntil: new Date(e.retentionUntil),
-      tags: [...e.tags],
-      metadata: e.metadata,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.items)
+      .values({
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        evidenceType: e.evidenceType,
+        status: e.status,
+        fileName: e.fileName,
+        fileSize: e.fileSize,
+        mimeType: e.mimeType,
+        sha256Hash: e.sha256Hash,
+        collectedBy: e.collectedBy,
+        retentionUntil: new Date(e.retentionUntil),
+        tags: [...e.tags],
+        metadata: e.metadata,
+      })
+      .onConflictDoNothing();
   }
 
   for (const l of EVIDENCE_LINKS) {
-    await tenantDb.insert(tenantSchema.links).values({
-      evidenceId: l.evidenceId,
-      entityType: l.entityType,
-      entityId: l.entityId,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.links)
+      .values({
+        evidenceId: l.evidenceId,
+        entityType: l.entityType,
+        entityId: l.entityId,
+      })
+      .onConflictDoNothing();
   }
 
   for (const c of CUSTODY_EVENTS) {
-    await tenantDb.insert(tenantSchema.chainOfCustody).values({
-      evidenceId: c.evidenceId,
-      eventType: c.eventType,
-      userId: c.userId,
-      details: c.details,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.chainOfCustody)
+      .values({
+        evidenceId: c.evidenceId,
+        eventType: c.eventType,
+        userId: c.userId,
+        details: c.details,
+      })
+      .onConflictDoNothing();
   }
 
   await tenantPool.end();
@@ -960,68 +1305,104 @@ async function seed() {
   const auditEvents: AuditEventSeed[] = [];
 
   auditEvents.push({
-    tenantId: TENANT_ID, userId: SEED_USER_ID,
-    eventType: 'assessment.template.created', entityType: 'template', entityId: TEMPLATE_ID,
-    action: 'create', details: { name: TEMPLATE.name, iecPart: TEMPLATE.iecPart },
+    tenantId: TENANT_ID,
+    userId: SEED_USER_ID,
+    eventType: 'assessment.template.created',
+    entityType: 'template',
+    entityId: TEMPLATE_ID,
+    action: 'create',
+    details: { name: TEMPLATE.name, iecPart: TEMPLATE.iecPart },
   });
 
   for (const q of QUESTIONS) {
     auditEvents.push({
-      tenantId: TENANT_ID, userId: SEED_USER_ID,
-      eventType: 'assessment.question.created', entityType: 'question', entityId: q.id,
-      action: 'create', details: { requirementId: q.requirementId, foundationRequirement: q.foundationRequirement },
+      tenantId: TENANT_ID,
+      userId: SEED_USER_ID,
+      eventType: 'assessment.question.created',
+      entityType: 'question',
+      entityId: q.id,
+      action: 'create',
+      details: { requirementId: q.requirementId, foundationRequirement: q.foundationRequirement },
     });
   }
 
   auditEvents.push({
-    tenantId: TENANT_ID, userId: SEED_USER_ID,
-    eventType: 'assessment.engagement.created', entityType: 'engagement', entityId: ENGAGEMENT_ID,
-    action: 'create', details: { name: ENGAGEMENT.name, type: ENGAGEMENT.type, targetSl: ENGAGEMENT.targetSl },
+    tenantId: TENANT_ID,
+    userId: SEED_USER_ID,
+    eventType: 'assessment.engagement.created',
+    entityType: 'engagement',
+    entityId: ENGAGEMENT_ID,
+    action: 'create',
+    details: { name: ENGAGEMENT.name, type: ENGAGEMENT.type, targetSl: ENGAGEMENT.targetSl },
   });
 
   for (const r of RESPONSES) {
     auditEvents.push({
-      tenantId: TENANT_ID, userId: LEAD_ASSESSOR_ID,
-      eventType: 'assessment.response.created', entityType: 'response', entityId: r.questionId,
-      action: 'create', details: { score: r.score, maturityLevel: r.maturityLevel },
+      tenantId: TENANT_ID,
+      userId: LEAD_ASSESSOR_ID,
+      eventType: 'assessment.response.created',
+      entityType: 'response',
+      entityId: r.questionId,
+      action: 'create',
+      details: { score: r.score, maturityLevel: r.maturityLevel },
     });
   }
 
   for (const f of FINDINGS) {
     auditEvents.push({
-      tenantId: TENANT_ID, userId: LEAD_ASSESSOR_ID,
-      eventType: 'finding.created', entityType: 'finding', entityId: f.id,
-      action: 'create', details: { title: f.title, severity: f.severity, status: f.status },
+      tenantId: TENANT_ID,
+      userId: LEAD_ASSESSOR_ID,
+      eventType: 'finding.created',
+      entityType: 'finding',
+      entityId: f.id,
+      action: 'create',
+      details: { title: f.title, severity: f.severity, status: f.status },
     });
   }
 
   auditEvents.push({
-    tenantId: TENANT_ID, userId: SEED_USER_ID,
-    eventType: 'risk.register.created', entityType: 'risk_register', entityId: REGISTER_ID,
-    action: 'create', details: { name: RISK_REGISTER.name },
+    tenantId: TENANT_ID,
+    userId: SEED_USER_ID,
+    eventType: 'risk.register.created',
+    entityType: 'risk_register',
+    entityId: REGISTER_ID,
+    action: 'create',
+    details: { name: RISK_REGISTER.name },
   });
 
   for (const r of RISK_ENTRIES) {
     auditEvents.push({
-      tenantId: TENANT_ID, userId: OT_MANAGER_ID,
-      eventType: 'risk.entry.created', entityType: 'risk_entry', entityId: r.id,
-      action: 'create', details: { title: r.title, likelihood: r.likelihood, impact: r.impact },
+      tenantId: TENANT_ID,
+      userId: OT_MANAGER_ID,
+      eventType: 'risk.entry.created',
+      entityType: 'risk_entry',
+      entityId: r.id,
+      action: 'create',
+      details: { title: r.title, likelihood: r.likelihood, impact: r.impact },
     });
   }
 
   for (const e of EVIDENCE_ITEMS) {
     auditEvents.push({
-      tenantId: TENANT_ID, userId: e.collectedBy,
-      eventType: 'evidence.created', entityType: 'evidence', entityId: e.id,
-      action: 'create', details: { title: e.title, evidenceType: e.evidenceType },
+      tenantId: TENANT_ID,
+      userId: e.collectedBy,
+      eventType: 'evidence.created',
+      entityType: 'evidence',
+      entityId: e.id,
+      action: 'create',
+      details: { title: e.title, evidenceType: e.evidenceType },
     });
   }
 
   for (const l of EVIDENCE_LINKS) {
     auditEvents.push({
-      tenantId: TENANT_ID, userId: SEED_USER_ID,
-      eventType: 'evidence.linked', entityType: 'evidence_link', entityId: l.evidenceId,
-      action: 'create', details: { entityType: l.entityType, entityId: l.entityId },
+      tenantId: TENANT_ID,
+      userId: SEED_USER_ID,
+      eventType: 'evidence.linked',
+      entityType: 'evidence_link',
+      entityId: l.evidenceId,
+      action: 'create',
+      details: { entityType: l.entityType, entityId: l.entityId },
     });
   }
 
@@ -1035,11 +1416,15 @@ async function seed() {
   console.log('');
   console.log('Summary:');
   console.log(`  Template:        1 (IEC 62443-3-3, ${QUESTIONS.length} questions)`);
-  console.log(`  Engagement:      1 (SL${ENGAGEMENT.currentSl}→SL${ENGAGEMENT.targetSl}, ${ENGAGEMENT.status})`);
+  console.log(
+    `  Engagement:      1 (SL${ENGAGEMENT.currentSl}→SL${ENGAGEMENT.targetSl}, ${ENGAGEMENT.status})`,
+  );
   console.log(`  Responses:       ${RESPONSES.length}`);
   console.log(`  Scorecards:      ${SCORECARDS.length}`);
   console.log(`  Findings:        ${FINDINGS.length}`);
-  console.log(`  Risk register:   1 (${RISK_ENTRIES.length} entries, ${TREATMENTS.length} treatments)`);
+  console.log(
+    `  Risk register:   1 (${RISK_ENTRIES.length} entries, ${TREATMENTS.length} treatments)`,
+  );
   console.log(`  Evidence:        ${EVIDENCE_ITEMS.length} items, ${EVIDENCE_LINKS.length} links`);
   console.log(`  Audit events:    ${auditEvents.length}`);
   console.log('');
@@ -1047,7 +1432,9 @@ async function seed() {
   for (const sc of SCORECARDS) {
     const gap = sc.targetSl - sc.currentSl;
     const status = gap === 0 ? 'COMPLIANT' : gap === 1 ? 'PARTIAL' : 'GAP';
-    console.log(`  ${sc.category.padEnd(50)} SL${sc.currentSl}→SL${sc.targetSl}  ${sc.compliancePct}%  ${status}`);
+    console.log(
+      `  ${sc.category.padEnd(50)} SL${sc.currentSl}→SL${sc.targetSl}  ${sc.compliancePct}%  ${status}`,
+    );
   }
   console.log('');
   console.log('Findings by Severity:');
@@ -1061,7 +1448,9 @@ async function seed() {
   for (const r of RISK_ENTRIES) {
     const score = r.likelihood * r.impact;
     const resScore = r.residualLikelihood * r.residualImpact;
-    console.log(`  ${r.title.padEnd(45)} L${r.likelihood}×I${r.impact}=${score}  Residual: L${r.residualLikelihood}×I${r.residualImpact}=${resScore}`);
+    console.log(
+      `  ${r.title.padEnd(45)} L${r.likelihood}×I${r.impact}=${score}  Residual: L${r.residualLikelihood}×I${r.residualImpact}=${resScore}`,
+    );
   }
   console.log('');
   console.log('Evidence Linked:');

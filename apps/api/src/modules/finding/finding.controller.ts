@@ -1,14 +1,12 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-
 import {
-  createFindingSchema,
-  updateFindingSchema,
-  transitionFindingSchema,
   createCommentSchema,
+  createFindingSchema,
   paginationSchema,
+  transitionFindingSchema,
+  updateFindingSchema,
   uuidSchema,
 } from '@iec62443/shared-schemas';
-
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { FindingService } from './finding.service.js';
 
 // ---------------------------------------------------------------------------
@@ -98,9 +96,7 @@ export class FindingController {
 
     try {
       const result = await this.findingService.listFindings(filters);
-      return reply.status(200).send(
-        paginatedResponse(result.data, result.pagination, request.id),
-      );
+      return reply.status(200).send(paginatedResponse(result.data, result.pagination, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -115,16 +111,16 @@ export class FindingController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -142,9 +138,9 @@ export class FindingController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id));
     }
 
     try {
@@ -162,9 +158,9 @@ export class FindingController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id));
     }
 
     const parsed = updateFindingSchema.safeParse(request.body);
@@ -173,16 +169,16 @@ export class FindingController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -200,16 +196,16 @@ export class FindingController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -227,9 +223,9 @@ export class FindingController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id));
     }
 
     const parsed = transitionFindingSchema.safeParse(request.body);
@@ -238,16 +234,16 @@ export class FindingController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -265,9 +261,9 @@ export class FindingController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id));
     }
 
     try {
@@ -285,9 +281,9 @@ export class FindingController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id));
     }
 
     try {
@@ -305,9 +301,9 @@ export class FindingController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id));
     }
 
     const parsed = createCommentSchema.safeParse(request.body);
@@ -316,16 +312,16 @@ export class FindingController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -343,37 +339,41 @@ export class FindingController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id));
     }
 
     const body = request.body as Record<string, unknown> | undefined;
     const evidenceId = body?.['evidenceId'] as string | undefined;
 
     if (!evidenceId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id, [
-          { field: 'evidenceId', message: 'Evidence ID is required' },
-        ]),
-      );
+      return reply
+        .status(400)
+        .send(
+          errorResponse('VALIDATION_ERROR', 'Evidence ID is required', request.id, [
+            { field: 'evidenceId', message: 'Evidence ID is required' },
+          ]),
+        );
     }
 
     // Validate evidenceId is a UUID
     const uuidParsed = uuidSchema.safeParse(evidenceId);
     if (!uuidParsed.success) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Evidence ID must be a valid UUID', request.id, [
-          { field: 'evidenceId', message: 'Evidence ID must be a valid UUID' },
-        ]),
-      );
+      return reply
+        .status(400)
+        .send(
+          errorResponse('VALIDATION_ERROR', 'Evidence ID must be a valid UUID', request.id, [
+            { field: 'evidenceId', message: 'Evidence ID must be a valid UUID' },
+          ]),
+        );
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -391,9 +391,9 @@ export class FindingController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Finding ID is required', request.id));
     }
 
     try {
@@ -427,12 +427,16 @@ export class FindingController {
       request.log.warn(error);
     }
 
-    return reply.status(statusCode).send(
-      errorResponse(
-        code,
-        statusCode >= 500 ? 'An unexpected error occurred.' : (err.message ?? 'An error occurred'),
-        request.id,
-      ),
-    );
+    return reply
+      .status(statusCode)
+      .send(
+        errorResponse(
+          code,
+          statusCode >= 500
+            ? 'An unexpected error occurred.'
+            : (err.message ?? 'An error occurred'),
+          request.id,
+        ),
+      );
   }
 }

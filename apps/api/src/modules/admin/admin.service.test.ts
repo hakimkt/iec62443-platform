@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { AdminService } from './admin.service.js';
 
 // ---------------------------------------------------------------------------
@@ -24,7 +25,7 @@ function createMockDb() {
   }
 
   return {
-    db: createChain() as import('drizzle-orm/node-postgres').NodePgDatabase,
+    db: createChain() as unknown as NodePgDatabase,
     enqueue: (...values: unknown[]) => resolvedQueue.push(...values),
   };
 }
@@ -78,12 +79,12 @@ describe('AdminService', () => {
       };
 
       mock.enqueue(
-        [],              // no existing user
-        [newUser],       // insert user returning
-        [],              // no existing membership
+        [], // no existing user
+        [newUser], // insert user returning
+        [], // no existing membership
         [newMembership], // insert membership returning
-        [],              // audit: select last hash
-        undefined,       // audit: insert values
+        [], // audit: select last hash
+        undefined, // audit: insert values
       );
 
       const result = await service.inviteMember('new@example.com', 'member', USER_ID);
@@ -111,7 +112,7 @@ describe('AdminService', () => {
       };
 
       mock.enqueue(
-        [existingUser],  // existing user found
+        [existingUser], // existing user found
         [{ id: 'mem-1' }], // existing membership found
       );
 
@@ -130,9 +131,7 @@ describe('AdminService', () => {
     it('should throw 404 when membership not found', async () => {
       mock.enqueue([]);
 
-      await expect(
-        service.updateMember('user-x', 'admin', USER_ID),
-      ).rejects.toMatchObject({
+      await expect(service.updateMember('user-x', 'admin', USER_ID)).rejects.toMatchObject({
         statusCode: 404,
         code: 'MEMBERSHIP_NOT_FOUND',
       });
@@ -154,13 +153,17 @@ describe('AdminService', () => {
       };
 
       mock.enqueue(
-        [newRole],  // insert().returning()
-        [],         // audit: select last hash
-        undefined,  // audit: insert values
+        [newRole], // insert().returning()
+        [], // audit: select last hash
+        undefined, // audit: insert values
       );
 
       const result = await service.createRole(
-        { name: 'Assessor', description: 'Can perform assessments', permissions: ['assessment:read', 'assessment:write'] },
+        {
+          name: 'Assessor',
+          description: 'Can perform assessments',
+          permissions: ['assessment:read', 'assessment:write'],
+        },
         USER_ID,
       );
       expect(result.id).toBe('role-1');
@@ -187,15 +190,12 @@ describe('AdminService', () => {
       };
 
       mock.enqueue(
-        [newKey],  // insert().returning()
-        [],        // audit: select last hash
+        [newKey], // insert().returning()
+        [], // audit: select last hash
         undefined, // audit: insert values
       );
 
-      const result = await service.createApiKey(
-        { name: 'Test Key', scopes: ['read'] },
-        USER_ID,
-      );
+      const result = await service.createApiKey({ name: 'Test Key', scopes: ['read'] }, USER_ID);
       expect(result.id).toBe('key-1');
       expect(result.name).toBe('Test Key');
       expect(result.key).toMatch(/^iec62443_/);

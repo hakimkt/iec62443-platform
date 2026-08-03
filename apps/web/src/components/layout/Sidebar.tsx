@@ -1,11 +1,16 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { cn } from '@iec62443/ui';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@iec62443/ui/primitives';
-import { ScrollArea } from '@iec62443/ui/primitives';
-import { Separator } from '@iec62443/ui/primitives';
+import {
+  ScrollArea,
+  Separator,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@iec62443/ui/primitives';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import type { NavItem, NavSection } from '@/config/nav';
 
 interface SidebarNavItemProps {
@@ -84,7 +89,12 @@ export function Sidebar({ sections, collapsed, onToggle, className }: SidebarPro
           className,
         )}
       >
-        <div className={cn('flex h-12 items-center border-b border-surface-200 px-4', collapsed && 'justify-center px-2')}>
+        <div
+          className={cn(
+            'flex h-12 items-center border-b border-surface-200 px-4',
+            collapsed && 'justify-center px-2',
+          )}
+        >
           {!collapsed && (
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600">
@@ -131,18 +141,13 @@ export function Sidebar({ sections, collapsed, onToggle, className }: SidebarPro
                     {section.label}
                   </p>
                 )}
-                {collapsed && sectionIndex > 0 && (
-                  <Separator className="my-2" />
-                )}
+                {collapsed && sectionIndex > 0 && <Separator className="my-2" />}
                 {section.items.map((item) => (
                   <SidebarNavItem
                     key={item.key}
                     item={item}
                     collapsed={collapsed}
-                    active={
-                      pathname === item.href ||
-                      pathname.startsWith(item.href + '/')
-                    }
+                    active={pathname === item.href || pathname.startsWith(item.href + '/')}
                   />
                 ))}
               </div>

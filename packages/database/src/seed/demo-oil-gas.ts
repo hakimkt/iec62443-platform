@@ -1,8 +1,7 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { desc, eq, sql } from 'drizzle-orm';
-import { Pool } from 'pg';
 import crypto from 'node:crypto';
-
+import { desc, eq, sql } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 import * as platformSchema from '../schema/platform/index.js';
 import * as tenantSchema from '../schema/tenant/index.js';
 
@@ -81,7 +80,8 @@ const DEMO_CLIENTS = [
     id: '51000000-0000-0000-0000-000000000001',
     name: 'Gulf Coast Refining Corporation',
     industry: 'Oil & Gas',
-    description: 'Major petroleum refining and petrochemical company operating multiple refinery complexes along the Gulf Coast. Primary focus on crude oil processing, catalytic cracking, and hydrodesulfurization.',
+    description:
+      'Major petroleum refining and petrochemical company operating multiple refinery complexes along the Gulf Coast. Primary focus on crude oil processing, catalytic cracking, and hydrodesulfurization.',
     contactName: 'Robert Haines',
     contactEmail: 'r.haines@gulfcoastrefining.com',
     contactPhone: '+1-713-555-0100',
@@ -93,7 +93,8 @@ const DEMO_CLIENTS = [
     id: '51000000-0000-0000-0000-000000000002',
     name: 'PetroChem Industries',
     industry: 'Petrochemical',
-    description: 'Integrated petrochemical manufacturer producing ethylene, propylene, and specialty chemicals. Operates continuous process plants with advanced DCS and SIS systems.',
+    description:
+      'Integrated petrochemical manufacturer producing ethylene, propylene, and specialty chemicals. Operates continuous process plants with advanced DCS and SIS systems.',
     contactName: 'Amanda Torres',
     contactEmail: 'a.torres@petrochemind.com',
     contactPhone: '+1-504-555-0200',
@@ -109,7 +110,8 @@ const DEMO_PROJECTS = [
   {
     id: '61000000-0000-0000-0000-000000000001',
     name: 'Refinery IEC 62443 Security Assessment 2026',
-    description: 'Comprehensive IEC 62443-3-2 risk assessment for the Gulf Coast Refinery complex. Covers all process control zones, safety instrumented systems, and the iDMZ. Includes gap analysis against IEC 62443-3-3 requirements for SL-2 target.',
+    description:
+      'Comprehensive IEC 62443-3-2 risk assessment for the Gulf Coast Refinery complex. Covers all process control zones, safety instrumented systems, and the iDMZ. Includes gap analysis against IEC 62443-3-3 requirements for SL-2 target.',
     type: 'risk_assessment',
     status: 'in_progress',
     clientId: '51000000-0000-0000-0000-000000000001',
@@ -126,7 +128,8 @@ const DEMO_PROJECTS = [
   {
     id: '61000000-0000-0000-0000-000000000002',
     name: 'OT Network Segmentation Improvement Program',
-    description: 'Multi-phase program to improve network segmentation between Purdue levels 0-3 and the enterprise IT network (Level 4-5). Includes deployment of iDMZ infrastructure, firewall rule remediation, and conduit hardening per IEC 62443-3-3 requirements.',
+    description:
+      'Multi-phase program to improve network segmentation between Purdue levels 0-3 and the enterprise IT network (Level 4-5). Includes deployment of iDMZ infrastructure, firewall rule remediation, and conduit hardening per IEC 62443-3-3 requirements.',
     type: 'network_segmentation',
     status: 'active',
     clientId: '51000000-0000-0000-0000-000000000001',
@@ -134,7 +137,12 @@ const DEMO_PROJECTS = [
     startDate: '2026-03-01',
     targetDate: '2026-12-31',
     metadata: {
-      phases: ['iDMZ deployment', 'Firewall rule audit', 'Conduit hardening', 'Monitoring deployment'],
+      phases: [
+        'iDMZ deployment',
+        'Firewall rule audit',
+        'Conduit hardening',
+        'Monitoring deployment',
+      ],
       currentPhase: 'Firewall rule audit',
       purdueLevels: [0, 1, 2, 3, 3.5, 4, 5],
     },
@@ -142,7 +150,8 @@ const DEMO_PROJECTS = [
   {
     id: '61000000-0000-0000-0000-000000000003',
     name: 'Industrial CSMS Maturity Assessment',
-    description: 'Assessment of the current Cybersecurity Management System maturity against IEC 62443-2-1 requirements. Evaluates all 12 SM categories (SM-1 through SM-12) and produces an improvement roadmap for achieving SL-2 maturity.',
+    description:
+      'Assessment of the current Cybersecurity Management System maturity against IEC 62443-2-1 requirements. Evaluates all 12 SM categories (SM-1 through SM-12) and produces an improvement roadmap for achieving SL-2 maturity.',
     type: 'csms_assessment',
     status: 'planning',
     clientId: '51000000-0000-0000-0000-000000000002',
@@ -152,7 +161,20 @@ const DEMO_PROJECTS = [
     metadata: {
       iecPart: '2-1',
       targetMaturity: 2,
-      smCategories: ['SM-1', 'SM-2', 'SM-3', 'SM-4', 'SM-5', 'SM-6', 'SM-7', 'SM-8', 'SM-9', 'SM-10', 'SM-11', 'SM-12'],
+      smCategories: [
+        'SM-1',
+        'SM-2',
+        'SM-3',
+        'SM-4',
+        'SM-5',
+        'SM-6',
+        'SM-7',
+        'SM-8',
+        'SM-9',
+        'SM-10',
+        'SM-11',
+        'SM-12',
+      ],
     },
   },
 ] as const;
@@ -299,45 +321,50 @@ async function seed() {
   // ── 1. Tenant ────────────────────────────────────────────────────────
   console.log('\n[1/7] Creating tenant...');
 
-  await db.insert(platformSchema.tenants).values({
-    id: TENANT_ID,
-    name: 'Industrial Oil and Gas',
-    slug: TENANT_SLUG,
-    schemaName: TENANT_SCHEMA,
-    status: 'active',
-    plan: 'enterprise',
-    settings: {
-      locale: 'en',
-      timezone: 'America/Chicago',
-      mfaRequired: false,
-      passwordExpiryDays: 90,
-      sessionTimeoutMinutes: 30,
-      maxConcurrentSessions: 5,
-      branding: {
-        primaryColor: '#1a365d',
-        logoUrl: null,
-        companyName: 'Industrial Oil and Gas',
+  await db
+    .insert(platformSchema.tenants)
+    .values({
+      id: TENANT_ID,
+      name: 'Industrial Oil and Gas',
+      slug: TENANT_SLUG,
+      schemaName: TENANT_SCHEMA,
+      status: 'active',
+      plan: 'enterprise',
+      settings: {
+        locale: 'en',
+        timezone: 'America/Chicago',
+        mfaRequired: false,
+        passwordExpiryDays: 90,
+        sessionTimeoutMinutes: 30,
+        maxConcurrentSessions: 5,
+        branding: {
+          primaryColor: '#1a365d',
+          logoUrl: null,
+          companyName: 'Industrial Oil and Gas',
+        },
       },
-    },
-    storageQuota: 53687091200n, // 50 GB
-    storageUsed: 0n,
-  }).onConflictDoNothing();
+      storageQuota: 53687091200n, // 50 GB
+      storageUsed: 0n,
+    })
+    .onConflictDoNothing();
 
   // ── 2. Users ─────────────────────────────────────────────────────────
   console.log('[2/7] Creating demo users...');
 
   for (const user of DEMO_USERS) {
-    await db.insert(platformSchema.users).values({
-      id: user.id,
-      email: user.email,
-      passwordHash:
-        '$argon2id$v=19$m=65536,t=3,p=4$placeholder$placeholder',
-      firstName: user.firstName,
-      lastName: user.lastName,
-      mfaEnabled: false,
-      status: 'active',
-      failedAttempts: 0,
-    }).onConflictDoNothing();
+    await db
+      .insert(platformSchema.users)
+      .values({
+        id: user.id,
+        email: user.email,
+        passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$placeholder$placeholder',
+        firstName: user.firstName,
+        lastName: user.lastName,
+        mfaEnabled: false,
+        status: 'active',
+        failedAttempts: 0,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 3. Tenant Memberships ────────────────────────────────────────────
@@ -345,14 +372,17 @@ async function seed() {
 
   for (let i = 0; i < DEMO_USERS.length; i++) {
     const user = DEMO_USERS[i]!;
-    await db.insert(platformSchema.tenantMemberships).values({
-      id: `31000000-0000-0000-0000-00000000000${i + 1}`,
-      tenantId: TENANT_ID,
-      userId: user.id,
-      role: user.membershipRole,
-      status: 'active',
-      joinedAt: new Date(),
-    }).onConflictDoNothing();
+    await db
+      .insert(platformSchema.tenantMemberships)
+      .values({
+        id: `31000000-0000-0000-0000-00000000000${i + 1}`,
+        tenantId: TENANT_ID,
+        userId: user.id,
+        role: user.membershipRole,
+        status: 'active',
+        joinedAt: new Date(),
+      })
+      .onConflictDoNothing();
   }
 
   // ── 4. User Roles ────────────────────────────────────────────────────
@@ -360,13 +390,16 @@ async function seed() {
 
   for (let i = 0; i < DEMO_USERS.length; i++) {
     const user = DEMO_USERS[i]!;
-    await db.insert(platformSchema.userRoles).values({
-      id: `41000000-0000-0000-0000-00000000000${i + 1}`,
-      userId: user.id,
-      roleId: user.roleId,
-      tenantId: TENANT_ID,
-      grantedAt: new Date(),
-    }).onConflictDoNothing();
+    await db
+      .insert(platformSchema.userRoles)
+      .values({
+        id: `41000000-0000-0000-0000-00000000000${i + 1}`,
+        userId: user.id,
+        roleId: user.roleId,
+        tenantId: TENANT_ID,
+        grantedAt: new Date(),
+      })
+      .onConflictDoNothing();
   }
 
   // ── 5. Tenant Schema & Tables ────────────────────────────────────────
@@ -385,33 +418,39 @@ async function seed() {
   const tenantDb = drizzle(tenantPool, { schema: tenantSchema });
 
   for (const client of DEMO_CLIENTS) {
-    await tenantDb.insert(tenantSchema.clients).values({
-      id: client.id,
-      name: client.name,
-      industry: client.industry,
-      description: client.description,
-      contactName: client.contactName,
-      contactEmail: client.contactEmail,
-      contactPhone: client.contactPhone,
-      website: client.website,
-      address: client.address,
-      status: client.status,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.clients)
+      .values({
+        id: client.id,
+        name: client.name,
+        industry: client.industry,
+        description: client.description,
+        contactName: client.contactName,
+        contactEmail: client.contactEmail,
+        contactPhone: client.contactPhone,
+        website: client.website,
+        address: client.address,
+        status: client.status,
+      })
+      .onConflictDoNothing();
   }
 
   for (const project of DEMO_PROJECTS) {
-    await tenantDb.insert(tenantSchema.projects).values({
-      id: project.id,
-      name: project.name,
-      description: project.description,
-      type: project.type,
-      status: project.status,
-      clientId: project.clientId,
-      ownerId: project.ownerId,
-      startDate: project.startDate,
-      targetDate: project.targetDate,
-      metadata: project.metadata,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.projects)
+      .values({
+        id: project.id,
+        name: project.name,
+        description: project.description,
+        type: project.type,
+        status: project.status,
+        clientId: project.clientId,
+        ownerId: project.ownerId,
+        startDate: project.startDate,
+        targetDate: project.targetDate,
+        metadata: project.metadata,
+      })
+      .onConflictDoNothing();
   }
 
   await tenantPool.end();

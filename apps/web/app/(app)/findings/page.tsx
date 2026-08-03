@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { cn } from '@iec62443/ui';
-import { Button } from '@iec62443/ui/primitives';
-import { Badge } from '@iec62443/ui/primitives';
-import { Plus, Search, Filter } from 'lucide-react';
-import Link from 'next/link';
-import { useFindings } from '@/hooks/useFindings';
 import type { Finding, FindingSeverity } from '@iec62443/shared-types';
+import { cn } from '@iec62443/ui';
+import { Badge, Button } from '@iec62443/ui/primitives';
+import { Filter, Plus, Search } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useFindings } from '@/hooks/useFindings';
 
 const severityColors: Record<FindingSeverity, string> = {
   critical: 'bg-red-100 text-red-700',
@@ -25,7 +24,10 @@ const severityDotColors: Record<FindingSeverity, string> = {
   informational: 'bg-surface-400',
 };
 
-const statusBadgeVariant: Record<string, 'draft' | 'in_progress' | 'review' | 'completed' | 'archived'> = {
+const statusBadgeVariant: Record<
+  string,
+  'draft' | 'in_progress' | 'review' | 'completed' | 'archived'
+> = {
   draft: 'draft',
   open: 'in_progress',
   acknowledged: 'in_progress',
@@ -60,9 +62,7 @@ export default function FindingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-surface-900">Findings</h1>
-          <p className="mt-1 text-sm text-surface-500">
-            Track and manage security findings
-          </p>
+          <p className="mt-1 text-sm text-surface-500">Track and manage security findings</p>
         </div>
         <Link href="/findings/new">
           <Button variant="primary" icon={Plus}>
@@ -78,7 +78,10 @@ export default function FindingsPage() {
             type="text"
             placeholder="Search findings..."
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className="h-9 w-full rounded-md border border-surface-200 bg-surface-0 pl-9 pr-3 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
           />
         </div>
@@ -87,7 +90,10 @@ export default function FindingsPage() {
           {['', 'critical', 'high', 'medium', 'low', 'informational'].map((sev) => (
             <button
               key={sev}
-              onClick={() => { setSeverityFilter(sev); setPage(1); }}
+              onClick={() => {
+                setSeverityFilter(sev);
+                setPage(1);
+              }}
               className={cn(
                 'rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
                 severityFilter === sev
@@ -106,7 +112,10 @@ export default function FindingsPage() {
         {['', 'open', 'acknowledged', 'in_progress', 'verification', 'closed'].map((status) => (
           <button
             key={status}
-            onClick={() => { setStatusFilter(status); setPage(1); }}
+            onClick={() => {
+              setStatusFilter(status);
+              setPage(1);
+            }}
             className={cn(
               'rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
               statusFilter === status
@@ -139,12 +148,24 @@ export default function FindingsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-200 bg-surface-50">
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Severity</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Title</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Category</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">IEC Ref</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Discovered</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Severity
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Title
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Category
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    IEC Ref
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Discovered
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -158,8 +179,9 @@ export default function FindingsPage() {
           {pagination && pagination.totalPages > 1 && (
             <div className="flex items-center justify-between text-sm text-surface-500">
               <span>
-                Showing {((pagination.page - 1) * pagination.perPage) + 1}–
-                {Math.min(pagination.page * pagination.perPage, pagination.total)} of {pagination.total}
+                Showing {(pagination.page - 1) * pagination.perPage + 1}–
+                {Math.min(pagination.page * pagination.perPage, pagination.total)} of{' '}
+                {pagination.total}
               </span>
               <div className="flex items-center gap-1">
                 <Button

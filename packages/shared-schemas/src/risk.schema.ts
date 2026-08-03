@@ -1,30 +1,22 @@
 import { z } from 'zod';
 import { uuidSchema } from './common.schema.js';
 
-export const riskCategorySchema = z.enum(['safety', 'operational', 'environmental', 'financial', 'reputational', 'regulatory']);
+export const riskCategorySchema = z.enum([
+  'safety',
+  'operational',
+  'environmental',
+  'financial',
+  'reputational',
+  'regulatory',
+]);
 export const riskTreatmentSchema = z.enum(['mitigate', 'transfer', 'accept', 'avoid', 'pending']);
 export const treatmentStatusSchema = z.enum(['planned', 'in_progress', 'completed', 'cancelled']);
 
-export const threatCategorySchema = z.enum([
-  'accidental',
-  'deliberate',
-  'natural',
-  'failure',
-]);
+export const threatCategorySchema = z.enum(['accidental', 'deliberate', 'natural', 'failure']);
 
-export const threatCapabilitySchema = z.enum([
-  'low',
-  'moderate',
-  'high',
-  'very_high',
-]);
+export const threatCapabilitySchema = z.enum(['low', 'moderate', 'high', 'very_high']);
 
-export const attackVectorSchema = z.enum([
-  'network',
-  'adjacent',
-  'local',
-  'physical',
-]);
+export const attackVectorSchema = z.enum(['network', 'adjacent', 'local', 'physical']);
 
 export const vulnerabilityClassSchema = z.enum([
   'design',
@@ -53,8 +45,14 @@ export const createRiskSchema = z.object({
   attackVector: attackVectorSchema.optional(),
   threatScenario: z.string().max(5000).optional(),
   vulnerabilityClass: vulnerabilityClassSchema.optional(),
-  cveRefs: z.array(z.string().regex(/^CVE-\d{4}-\d{4,}$/)).max(10).default([]),
-  icsaRefs: z.array(z.string().regex(/^ICSA-\d{2}-\d{3}-\d{2}$/)).max(10).default([]),
+  cveRefs: z
+    .array(z.string().regex(/^CVE-\d{4}-\d{4,}$/))
+    .max(10)
+    .default([]),
+  icsaRefs: z
+    .array(z.string().regex(/^ICSA-\d{2}-\d{3}-\d{2}$/))
+    .max(10)
+    .default([]),
   assetIds: z.array(uuidSchema).default([]),
   zoneIds: z.array(uuidSchema).default([]),
   likelihood: z.number().int().min(1).max(5).optional(),

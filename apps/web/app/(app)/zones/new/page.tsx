@@ -1,15 +1,21 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
-import { Textarea } from '@iec62443/ui/primitives';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@iec62443/ui/primitives';
-import { ArrowLeft } from 'lucide-react';
-import { useCreateZone } from '@/hooks/useZones';
 import type { ZoneType } from '@iec62443/shared-types';
+import {
+  Button,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+} from '@iec62443/ui/primitives';
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useCreateZone } from '@/hooks/useZones';
 
 const zoneTypeOptions: { value: ZoneType; label: string }[] = [
   { value: 'process_control', label: 'Process Control' },
@@ -71,7 +77,9 @@ export default function NewZonePage() {
           Zones &amp; Conduits
         </button>
         <h1 className="text-xl font-semibold text-surface-900">New Zone</h1>
-        <p className="mt-1 text-sm text-surface-500">Define a new security zone per IEC 62443-3-3</p>
+        <p className="mt-1 text-sm text-surface-500">
+          Define a new security zone per IEC 62443-3-3
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -79,29 +87,53 @@ export default function NewZonePage() {
           <h3 className="text-sm font-medium text-surface-700">General Information</h3>
           <div className="space-y-1">
             <Label>Name *</Label>
-            <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required />
+            <Input
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              required
+            />
           </div>
           <div className="space-y-1">
             <Label>Description</Label>
-            <Textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} />
+            <Textarea
+              value={form.description}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              rows={3}
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>Zone Type</Label>
-              <Select value={form.zoneType} onValueChange={(v) => setForm((f) => ({ ...f, zoneType: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select zone type" /></SelectTrigger>
+              <Select
+                value={form.zoneType}
+                onValueChange={(v) => setForm((f) => ({ ...f, zoneType: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select zone type" />
+                </SelectTrigger>
                 <SelectContent>
-                  {zoneTypeOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                  {zoneTypeOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
               <Label>Security Level</Label>
-              <Select value={form.securityLevel} onValueChange={(v) => setForm((f) => ({ ...f, securityLevel: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select SL" /></SelectTrigger>
+              <Select
+                value={form.securityLevel}
+                onValueChange={(v) => setForm((f) => ({ ...f, securityLevel: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select SL" />
+                </SelectTrigger>
                 <SelectContent>
                   {['0', '1', '2', '3', '4'].map((l) => (
-                    <SelectItem key={l} value={l}>SL {l}</SelectItem>
+                    <SelectItem key={l} value={l}>
+                      SL {l}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -109,11 +141,18 @@ export default function NewZonePage() {
           </div>
           <div className="space-y-1">
             <Label>Purdue Level</Label>
-            <Select value={form.purdueLevel} onValueChange={(v) => setForm((f) => ({ ...f, purdueLevel: v }))}>
-              <SelectTrigger><SelectValue placeholder="Select Purdue level" /></SelectTrigger>
+            <Select
+              value={form.purdueLevel}
+              onValueChange={(v) => setForm((f) => ({ ...f, purdueLevel: v }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Purdue level" />
+              </SelectTrigger>
               <SelectContent>
                 {['0', '1', '2', '3', '4', '5'].map((l) => (
-                  <SelectItem key={l} value={l}>{purdueLevelLabels[parseInt(l, 10)]}</SelectItem>
+                  <SelectItem key={l} value={l}>
+                    {purdueLevelLabels[parseInt(l, 10)]}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -140,7 +179,12 @@ export default function NewZonePage() {
           <Button variant="secondary" type="button" onClick={() => router.push('/zones')}>
             Cancel
           </Button>
-          <Button variant="primary" type="submit" disabled={!form.name} loading={createZone.isPending}>
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={!form.name}
+            loading={createZone.isPending}
+          >
             Create Zone
           </Button>
         </div>

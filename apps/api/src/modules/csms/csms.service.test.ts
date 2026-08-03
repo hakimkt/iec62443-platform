@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { CSMSService } from './csms.service.js';
 
 // ---------------------------------------------------------------------------
@@ -24,7 +25,7 @@ function createMockDb() {
   }
 
   return {
-    db: createChain() as import('drizzle-orm/node-postgres').NodePgDatabase,
+    db: createChain() as unknown as NodePgDatabase,
     enqueue: (...values: unknown[]) => resolvedQueue.push(...values),
   };
 }
@@ -90,10 +91,10 @@ describe('CSMSService', () => {
       };
 
       mock.enqueue(
-        [newFramework],  // insert().returning()
-        [],              // audit: select last hash
-        undefined,       // audit: insert values
-        [newFramework],  // getFramework() select
+        [newFramework], // insert().returning()
+        [], // audit: select last hash
+        undefined, // audit: insert values
+        [newFramework], // getFramework() select
       );
 
       const result = await service.createFramework({ name: 'New CSMS' }, USER_ID);
@@ -104,9 +105,7 @@ describe('CSMSService', () => {
     it('should throw 500 when insert fails', async () => {
       mock.enqueue([]); // insert().returning() → []
 
-      await expect(
-        service.createFramework({ name: 'Fail' }, USER_ID),
-      ).rejects.toMatchObject({
+      await expect(service.createFramework({ name: 'Fail' }, USER_ID)).rejects.toMatchObject({
         statusCode: 500,
         code: 'FRAMEWORK_CREATE_FAILED',
       });
@@ -133,10 +132,10 @@ describe('CSMSService', () => {
       };
 
       mock.enqueue(
-        [policy],                                                                  // getPolicy() existence check
-        undefined,                                                                  // update().set().where()
-        [],                                                                         // audit: select last hash
-        undefined,                                                                  // audit: insert values
+        [policy], // getPolicy() existence check
+        undefined, // update().set().where()
+        [], // audit: select last hash
+        undefined, // audit: insert values
         [{ ...policy, status: 'approved', approvedBy: USER_ID, approvedAt: new Date() }], // getPolicy() return
       );
 
@@ -192,8 +191,8 @@ describe('CSMSService', () => {
       ];
 
       mock.enqueue(
-        [framework],  // getFramework() existence check
-        elements,      // select elements → orderBy resolves
+        [framework], // getFramework() existence check
+        elements, // select elements → orderBy resolves
       );
 
       const result = await service.getGapAnalysis('fw-1');

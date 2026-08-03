@@ -2,20 +2,19 @@
 
 import { cn } from '@iec62443/ui';
 import {
-  FileText,
-  Plus,
-  Download,
-  Trash2,
-  Clock,
   CheckCircle2,
-  XCircle,
+  Clock,
+  Download,
+  FileText,
   Loader2,
+  Plus,
   Search,
+  Trash2,
+  XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-
-import { useReports, useDeleteReport } from '@/hooks/useReports';
+import { useDeleteReport, useReports } from '@/hooks/useReports';
 import { getApiBaseUrl } from '@/lib/codespace';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
@@ -70,7 +69,9 @@ export default function ReportsPage() {
     try {
       const parsed = JSON.parse(token ?? '{}');
       authToken = parsed?.state?.accessToken ?? '';
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
 
     const response = await fetch(`${apiUrl}/api/v1/reports/${id}/download`, {
       headers: { Authorization: `Bearer ${authToken}` },
@@ -92,12 +93,8 @@ export default function ReportsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-surface-900">
-            Reports
-          </h1>
-          <p className="mt-1 text-sm text-surface-500">
-            Generate and download compliance reports
-          </p>
+          <h1 className="text-2xl font-semibold text-surface-900">Reports</h1>
+          <p className="mt-1 text-sm text-surface-500">Generate and download compliance reports</p>
         </div>
         <Link
           href="/reports/new"
@@ -122,17 +119,25 @@ export default function ReportsPage() {
         </div>
         <select
           value={typeFilter}
-          onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setTypeFilter(e.target.value);
+            setPage(1);
+          }}
           className="rounded-md border border-surface-200 bg-surface-0 px-3 py-2 text-sm text-surface-700 focus:border-brand-500 focus:outline-none"
         >
           <option value="">All Types</option>
           {Object.entries(TYPE_LABELS).map(([key, label]) => (
-            <option key={key} value={key}>{label}</option>
+            <option key={key} value={key}>
+              {label}
+            </option>
           ))}
         </select>
         <select
           value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
           className="rounded-md border border-surface-200 bg-surface-0 px-3 py-2 text-sm text-surface-700 focus:border-brand-500 focus:outline-none"
         >
           <option value="">All Statuses</option>
@@ -165,15 +170,20 @@ export default function ReportsPage() {
                   <FileText className="h-5 w-5 text-surface-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-surface-900 truncate">
-                    {report.title}
-                  </p>
+                  <p className="text-sm font-medium text-surface-900 truncate">{report.title}</p>
                   <p className="text-xs text-surface-500">
                     {TYPE_LABELS[report.type] ?? report.type} · {formatDate(report.createdAt)}
                   </p>
                 </div>
-                <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium', statusConfig.color)}>
-                  <StatusIcon className={cn('h-3 w-3', report.status === 'processing' && 'animate-spin')} />
+                <span
+                  className={cn(
+                    'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium',
+                    statusConfig.color,
+                  )}
+                >
+                  <StatusIcon
+                    className={cn('h-3 w-3', report.status === 'processing' && 'animate-spin')}
+                  />
                   {statusConfig.label}
                 </span>
                 <div className="flex items-center gap-2">
@@ -235,9 +245,7 @@ function EmptyState() {
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <FileText className="h-12 w-12 text-surface-300" />
       <h3 className="mt-4 text-lg font-medium text-surface-700">No reports yet</h3>
-      <p className="mt-1 text-sm text-surface-500">
-        Generate your first report to get started.
-      </p>
+      <p className="mt-1 text-sm text-surface-500">Generate your first report to get started.</p>
       <Link
         href="/reports/new"
         className="mt-4 inline-flex items-center rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"

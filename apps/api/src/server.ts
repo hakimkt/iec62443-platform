@@ -1,31 +1,31 @@
-import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { sql } from 'drizzle-orm';
-
-import { authPlugin } from './modules/auth/index.js';
+import Fastify from 'fastify';
+import { adminPlugin } from './modules/admin/index.js';
 import { assessmentPlugin } from './modules/assessment/index.js';
-import { findingPlugin } from './modules/finding/index.js';
 import { assetPlugin } from './modules/asset/index.js';
+import { authPlugin } from './modules/auth/index.js';
+import { csmsPlugin } from './modules/csms/index.js';
+import { dashboardPlugin } from './modules/dashboard/index.js';
 import { evidencePlugin } from './modules/evidence/index.js';
+import { findingPlugin } from './modules/finding/index.js';
+import { purduePlugin } from './modules/purdue/index.js';
+import { remediationPlugin } from './modules/remediation/index.js';
+import { reportPlugin } from './modules/report/index.js';
 import { riskPlugin } from './modules/risk/index.js';
 import { zonePlugin } from './modules/zone/index.js';
-import { purduePlugin } from './modules/purdue/index.js';
-import { dashboardPlugin } from './modules/dashboard/index.js';
-import { reportPlugin } from './modules/report/index.js';
-import { remediationPlugin } from './modules/remediation/index.js';
-import { csmsPlugin } from './modules/csms/index.js';
-import { adminPlugin } from './modules/admin/index.js';
 
 const app = Fastify({
   logger: {
     level: process.env['LOG_LEVEL'] ?? 'info',
-    transport: process.env['NODE_ENV'] === 'development'
-      ? { target: 'pino-pretty', options: { colorize: true } }
-      : undefined,
+    transport:
+      process.env['NODE_ENV'] === 'development'
+        ? { target: 'pino-pretty', options: { colorize: true } }
+        : undefined,
   },
   requestIdHeader: 'x-request-id',
   genReqId: () => crypto.randomUUID(),
@@ -52,7 +52,12 @@ await app.register(cors, {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-Request-Id', 'Idempotency-Key'],
-  exposedHeaders: ['X-Request-Id', 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
+  exposedHeaders: [
+    'X-Request-Id',
+    'X-RateLimit-Limit',
+    'X-RateLimit-Remaining',
+    'X-RateLimit-Reset',
+  ],
 });
 
 await app.register(rateLimit, {
@@ -76,9 +81,7 @@ await app.register(swagger, {
       description: 'Industrial Cybersecurity Management Platform API',
       version: '1.0.0',
     },
-    servers: [
-      { url: 'http://localhost:4000/api/v1', description: 'Development' },
-    ],
+    servers: [{ url: 'http://localhost:4000/api/v1', description: 'Development' }],
     tags: [
       { name: 'Auth', description: 'Authentication & Identity' },
       { name: 'Tenants', description: 'Tenant Management' },
@@ -107,10 +110,7 @@ await app.register(swaggerUi, {
 });
 
 // ── Validate required environment variables ────────────────────────────
-const insecureDefaults = [
-  'change-me-in-production',
-  'dev-jwt-secret-change-in-production',
-];
+const insecureDefaults = ['change-me-in-production', 'dev-jwt-secret-change-in-production'];
 const requiredEnvVars = ['JWT_SECRET', 'DATABASE_URL'];
 const missingEnvVars = requiredEnvVars.filter(
   (key) => !process.env[key] || insecureDefaults.includes(process.env[key]!),
@@ -126,7 +126,8 @@ if (missingEnvVars.length > 0 && process.env['NODE_ENV'] === 'production') {
 await app.register(
   async (api) => {
     api.register(authPlugin, {
-      connectionString: process.env['DATABASE_URL'] ?? 'postgresql://postgres:postgres@localhost:5432/iec62443',
+      connectionString:
+        process.env['DATABASE_URL'] ?? 'postgresql://postgres:postgres@localhost:5432/iec62443',
       jwtConfig: {
         secret: process.env['JWT_SECRET'] ?? 'change-me-in-production',
         accessTokenTtl: process.env['JWT_ACCESS_TOKEN_TTL'] ?? '15m',
@@ -191,24 +192,29 @@ app.setNotFoundHandler(async (_request, reply) => {
   });
 });
 
-app.setErrorHandler(async (error: Error & { statusCode?: number; code?: string }, _request, reply) => {
-  const statusCode = error.statusCode ?? 500;
-  const code = statusCode === 500 ? 'INTERNAL_ERROR' : 'UNKNOWN_ERROR';
+app.setErrorHandler(
+  async (error: Error & { statusCode?: number; code?: string }, _request, reply) => {
+    const statusCode = error.statusCode ?? 500;
+    const code = statusCode === 500 ? 'INTERNAL_ERROR' : 'UNKNOWN_ERROR';
 
-  if (statusCode >= 500) {
-    app.log.error(error);
-  } else {
-    app.log.warn(error);
-  }
+    if (statusCode >= 500) {
+      app.log.error(error);
+    } else {
+      app.log.warn(error);
+    }
 
-  return reply.status(statusCode).send({
-    error: {
-      code,
-      message: statusCode >= 500 ? 'An unexpected error occurred.' : (error.message ?? 'An error occurred'),
-    },
-    meta: { requestId: '', timestamp: new Date().toISOString() },
-  });
-});
+    return reply.status(statusCode).send({
+      error: {
+        code,
+        message:
+          statusCode >= 500
+            ? 'An unexpected error occurred.'
+            : (error.message ?? 'An error occurred'),
+      },
+      meta: { requestId: '', timestamp: new Date().toISOString() },
+    });
+  },
+);
 
 const port = parseInt(process.env['API_PORT'] ?? '4000', 10);
 const host = process.env['API_HOST'] ?? '0.0.0.0';

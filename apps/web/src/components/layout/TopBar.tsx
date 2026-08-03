@@ -1,11 +1,10 @@
 'use client';
 
 import { cn } from '@iec62443/ui';
-import { Button } from '@iec62443/ui/primitives';
-import { Separator } from '@iec62443/ui/primitives';
-import { useUIStore } from '@/stores/ui-store';
+import { Button, Separator } from '@iec62443/ui/primitives';
 import { useAuth } from '@/providers/auth-provider';
 import { useOfflineStore } from '@/stores/offline-store';
+import { useUIStore } from '@/stores/ui-store';
 
 interface TopBarProps {
   children?: React.ReactNode;
@@ -44,9 +43,7 @@ export function TopBar({ children, className }: TopBarProps) {
         </svg>
       </button>
 
-      <div className="flex flex-1 items-center gap-3 overflow-hidden">
-        {children}
-      </div>
+      <div className="flex flex-1 items-center gap-3 overflow-hidden">{children}</div>
 
       <Separator layout="vertical" className="h-6" />
 
@@ -103,9 +100,7 @@ function SyncStatusIndicator() {
 function UserMenu() {
   const { user } = useAuth();
 
-  const initials = user
-    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
-    : '?';
+  const initials = user ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : '?';
 
   return (
     <div className="relative">

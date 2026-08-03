@@ -1,13 +1,11 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-
 import {
-  createTemplateSchema,
   createEngagementSchema,
-  updateEngagementSchema,
-  submitResponseSchema,
+  createTemplateSchema,
   paginationSchema,
+  submitResponseSchema,
+  updateEngagementSchema,
 } from '@iec62443/shared-schemas';
-
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { AssessmentService } from './assessment.service.js';
 
 // ---------------------------------------------------------------------------
@@ -93,9 +91,9 @@ export class AssessmentController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Template ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Template ID is required', request.id));
     }
 
     try {
@@ -115,23 +113,20 @@ export class AssessmentController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
-      const template = await this.assessmentService.createTemplate(
-        parsed.data,
-        userId,
-      );
+      const template = await this.assessmentService.createTemplate(parsed.data, userId);
       return reply.status(201).send(successResponse(template, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
@@ -165,9 +160,7 @@ export class AssessmentController {
 
     try {
       const result = await this.assessmentService.listEngagements(filters);
-      return reply.status(200).send(
-        paginatedResponse(result.data, result.pagination, request.id),
-      );
+      return reply.status(200).send(paginatedResponse(result.data, result.pagination, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -180,9 +173,9 @@ export class AssessmentController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id));
     }
 
     try {
@@ -202,23 +195,20 @@ export class AssessmentController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
-      const engagement = await this.assessmentService.createEngagement(
-        parsed.data,
-        userId,
-      );
+      const engagement = await this.assessmentService.createEngagement(parsed.data, userId);
       return reply.status(201).send(successResponse(engagement, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
@@ -232,9 +222,9 @@ export class AssessmentController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id));
     }
 
     const parsed = updateEngagementSchema.safeParse(request.body);
@@ -243,24 +233,20 @@ export class AssessmentController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
-      const engagement = await this.assessmentService.updateEngagement(
-        id,
-        parsed.data,
-        userId,
-      );
+      const engagement = await this.assessmentService.updateEngagement(id, parsed.data, userId);
       return reply.status(200).send(successResponse(engagement, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
@@ -274,16 +260,16 @@ export class AssessmentController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -301,9 +287,9 @@ export class AssessmentController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id));
     }
 
     try {
@@ -323,17 +309,19 @@ export class AssessmentController {
     const questionId = body?.['questionId'] as string | undefined;
 
     if (!engagementId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id));
     }
 
     if (!questionId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Question ID is required', request.id, [
-          { field: 'questionId', message: 'Question ID is required' },
-        ]),
-      );
+      return reply
+        .status(400)
+        .send(
+          errorResponse('VALIDATION_ERROR', 'Question ID is required', request.id, [
+            { field: 'questionId', message: 'Question ID is required' },
+          ]),
+        );
     }
 
     const parsed = submitResponseSchema.safeParse(request.body);
@@ -342,16 +330,16 @@ export class AssessmentController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -374,9 +362,9 @@ export class AssessmentController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id));
     }
 
     try {
@@ -394,9 +382,9 @@ export class AssessmentController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Engagement ID is required', request.id));
     }
 
     try {
@@ -430,12 +418,16 @@ export class AssessmentController {
       request.log.warn(error);
     }
 
-    return reply.status(statusCode).send(
-      errorResponse(
-        code,
-        statusCode >= 500 ? 'An unexpected error occurred.' : (err.message ?? 'An error occurred'),
-        request.id,
-      ),
-    );
+    return reply
+      .status(statusCode)
+      .send(
+        errorResponse(
+          code,
+          statusCode >= 500
+            ? 'An unexpected error occurred.'
+            : (err.message ?? 'An error occurred'),
+          request.id,
+        ),
+      );
   }
 }

@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  LineChart,
-  Line,
-  ResponsiveContainer,
-  YAxis,
-} from 'recharts';
+import { Line, LineChart, ResponsiveContainer, YAxis } from 'recharts';
 
 export interface SparklineProps {
   data: Array<{ value: number }>;
@@ -14,11 +9,7 @@ export interface SparklineProps {
   width?: string | number;
 }
 
-export function Sparkline({
-  data,
-  color = '#3b82f6',
-  height = 40,
-}: SparklineProps) {
+export function Sparkline({ data, color = '#3b82f6', height = 40 }: SparklineProps) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>

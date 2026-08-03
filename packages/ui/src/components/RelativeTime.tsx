@@ -1,11 +1,6 @@
 import * as React from 'react';
 import { cn } from '../lib/utils';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from '../primitives/Tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../primitives/Tooltip';
 
 /* ───────────────────────────── Types ──────────────────────────── */
 
@@ -43,8 +38,18 @@ function formatRelative(date: Date): string {
 
 function formatFullDate(date: Date): string {
   const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   const month = months[date.getMonth()];
@@ -62,15 +67,7 @@ function formatFullDate(date: Date): string {
 /* ──────────────────────────── Component ───────────────────────── */
 
 const RelativeTime = React.forwardRef<HTMLTimeElement, RelativeTimeProps>(
-  (
-    {
-      className,
-      date: dateProp,
-      tooltip = true,
-      ...props
-    },
-    ref,
-  ) => {
+  ({ className, date: dateProp, tooltip = true, ...props }, ref) => {
     const date = toDate(dateProp);
     const relativeText = formatRelative(date);
     const isoString = date.toISOString();

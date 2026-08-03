@@ -1,15 +1,13 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-
 import {
-  registerSchema,
-  loginSchema,
-  refreshTokenSchema,
   forgotPasswordSchema,
-  resetPasswordSchema,
-  mfaVerifySchema,
+  loginSchema,
   mfaChallengeSchema,
+  mfaVerifySchema,
+  refreshTokenSchema,
+  registerSchema,
+  resetPasswordSchema,
 } from '@iec62443/shared-schemas';
-
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { AuthService } from './auth.service.js';
 
 // ---------------------------------------------------------------------------
@@ -61,9 +59,9 @@ export class AuthController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     try {
@@ -101,9 +99,9 @@ export class AuthController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     try {
@@ -152,9 +150,9 @@ export class AuthController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     try {
@@ -183,17 +181,15 @@ export class AuthController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     try {
       await this.authService.logoutUser(parsed.data.refreshToken);
 
-      return reply.status(200).send(
-        successResponse({ loggedOut: true }, request.id),
-      );
+      return reply.status(200).send(successResponse({ loggedOut: true }, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -208,13 +204,13 @@ export class AuthController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     try {
-      const token = await this.authService.forgotPassword(
+      await this.authService.forgotPassword(
         parsed.data.email,
         request.ip,
         request.headers['user-agent'],
@@ -242,9 +238,9 @@ export class AuthController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     try {
@@ -255,12 +251,9 @@ export class AuthController {
         request.headers['user-agent'],
       );
 
-      return reply.status(200).send(
-        successResponse(
-          { message: 'Password has been reset successfully.' },
-          request.id,
-        ),
-      );
+      return reply
+        .status(200)
+        .send(successResponse({ message: 'Password has been reset successfully.' }, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -271,9 +264,9 @@ export class AuthController {
   async setupMfa(request: FastifyRequest, reply: FastifyReply) {
     const userId = (request as unknown as { user: { sub: string } }).user?.sub;
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -302,16 +295,16 @@ export class AuthController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = (request as unknown as { user: { sub: string } }).user?.sub;
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -326,12 +319,14 @@ export class AuthController {
         request.headers['user-agent'],
       );
 
-      return reply.status(200).send(
-        successResponse(
-          { mfaEnabled: true, message: 'MFA has been enabled successfully.' },
-          request.id,
-        ),
-      );
+      return reply
+        .status(200)
+        .send(
+          successResponse(
+            { mfaEnabled: true, message: 'MFA has been enabled successfully.' },
+            request.id,
+          ),
+        );
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -346,9 +341,9 @@ export class AuthController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     try {
@@ -394,18 +389,20 @@ export class AuthController {
   async disableMfa(request: FastifyRequest, reply: FastifyReply) {
     const userId = (request as unknown as { user: { sub: string } }).user?.sub;
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     const body = request.body as { password?: string } | undefined;
     if (!body?.password) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Password is required', request.id, [
-          { field: 'password', message: 'Password is required to disable MFA' },
-        ]),
-      );
+      return reply
+        .status(400)
+        .send(
+          errorResponse('VALIDATION_ERROR', 'Password is required', request.id, [
+            { field: 'password', message: 'Password is required to disable MFA' },
+          ]),
+        );
     }
 
     try {
@@ -416,12 +413,14 @@ export class AuthController {
         request.headers['user-agent'],
       );
 
-      return reply.status(200).send(
-        successResponse(
-          { mfaEnabled: false, message: 'MFA has been disabled successfully.' },
-          request.id,
-        ),
-      );
+      return reply
+        .status(200)
+        .send(
+          successResponse(
+            { mfaEnabled: false, message: 'MFA has been disabled successfully.' },
+            request.id,
+          ),
+        );
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -432,17 +431,15 @@ export class AuthController {
   async getMe(request: FastifyRequest, reply: FastifyReply) {
     const userId = (request as unknown as { user: { sub: string } }).user?.sub;
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
       const result = await this.authService.getCurrentUser(userId);
 
-      return reply.status(200).send(
-        successResponse(result, request.id),
-      );
+      return reply.status(200).send(successResponse(result, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -466,12 +463,16 @@ export class AuthController {
       request.log.warn(error);
     }
 
-    return reply.status(statusCode).send(
-      errorResponse(
-        code,
-        statusCode >= 500 ? 'An unexpected error occurred.' : (err.message ?? 'An error occurred'),
-        request.id,
-      ),
-    );
+    return reply
+      .status(statusCode)
+      .send(
+        errorResponse(
+          code,
+          statusCode >= 500
+            ? 'An unexpected error occurred.'
+            : (err.message ?? 'An error occurred'),
+          request.id,
+        ),
+      );
   }
 }

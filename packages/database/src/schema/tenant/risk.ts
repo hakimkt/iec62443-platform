@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   check,
   date,
@@ -11,7 +12,6 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
 
 // ── Registers ────────────────────────────────────────────────────────────
 
@@ -22,12 +22,8 @@ export const registers = pgTable('registers', {
   scopeId: uuid('scope_id'),
   ownerId: uuid('owner_id'),
   status: varchar('status', { length: 30 }).notNull().default('active'),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // ── Entries ──────────────────────────────────────────────────────────────
@@ -55,9 +51,7 @@ export const entries = pgTable(
     zoneIds: uuid('zone_ids').array().default([]),
     likelihood: smallint('likelihood'),
     impact: smallint('impact'),
-    inherentScore: smallint('inherent_score').generatedAlwaysAs(
-      sql`(likelihood * impact)`,
-    ),
+    inherentScore: smallint('inherent_score').generatedAlwaysAs(sql`(likelihood * impact)`),
     riskLevel: varchar('risk_level', { length: 20 }).generatedAlwaysAs(
       sql`CASE
         WHEN (likelihood * impact) <= 4 THEN 'low'
@@ -75,39 +69,24 @@ export const entries = pgTable(
     riskOwnerId: uuid('risk_owner_id'),
     iecRequirement: varchar('iec_requirement', { length: 100 }),
     status: varchar('status', { length: 30 }).notNull().default('identified'),
-    identifiedAt: timestamp('identified_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    identifiedAt: timestamp('identified_at', { withTimezone: true }).notNull().defaultNow(),
     reassessBy: date('reassess_by'),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     check(
       'entries_category_check',
       sql`${table.category} IN ('safety', 'operational', 'environmental', 'financial', 'reputational', 'regulatory')`,
     ),
-    check(
-      'entries_likelihood_check',
-      sql`${table.likelihood} BETWEEN 1 AND 5`,
-    ),
+    check('entries_likelihood_check', sql`${table.likelihood} BETWEEN 1 AND 5`),
     check('entries_impact_check', sql`${table.impact} BETWEEN 1 AND 5`),
     check(
       'entries_treatment_check',
       sql`${table.treatment} IN ('mitigate', 'transfer', 'accept', 'avoid', 'pending')`,
     ),
-    check(
-      'entries_residual_likelihood_check',
-      sql`${table.residualLikelihood} BETWEEN 1 AND 5`,
-    ),
-    check(
-      'entries_residual_impact_check',
-      sql`${table.residualImpact} BETWEEN 1 AND 5`,
-    ),
+    check('entries_residual_likelihood_check', sql`${table.residualLikelihood} BETWEEN 1 AND 5`),
+    check('entries_residual_impact_check', sql`${table.residualImpact} BETWEEN 1 AND 5`),
     check(
       'entries_threat_category_check',
       sql`${table.threatCategory} IN ('accidental', 'deliberate', 'natural', 'failure')`,
@@ -144,12 +123,8 @@ export const treatments = pgTable(
     status: varchar('status', { length: 30 }).notNull().default('planned'),
     effectiveness: varchar('effectiveness', { length: 30 }),
     costEstimate: numeric('cost_estimate', { precision: 12, scale: 2 }),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     check(
@@ -171,9 +146,7 @@ export const acceptances = pgTable('acceptances', {
   approvalChain: jsonb('approval_chain'),
   expiresAt: timestamp('expires_at', { withTimezone: true }),
   reviewDate: date('review_date'),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // ── Matrix Config ────────────────────────────────────────────────────────

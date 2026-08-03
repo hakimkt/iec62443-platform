@@ -1,26 +1,23 @@
-import * as React from 'react';
 import * as AvatarPrimitive from '@radix-ui/react-avatar';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Size variants ──────────────────── */
 
-const avatarVariants = cva(
-  'relative inline-flex shrink-0 overflow-hidden rounded-full',
-  {
-    variants: {
-      size: {
-        sm: 'h-8 w-8',
-        md: 'h-10 w-10',
-        lg: 'h-12 w-12',
-        xl: 'h-16 w-16',
-      },
-    },
-    defaultVariants: {
-      size: 'md',
+const avatarVariants = cva('relative inline-flex shrink-0 overflow-hidden rounded-full', {
+  variants: {
+    size: {
+      sm: 'h-8 w-8',
+      md: 'h-10 w-10',
+      lg: 'h-12 w-12',
+      xl: 'h-16 w-16',
     },
   },
-);
+  defaultVariants: {
+    size: 'md',
+  },
+});
 
 const avatarFallbackVariants = cva(
   'flex h-full w-full items-center justify-center rounded-full bg-surface-200 dark:bg-surface-700 font-medium text-surface-600 dark:text-surface-300',
@@ -83,30 +80,27 @@ const statusDotVariants = cva(
 /* ───────────────────────────── Avatar Root ────────────────────── */
 
 interface AvatarProps
-  extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>,
+  extends
+    React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>,
     VariantProps<typeof avatarVariants> {
   status?: VariantProps<typeof statusDotVariants>['status'];
 }
 
-const Avatar = React.forwardRef<
-  React.ComponentRef<typeof AvatarPrimitive.Root>,
-  AvatarProps
->(({ className, size, status, ...props }, ref) => (
-  <AvatarPrimitive.Root
-    ref={ref}
-    className={cn(avatarVariants({ size }), className)}
-    {...props}
-  >
-    {props.children}
-    {status && <span className={cn(statusDotVariants({ status, size }))} />}
-  </AvatarPrimitive.Root>
-));
+const Avatar = React.forwardRef<React.ComponentRef<typeof AvatarPrimitive.Root>, AvatarProps>(
+  ({ className, size, status, ...props }, ref) => (
+    <AvatarPrimitive.Root ref={ref} className={cn(avatarVariants({ size }), className)} {...props}>
+      {props.children}
+      {status && <span className={cn(statusDotVariants({ status, size }))} />}
+    </AvatarPrimitive.Root>
+  ),
+);
 Avatar.displayName = AvatarPrimitive.Root.displayName;
 
 /* ───────────────────────────── Avatar Image ───────────────────── */
 
 interface AvatarImageProps
-  extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>,
+  extends
+    React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>,
     VariantProps<typeof avatarImageVariants> {}
 
 const AvatarImage = React.forwardRef<
@@ -124,7 +118,8 @@ AvatarImage.displayName = AvatarPrimitive.Image.displayName;
 /* ───────────────────────────── Avatar Fallback ────────────────── */
 
 interface AvatarFallbackProps
-  extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>,
+  extends
+    React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>,
     VariantProps<typeof avatarFallbackVariants> {}
 
 const AvatarFallback = React.forwardRef<
@@ -148,7 +143,9 @@ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) {
-    return `${parts[0]![0]}${parts[parts.length - 1]![0]}`.toUpperCase();
+    const first = parts[0] ?? '';
+    const last = parts[parts.length - 1] ?? '';
+    return `${first[0]}${last[0]}`.toUpperCase();
   }
   return name.slice(0, 2).toUpperCase();
 }
@@ -165,8 +162,4 @@ export {
   getInitials,
 };
 
-export type {
-  AvatarProps,
-  AvatarImageProps,
-  AvatarFallbackProps,
-};
+export type { AvatarProps, AvatarImageProps, AvatarFallbackProps };

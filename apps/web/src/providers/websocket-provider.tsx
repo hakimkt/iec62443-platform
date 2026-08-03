@@ -1,8 +1,8 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useAuthStore } from '@/stores/auth-store';
 import { getWsBaseUrl } from '@/lib/codespace';
+import { useAuthStore } from '@/stores/auth-store';
 
 interface WebSocketContextValue {
   connected: boolean;
@@ -88,27 +88,20 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     };
   }, [accessToken, connect]);
 
-  const subscribe = useCallback(
-    (event: string, handler: (data: unknown) => void) => {
-      if (!handlersRef.current.has(event)) {
-        handlersRef.current.set(event, new Set());
-      }
-      handlersRef.current.get(event)!.add(handler);
+  const subscribe = useCallback((event: string, handler: (data: unknown) => void) => {
+    if (!handlersRef.current.has(event)) {
+      handlersRef.current.set(event, new Set());
+    }
+    handlersRef.current.get(event)!.add(handler);
 
-      return () => {
-        handlersRef.current.get(event)?.delete(handler);
-      };
-    },
-    [],
-  );
+    return () => {
+      handlersRef.current.get(event)?.delete(handler);
+    };
+  }, []);
 
   const value = { connected, subscribe };
 
-  return (
-    <WebSocketContext.Provider value={value}>
-      {children}
-    </WebSocketContext.Provider>
-  );
+  return <WebSocketContext.Provider value={value}>{children}</WebSocketContext.Provider>;
 }
 
 export function useWebSocket(): WebSocketContextValue {

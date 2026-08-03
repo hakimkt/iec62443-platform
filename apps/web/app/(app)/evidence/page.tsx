@@ -1,15 +1,21 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import type { EvidenceItem, EvidenceType } from '@iec62443/shared-types';
 import { cn } from '@iec62443/ui';
-import { PageHeader, SearchInput, FilterBar, EmptyState, Pagination } from '@iec62443/ui/components';
-import type { FilterChip } from '@iec62443/ui/components';
+import {
+  EmptyState,
+  FilterBar,
+  PageHeader,
+  Pagination,
+  SearchInput,
+  type FilterChip,
+} from '@iec62443/ui/components';
 import { Button } from '@iec62443/ui/primitives';
 import { Filter, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
 import { useEvidence } from '@/hooks/useEvidence';
-import type { EvidenceItem, EvidenceType } from '@iec62443/shared-types';
 
 const typeLabels: Record<EvidenceType, string> = {
   document: 'Document',
@@ -61,13 +67,10 @@ export default function EvidencePage() {
   const items = result?.data ?? [];
   const pagination = result?.pagination;
 
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearch(e.target.value);
-      setPage(1);
-    },
-    [],
-  );
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setPage(1);
+  }, []);
 
   const handleTypeFilter = useCallback((t: string) => {
     setTypeFilter(t);
@@ -140,7 +143,7 @@ export default function EvidencePage() {
                     : 'bg-surface-100 text-surface-600 hover:bg-surface-200',
                 )}
               >
-                {t === '' ? 'All' : typeLabels[t as EvidenceType] ?? t}
+                {t === '' ? 'All' : (typeLabels[t as EvidenceType] ?? t)}
               </button>
             ))}
           </div>
@@ -233,18 +236,14 @@ function EvidenceCard({ item }: { item: EvidenceItem }) {
           </span>
         )}
       </div>
-      <h3 className="mt-2 text-sm font-medium text-surface-900 line-clamp-1">
-        {item.title}
-      </h3>
+      <h3 className="mt-2 text-sm font-medium text-surface-900 line-clamp-1">{item.title}</h3>
       {item.description && (
         <p className="mt-1 text-xs text-surface-500 line-clamp-2">{item.description}</p>
       )}
       <div className="mt-3 flex items-center justify-between">
         <div className="flex items-center gap-1">
           {item.fileName && (
-            <span className="text-2xs text-surface-400 truncate max-w-32">
-              {item.fileName}
-            </span>
+            <span className="text-2xs text-surface-400 truncate max-w-32">{item.fileName}</span>
           )}
         </div>
         <span className="text-2xs text-surface-400">

@@ -1,30 +1,26 @@
-import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Skeleton variants ──────────────── */
 
-const skeletonVariants = cva(
-  'animate-pulse bg-surface-200 dark:bg-surface-700',
-  {
-    variants: {
-      variant: {
-        text: 'rounded',
-        circle: 'rounded-full',
-        rectangle: 'rounded-md',
-      },
-    },
-    defaultVariants: {
-      variant: 'rectangle',
+const skeletonVariants = cva('animate-pulse bg-surface-200 dark:bg-surface-700', {
+  variants: {
+    variant: {
+      text: 'rounded',
+      circle: 'rounded-full',
+      rectangle: 'rounded-md',
     },
   },
-);
+  defaultVariants: {
+    variant: 'rectangle',
+  },
+});
 
 /* ───────────────────────────── Skeleton component ─────────────── */
 
 interface SkeletonProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof skeletonVariants> {
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof skeletonVariants> {
   /** Width — accepts any CSS value (e.g. "100%", "12rem", 200) */
   width?: React.CSSProperties['width'];
   /** Height — accepts any CSS value (e.g. "1rem", "100%", 200) */

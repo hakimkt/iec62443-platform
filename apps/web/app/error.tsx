@@ -29,9 +29,7 @@ export default function Error({
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
         </div>
-        <h2 className="mt-4 text-lg font-semibold text-surface-900">
-          Something went wrong
-        </h2>
+        <h2 className="mt-4 text-lg font-semibold text-surface-900">Something went wrong</h2>
         <p className="mt-2 text-sm text-surface-500">
           An unexpected error occurred. Please try again.
         </p>

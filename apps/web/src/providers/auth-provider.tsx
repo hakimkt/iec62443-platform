@@ -1,10 +1,10 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore, type AuthUser, type AuthTenant } from '@/stores/auth-store';
-import { getApiClient } from '@/lib/api';
 import { ApiClientError } from '@iec62443/api-client';
+import { useRouter } from 'next/navigation';
+import { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
+import { getApiClient } from '@/lib/api';
+import { useAuthStore, type AuthTenant, type AuthUser } from '@/stores/auth-store';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -14,12 +14,7 @@ interface AuthContextValue {
   currentTenantId: string | null;
   mfaChallenge: { requestId: string; userId: string } | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-  ) => Promise<void>;
+  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   logout: () => Promise<void>;
   verifyMfa: (code: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
@@ -36,20 +31,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (store.isAuthenticated && !store.user) {
-      client.get('/auth/me').then((response: unknown) => {
-        const res = response as { data?: { user?: AuthUser; tenants?: AuthTenant[] } };
-        if (!res?.data) return;
-        store.setUser(res.data.user ?? null);
-        store.setTenants(res.data.tenants ?? []);
-        if (!store.currentTenantId && res.data.tenants?.length) {
-          store.setCurrentTenant(res.data.tenants[0]?.id ?? '');
-        }
-      }).catch((err: unknown) => {
-        // Only log out on 401 (token expired/invalid), not on network errors
-        if (err instanceof ApiClientError && err.status === 401) {
-          store.logout();
-        }
-      });
+      client
+        .get('/auth/me')
+        .then((response: unknown) => {
+          const res = response as { data?: { user?: AuthUser; tenants?: AuthTenant[] } };
+          if (!res?.data) return;
+          store.setUser(res.data.user ?? null);
+          store.setTenants(res.data.tenants ?? []);
+          if (!store.currentTenantId && res.data.tenants?.length) {
+            store.setCurrentTenant(res.data.tenants[0]?.id ?? '');
+          }
+        })
+        .catch((err: unknown) => {
+          // Only log out on 401 (token expired/invalid), not on network errors
+          if (err instanceof ApiClientError && err.status === 401) {
+            store.logout();
+          }
+        });
     }
   }, [store.isAuthenticated]);
 
@@ -57,20 +55,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (email: string, password: string) => {
       store.setLoading(true);
       try {
-        const result = await client.post('/auth/login', { email, password }) as Record<string, unknown>;
+        const result = (await client.post('/auth/login', { email, password })) as Record<
+          string,
+          unknown
+        >;
         const data = result as { data?: Record<string, unknown> };
         const responseData = data?.data;
 
         if (responseData?.['mfaRequired'] && responseData?.['mfaRequestId']) {
           store.setMfaChallenge({
             requestId: responseData['mfaRequestId'] as string,
-            userId: (responseData?.['user'] as Record<string, unknown>)?.['id'] as string ?? '',
+            userId: ((responseData?.['user'] as Record<string, unknown>)?.['id'] as string) ?? '',
           });
           router.push('/mfa');
           return;
         }
 
-        store.setTokens(responseData?.['accessToken'] as string, responseData?.['refreshToken'] as string);
+        store.setTokens(
+          responseData?.['accessToken'] as string,
+          responseData?.['refreshToken'] as string,
+        );
         store.setUser(responseData?.['user'] as AuthUser);
         store.setTenants((responseData?.['tenants'] ?? []) as AuthTenant[]);
         store.setAuthenticated(true);
@@ -90,19 +94,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const register = useCallback(
-    async (
-      email: string,
-      password: string,
-      firstName: string,
-      lastName: string,
-    ) => {
+    async (email: string, password: string, firstName: string, lastName: string) => {
       store.setLoading(true);
       try {
-        const result = await client.post('/auth/register', { email, password, firstName, lastName }) as Record<string, unknown>;
+        const result = (await client.post('/auth/register', {
+          email,
+          password,
+          firstName,
+          lastName,
+        })) as Record<string, unknown>;
         const data = result as { data?: Record<string, unknown> };
         const responseData = data?.data;
 
-        store.setTokens(responseData?.['accessToken'] as string, responseData?.['refreshToken'] as string);
+        store.setTokens(
+          responseData?.['accessToken'] as string,
+          responseData?.['refreshToken'] as string,
+        );
         store.setUser(responseData?.['user'] as AuthUser);
         store.setTenants((responseData?.['tenants'] ?? []) as AuthTenant[]);
         store.setAuthenticated(true);
@@ -142,14 +149,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       store.setLoading(true);
       try {
-        const result = await client.post('/auth/mfa/challenge', {
+        const result = (await client.post('/auth/mfa/challenge', {
           code,
           requestId: challenge.requestId,
-        }) as Record<string, unknown>;
+        })) as Record<string, unknown>;
         const data = result as { data?: Record<string, unknown> };
         const responseData = data?.data;
 
-        store.setTokens(responseData?.['accessToken'] as string, responseData?.['refreshToken'] as string);
+        store.setTokens(
+          responseData?.['accessToken'] as string,
+          responseData?.['refreshToken'] as string,
+        );
         store.setUser(responseData?.['user'] as AuthUser);
         store.setTenants((responseData?.['tenants'] ?? []) as AuthTenant[]);
         store.setAuthenticated(true);

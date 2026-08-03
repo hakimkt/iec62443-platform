@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
 import { hasPermission, resolvePermissions, SYSTEM_ROLE_PERMISSIONS } from '@iec62443/auth';
+import { describe, expect, it } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Helper to create a TokenPayload from permissions
@@ -44,22 +44,39 @@ describe('RBAC Permission System', () => {
     it('should have admin:read for platform_admin, tenant_owner, tenant_admin, quality_manager', () => {
       const rolesWithAdmin = ['platform_admin', 'tenant_owner', 'tenant_admin', 'quality_manager'];
       for (const role of rolesWithAdmin) {
-        expect(SYSTEM_ROLE_PERMISSIONS[role as keyof typeof SYSTEM_ROLE_PERMISSIONS]).toContain('admin:read');
+        expect(SYSTEM_ROLE_PERMISSIONS[role as keyof typeof SYSTEM_ROLE_PERMISSIONS]).toContain(
+          'admin:read',
+        );
       }
       expect(SYSTEM_ROLE_PERMISSIONS['viewer']).not.toContain('admin:read');
     });
 
     it('should have csms:write for tenant_owner, tenant_admin, project_manager, quality_manager', () => {
-      const rolesWithCsmsWrite = ['tenant_owner', 'tenant_admin', 'project_manager', 'quality_manager'];
+      const rolesWithCsmsWrite = [
+        'tenant_owner',
+        'tenant_admin',
+        'project_manager',
+        'quality_manager',
+      ];
       for (const role of rolesWithCsmsWrite) {
-        expect(SYSTEM_ROLE_PERMISSIONS[role as keyof typeof SYSTEM_ROLE_PERMISSIONS]).toContain('csms:write');
+        expect(SYSTEM_ROLE_PERMISSIONS[role as keyof typeof SYSTEM_ROLE_PERMISSIONS]).toContain(
+          'csms:write',
+        );
       }
     });
 
     it('should have report:write for tenant_owner, tenant_admin, project_manager, risk_manager, quality_manager', () => {
-      const rolesWithReportWrite = ['tenant_owner', 'tenant_admin', 'project_manager', 'risk_manager', 'quality_manager'];
+      const rolesWithReportWrite = [
+        'tenant_owner',
+        'tenant_admin',
+        'project_manager',
+        'risk_manager',
+        'quality_manager',
+      ];
       for (const role of rolesWithReportWrite) {
-        expect(SYSTEM_ROLE_PERMISSIONS[role as keyof typeof SYSTEM_ROLE_PERMISSIONS]).toContain('report:write');
+        expect(SYSTEM_ROLE_PERMISSIONS[role as keyof typeof SYSTEM_ROLE_PERMISSIONS]).toContain(
+          'report:write',
+        );
       }
     });
   });

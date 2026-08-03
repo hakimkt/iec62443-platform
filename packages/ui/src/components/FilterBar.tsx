@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { X } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Types ──────────────────────────── */
@@ -21,27 +21,13 @@ export interface FilterBarProps extends React.HTMLAttributes<HTMLDivElement> {
 /* ──────────────────────────── Component ───────────────────────── */
 
 const FilterBar = React.forwardRef<HTMLDivElement, FilterBarProps>(
-  (
-    {
-      className,
-      searchSlot,
-      filters,
-      onClearAll,
-      actions,
-      children,
-      ...props
-    },
-    ref,
-  ) => {
+  ({ className, searchSlot, filters, onClearAll, actions, children, ...props }, ref) => {
     const hasFilters = filters && filters.length > 0;
 
     return (
       <div
         ref={ref}
-        className={cn(
-          'flex items-center gap-3 py-3 px-4 border-b border-surface-200',
-          className,
-        )}
+        className={cn('flex items-center gap-3 py-3 px-4 border-b border-surface-200', className)}
         {...props}
       >
         {searchSlot && <div className="flex-1">{searchSlot}</div>}
@@ -78,9 +64,7 @@ const FilterBar = React.forwardRef<HTMLDivElement, FilterBarProps>(
           </div>
         )}
 
-        {actions && (
-          <div className="ml-auto flex items-center gap-2">{actions}</div>
-        )}
+        {actions && <div className="ml-auto flex items-center gap-2">{actions}</div>}
 
         {children}
       </div>

@@ -1,7 +1,7 @@
-import * as React from 'react';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { ChevronDown } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Root ───────────────────────────── */
@@ -9,10 +9,8 @@ import { cn } from '../lib/utils';
 const accordionVariants = cva('divide-y divide-surface-200 dark:divide-surface-700', {
   variants: {
     variant: {
-      bordered:
-        'rounded-lg border border-surface-200 dark:border-surface-700 divide-y-0',
-      separated:
-        'space-y-2',
+      bordered: 'rounded-lg border border-surface-200 dark:border-surface-700 divide-y-0',
+      separated: 'space-y-2',
       simple: '',
     },
   },
@@ -32,18 +30,17 @@ interface AccordionProps extends VariantProps<typeof accordionVariants> {
   children?: React.ReactNode;
 }
 
-const Accordion = React.forwardRef<
-  HTMLDivElement,
-  AccordionProps
->(({ className, variant, type = 'single', collapsible = true, ...props }, ref) => (
-  <AccordionPrimitive.Root
-    ref={ref}
-    type={type as 'single'}
-    collapsible={collapsible}
-    className={cn(accordionVariants({ variant }), className)}
-    {...props}
-  />
-));
+const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
+  ({ className, variant, type = 'single', collapsible = true, ...props }, ref) => (
+    <AccordionPrimitive.Root
+      ref={ref}
+      type={type as 'single'}
+      collapsible={collapsible}
+      className={cn(accordionVariants({ variant }), className)}
+      {...props}
+    />
+  ),
+);
 Accordion.displayName = 'Accordion';
 
 /* ───────────────────────────── Item ───────────────────────────── */
@@ -52,8 +49,7 @@ const accordionItemVariants = cva('', {
   variants: {
     variant: {
       bordered: 'px-4 first:rounded-t-lg last:rounded-b-lg',
-      separated:
-        'rounded-lg border border-surface-200 dark:border-surface-700 px-4',
+      separated: 'rounded-lg border border-surface-200 dark:border-surface-700 px-4',
       simple: '',
     },
   },
@@ -63,7 +59,8 @@ const accordionItemVariants = cva('', {
 });
 
 interface AccordionItemProps
-  extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>,
+  extends
+    React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>,
     VariantProps<typeof accordionItemVariants> {}
 
 const AccordionItem = React.forwardRef<
@@ -97,7 +94,8 @@ const accordionTriggerVariants = cva(
 );
 
 interface AccordionTriggerProps
-  extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>,
+  extends
+    React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>,
     VariantProps<typeof accordionTriggerVariants> {}
 
 const AccordionTrigger = React.forwardRef<
@@ -145,8 +143,4 @@ export {
   accordionTriggerVariants,
 };
 
-export type {
-  AccordionProps,
-  AccordionItemProps,
-  AccordionTriggerProps,
-};
+export type { AccordionProps, AccordionItemProps, AccordionTriggerProps };

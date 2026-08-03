@@ -1,16 +1,14 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-
 import {
-  createZoneSchema,
-  updateZoneSchema,
   createConduitSchema,
-  updateConduitSchema,
-  zoneMembershipSchema,
+  createZoneSchema,
+  paginationSchema,
   segmentationRuleSchema,
   topologyUpdateSchema,
-  paginationSchema,
+  updateConduitSchema,
+  updateZoneSchema,
+  zoneMembershipSchema,
 } from '@iec62443/shared-schemas';
-
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ZoneService } from './zone.service.js';
 
 // ---------------------------------------------------------------------------
@@ -92,9 +90,7 @@ export class ZoneController {
         purdueLevel: query['purdueLevel'] ? Number(query['purdueLevel']) : undefined,
         search: query['search'],
       });
-      return reply.status(200).send(
-        paginatedResponse(result.data, result.pagination, request.id),
-      );
+      return reply.status(200).send(paginatedResponse(result.data, result.pagination, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -105,9 +101,9 @@ export class ZoneController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id));
     }
 
     try {
@@ -125,16 +121,16 @@ export class ZoneController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -150,9 +146,9 @@ export class ZoneController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id));
     }
 
     const parsed = updateZoneSchema.safeParse(request.body);
@@ -161,16 +157,16 @@ export class ZoneController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -186,16 +182,16 @@ export class ZoneController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -229,9 +225,7 @@ export class ZoneController {
         securityLevel: query['securityLevel'] ? Number(query['securityLevel']) : undefined,
         search: query['search'],
       });
-      return reply.status(200).send(
-        paginatedResponse(result.data, result.pagination, request.id),
-      );
+      return reply.status(200).send(paginatedResponse(result.data, result.pagination, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -242,9 +236,9 @@ export class ZoneController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Conduit ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Conduit ID is required', request.id));
     }
 
     try {
@@ -262,16 +256,16 @@ export class ZoneController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -287,9 +281,9 @@ export class ZoneController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Conduit ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Conduit ID is required', request.id));
     }
 
     const parsed = updateConduitSchema.safeParse(request.body);
@@ -298,16 +292,16 @@ export class ZoneController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -323,16 +317,16 @@ export class ZoneController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Conduit ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Conduit ID is required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -350,9 +344,9 @@ export class ZoneController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id));
     }
 
     try {
@@ -368,9 +362,9 @@ export class ZoneController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id));
     }
 
     const parsed = zoneMembershipSchema.safeParse(request.body);
@@ -379,16 +373,16 @@ export class ZoneController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -405,16 +399,16 @@ export class ZoneController {
     const assetId = params['assetId'];
 
     if (!id || !assetId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Zone ID and Asset ID are required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Zone ID and Asset ID are required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -432,9 +426,9 @@ export class ZoneController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id));
     }
 
     try {
@@ -450,9 +444,9 @@ export class ZoneController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Zone ID is required', request.id));
     }
 
     const parsed = segmentationRuleSchema.safeParse(request.body);
@@ -461,16 +455,16 @@ export class ZoneController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -486,16 +480,16 @@ export class ZoneController {
     const ruleId = params['ruleId'];
 
     if (!ruleId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Rule ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Rule ID is required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -524,9 +518,9 @@ export class ZoneController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     try {
@@ -560,12 +554,16 @@ export class ZoneController {
       request.log.warn(error);
     }
 
-    return reply.status(statusCode).send(
-      errorResponse(
-        code,
-        statusCode >= 500 ? 'An unexpected error occurred.' : (err.message ?? 'An error occurred'),
-        request.id,
-      ),
-    );
+    return reply
+      .status(statusCode)
+      .send(
+        errorResponse(
+          code,
+          statusCode >= 500
+            ? 'An unexpected error occurred.'
+            : (err.message ?? 'An error occurred'),
+          request.id,
+        ),
+      );
   }
 }

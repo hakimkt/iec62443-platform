@@ -1,8 +1,7 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { desc, eq, sql } from 'drizzle-orm';
-import { Pool } from 'pg';
 import crypto from 'node:crypto';
-
+import { desc, eq, sql } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 import * as platformSchema from '../schema/platform/index.js';
 import * as tenantSchema from '../schema/tenant/index.js';
 
@@ -51,7 +50,8 @@ const ELEMENTS = [
     id: 'e2000000-0000-0000-0000-000000000001',
     category: 'SM-1',
     title: 'Security Policy',
-    description: 'Establish, maintain, and communicate an IACS security policy that defines the organization\'s commitment to protecting industrial control systems. The policy must be approved by management, communicated to all personnel, and reviewed at planned intervals or when significant changes occur.',
+    description:
+      "Establish, maintain, and communicate an IACS security policy that defines the organization's commitment to protecting industrial control systems. The policy must be approved by management, communicated to all personnel, and reviewed at planned intervals or when significant changes occur.",
     requirementRef: 'IEC 62443-2-1 §4.3.2.1',
     implementationStatus: 'partial',
     maturityScore: 2,
@@ -62,7 +62,8 @@ const ELEMENTS = [
     id: 'e2000000-0000-0000-0000-000000000002',
     category: 'SM-2',
     title: 'Risk Management',
-    description: 'Establish and maintain a cybersecurity risk management process for the IACS. Includes risk assessment methodology, risk evaluation criteria, risk treatment decisions, and continuous monitoring of risk posture. Aligns with IEC 62443-3-2 risk assessment methodology.',
+    description:
+      'Establish and maintain a cybersecurity risk management process for the IACS. Includes risk assessment methodology, risk evaluation criteria, risk treatment decisions, and continuous monitoring of risk posture. Aligns with IEC 62443-3-2 risk assessment methodology.',
     requirementRef: 'IEC 62443-2-1 §4.3.2.2',
     implementationStatus: 'implemented',
     maturityScore: 3,
@@ -73,7 +74,8 @@ const ELEMENTS = [
     id: 'e2000000-0000-0000-0000-000000000003',
     category: 'SM-3',
     title: 'Asset Management',
-    description: 'Maintain a comprehensive inventory of all IACS assets throughout their lifecycle. Includes asset identification, classification, ownership assignment, and tracking of changes. The asset inventory must be the foundation for risk assessment and security management.',
+    description:
+      'Maintain a comprehensive inventory of all IACS assets throughout their lifecycle. Includes asset identification, classification, ownership assignment, and tracking of changes. The asset inventory must be the foundation for risk assessment and security management.',
     requirementRef: 'IEC 62443-2-1 §4.3.2.3',
     implementationStatus: 'partial',
     maturityScore: 1,
@@ -84,7 +86,8 @@ const ELEMENTS = [
     id: 'e2000000-0000-0000-0000-000000000004',
     category: 'SM-4',
     title: 'Access Control',
-    description: 'Implement and maintain access control policies and procedures for the IACS. Includes user identification and authentication, role-based access control, remote access management, and privileged access monitoring. Enforces least privilege and separation of duties.',
+    description:
+      'Implement and maintain access control policies and procedures for the IACS. Includes user identification and authentication, role-based access control, remote access management, and privileged access monitoring. Enforces least privilege and separation of duties.',
     requirementRef: 'IEC 62443-2-1 §4.3.2.4',
     implementationStatus: 'partial',
     maturityScore: 2,
@@ -95,7 +98,8 @@ const ELEMENTS = [
     id: 'e2000000-0000-0000-0000-000000000005',
     category: 'SM-5',
     title: 'Incident Response',
-    description: 'Establish and maintain an incident response capability for the IACS. Includes incident detection, classification, containment, eradication, recovery, and post-incident analysis. Must include OT-specific procedures and coordination with enterprise incident response.',
+    description:
+      'Establish and maintain an incident response capability for the IACS. Includes incident detection, classification, containment, eradication, recovery, and post-incident analysis. Must include OT-specific procedures and coordination with enterprise incident response.',
     requirementRef: 'IEC 62443-2-1 §4.3.2.5',
     implementationStatus: 'planned',
     maturityScore: 1,
@@ -106,7 +110,8 @@ const ELEMENTS = [
     id: 'e2000000-0000-0000-0000-000000000006',
     category: 'SM-6',
     title: 'Backup Management',
-    description: 'Establish and maintain backup and recovery procedures for all IACS components. Includes regular backup scheduling, verification of backup integrity, off-site storage, and periodic recovery testing. Covers SCADA servers, historian, PLC programs, and network configurations.',
+    description:
+      'Establish and maintain backup and recovery procedures for all IACS components. Includes regular backup scheduling, verification of backup integrity, off-site storage, and periodic recovery testing. Covers SCADA servers, historian, PLC programs, and network configurations.',
     requirementRef: 'IEC 62443-2-1 §4.3.2.6',
     implementationStatus: 'partial',
     maturityScore: 2,
@@ -117,7 +122,8 @@ const ELEMENTS = [
     id: 'e2000000-0000-0000-0000-000000000007',
     category: 'SM-7',
     title: 'Patch Management',
-    description: 'Establish and maintain a patch management process for the IACS. Includes patch identification, evaluation, testing, approval, deployment, and verification. Must address the unique constraints of OT systems including availability requirements and change management procedures.',
+    description:
+      'Establish and maintain a patch management process for the IACS. Includes patch identification, evaluation, testing, approval, deployment, and verification. Must address the unique constraints of OT systems including availability requirements and change management procedures.',
     requirementRef: 'IEC 62443-2-1 §4.3.2.7',
     implementationStatus: 'planned',
     maturityScore: 1,
@@ -128,7 +134,8 @@ const ELEMENTS = [
     id: 'e2000000-0000-0000-0000-000000000008',
     category: 'SM-8',
     title: 'Security Training',
-    description: 'Establish and maintain a security awareness and training program for all personnel with access to the IACS. Includes role-based training, security awareness campaigns, and periodic assessment of training effectiveness.',
+    description:
+      'Establish and maintain a security awareness and training program for all personnel with access to the IACS. Includes role-based training, security awareness campaigns, and periodic assessment of training effectiveness.',
     requirementRef: 'IEC 62443-2-1 §4.3.2.8',
     implementationStatus: 'not_started',
     maturityScore: 0,
@@ -139,7 +146,8 @@ const ELEMENTS = [
     id: 'e2000000-0000-0000-0000-000000000009',
     category: 'SM-9',
     title: 'Change Management',
-    description: 'Establish and maintain a change management process for the IACS. Includes change request, risk assessment, approval, implementation, and verification. Covers hardware changes, software updates, configuration modifications, and control logic changes.',
+    description:
+      'Establish and maintain a change management process for the IACS. Includes change request, risk assessment, approval, implementation, and verification. Covers hardware changes, software updates, configuration modifications, and control logic changes.',
     requirementRef: 'IEC 62443-2-1 §4.3.2.9',
     implementationStatus: 'partial',
     maturityScore: 2,
@@ -312,7 +320,8 @@ const IMPROVEMENT_PLANS = [
     id: 'e4000000-0000-0000-0000-000000000001',
     elementId: 'e2000000-0000-0000-0000-000000000008',
     title: 'Implement OT Security Awareness Training Program',
-    description: 'Develop and deploy a security awareness training program for all OT personnel. Includes role-based training modules, phishing simulation exercises, and annual refresher training.',
+    description:
+      'Develop and deploy a security awareness training program for all OT personnel. Includes role-based training modules, phishing simulation exercises, and annual refresher training.',
     priority: 'high',
     targetDate: '2027-06-30',
     status: 'planned',
@@ -322,7 +331,8 @@ const IMPROVEMENT_PLANS = [
     id: 'e4000000-0000-0000-0000-000000000002',
     elementId: 'e2000000-0000-0000-0000-000000000005',
     title: 'Develop OT Incident Response Plan',
-    description: 'Finalize the OT-specific incident response procedure, conduct tabletop exercises, and train all response personnel. Establish communication protocols with enterprise IT incident response.',
+    description:
+      'Finalize the OT-specific incident response procedure, conduct tabletop exercises, and train all response personnel. Establish communication protocols with enterprise IT incident response.',
     priority: 'high',
     targetDate: '2027-01-31',
     status: 'planned',
@@ -332,7 +342,8 @@ const IMPROVEMENT_PLANS = [
     id: 'e4000000-0000-0000-0000-000000000003',
     elementId: 'e2000000-0000-0000-0000-000000000007',
     title: 'Establish OT Patch Management Process',
-    description: 'Formalize the patch management process for OT assets. Define patch testing procedures, approval workflows, and deployment schedules. Integrate with the existing patch management server in the iDMZ.',
+    description:
+      'Formalize the patch management process for OT assets. Define patch testing procedures, approval workflows, and deployment schedules. Integrate with the existing patch management server in the iDMZ.',
     priority: 'critical',
     targetDate: '2026-09-30',
     status: 'in_progress',
@@ -346,7 +357,8 @@ const REMEDIATION_PLANS = [
   {
     id: 'f1000000-0000-0000-0000-000000000001',
     name: 'OT Network Segmentation Improvement',
-    description: 'Remediate the insufficient IT/OT network segmentation. Remove direct PROFINET path from engineering workstation to PLC zone, enforce all engineering traffic through iDMZ jump server, and implement micro-segmentation rules on the industrial firewall.',
+    description:
+      'Remediate the insufficient IT/OT network segmentation. Remove direct PROFINET path from engineering workstation to PLC zone, enforce all engineering traffic through iDMZ jump server, and implement micro-segmentation rules on the industrial firewall.',
     findingIds: [FINDING_SEGMENTATION],
     riskIds: [RISK_UNAUTH_ACCESS],
     ownerId: OT_MANAGER_ID,
@@ -359,7 +371,8 @@ const REMEDIATION_PLANS = [
   {
     id: 'f1000000-0000-0000-0000-000000000002',
     name: 'Remote Access Security Enhancement',
-    description: 'Enable multi-factor authentication for all remote and engineering access paths. Review and audit all remote access accounts. Restrict vendor access to time-limited sessions with full recording.',
+    description:
+      'Enable multi-factor authentication for all remote and engineering access paths. Review and audit all remote access accounts. Restrict vendor access to time-limited sessions with full recording.',
     findingIds: [FINDING_MFA],
     riskIds: [RISK_UNAUTH_ACCESS],
     ownerId: OT_MANAGER_ID,
@@ -371,7 +384,8 @@ const REMEDIATION_PLANS = [
   {
     id: 'f1000000-0000-0000-0000-000000000003',
     name: 'Asset Lifecycle Improvement',
-    description: 'Remediate the incomplete asset inventory and establish a comprehensive asset lifecycle management process. Deploy automated asset discovery, track firmware versions, and assign asset ownership for all OT components.',
+    description:
+      'Remediate the incomplete asset inventory and establish a comprehensive asset lifecycle management process. Deploy automated asset discovery, track firmware versions, and assign asset ownership for all OT components.',
     findingIds: [FINDING_INVENTORY, FINDING_FIRMWARE, FINDING_WINDOWS],
     riskIds: [RISK_PLC_COMPROMISE],
     ownerId: COMPLIANCE_ID,
@@ -390,7 +404,8 @@ const REMEDIATION_ACTIONS = [
     id: 'f2000000-0000-0000-0000-000000000001',
     planId: 'f1000000-0000-0000-0000-000000000001',
     title: 'Review and update firewall rules for zone boundary enforcement',
-    description: 'Audit all 247 firewall rules on the FortiGate Rugged 70F. Identify and remove rules that allow direct traffic between IT and OT zones bypassing the iDMZ. Add micro-segmentation rules for SCADA-to-PLC traffic.',
+    description:
+      'Audit all 247 firewall rules on the FortiGate Rugged 70F. Identify and remove rules that allow direct traffic between IT and OT zones bypassing the iDMZ. Add micro-segmentation rules for SCADA-to-PLC traffic.',
     findingId: FINDING_SEGMENTATION,
     riskId: RISK_UNAUTH_ACCESS,
     assigneeId: OT_MANAGER_ID,
@@ -406,7 +421,8 @@ const REMEDIATION_ACTIONS = [
     id: 'f2000000-0000-0000-0000-000000000002',
     planId: 'f1000000-0000-0000-0000-000000000001',
     title: 'Implement zone separation between engineering workstation and PLC zone',
-    description: 'Remove direct PROFINET path from the engineering workstation to the PLC process control zone. Route all engineering traffic through the iDMZ jump server with MFA and session recording. Configure the industrial switch to enforce VLAN segmentation.',
+    description:
+      'Remove direct PROFINET path from the engineering workstation to the PLC process control zone. Route all engineering traffic through the iDMZ jump server with MFA and session recording. Configure the industrial switch to enforce VLAN segmentation.',
     findingId: FINDING_SEGMENTATION,
     riskId: RISK_UNAUTH_ACCESS,
     assigneeId: OT_MANAGER_ID,
@@ -421,7 +437,8 @@ const REMEDIATION_ACTIONS = [
     id: 'f2000000-0000-0000-0000-000000000003',
     planId: 'f1000000-0000-0000-0000-000000000001',
     title: 'Validate conduit configurations and verify traffic flows',
-    description: 'Validate all conduit configurations after zone separation changes. Conduct penetration testing to verify no bypass paths exist. Monitor traffic flows for 30 days to confirm compliance with IEC 62443-3-3 SR 5.1.',
+    description:
+      'Validate all conduit configurations after zone separation changes. Conduct penetration testing to verify no bypass paths exist. Monitor traffic flows for 30 days to confirm compliance with IEC 62443-3-3 SR 5.1.',
     findingId: FINDING_SEGMENTATION,
     assigneeId: LEAD_ASSESSOR_ID,
     status: 'planned',
@@ -435,7 +452,8 @@ const REMEDIATION_ACTIONS = [
     id: 'f2000000-0000-0000-0000-000000000004',
     planId: 'f1000000-0000-0000-0000-000000000002',
     title: 'Enable MFA for all remote engineering access paths',
-    description: 'Configure CyberArk MFA for all engineering workstation access to PLCs. Extend MFA requirement from jump server only to all paths that access OT systems. Implement certificate-based authentication for PROFINET device access.',
+    description:
+      'Configure CyberArk MFA for all engineering workstation access to PLCs. Extend MFA requirement from jump server only to all paths that access OT systems. Implement certificate-based authentication for PROFINET device access.',
     findingId: FINDING_MFA,
     riskId: RISK_UNAUTH_ACCESS,
     assigneeId: OT_MANAGER_ID,
@@ -449,7 +467,8 @@ const REMEDIATION_ACTIONS = [
     id: 'f2000000-0000-0000-0000-000000000005',
     planId: 'f1000000-0000-0000-0000-000000000002',
     title: 'Review and audit all remote access accounts',
-    description: 'Audit all accounts with remote access to OT systems. Remove unused accounts, rotate credentials for shared accounts, and document all vendor access agreements. Implement time-limited access for vendor sessions.',
+    description:
+      'Audit all accounts with remote access to OT systems. Remove unused accounts, rotate credentials for shared accounts, and document all vendor access agreements. Implement time-limited access for vendor sessions.',
     findingId: FINDING_MFA,
     assigneeId: COMPLIANCE_ID,
     status: 'planned',
@@ -462,7 +481,8 @@ const REMEDIATION_ACTIONS = [
     id: 'f2000000-0000-0000-0000-000000000006',
     planId: 'f1000000-0000-0000-0000-000000000002',
     title: 'Restrict vendor access to time-limited sessions with full recording',
-    description: 'Configure CyberArk to enforce time-limited vendor access sessions with full session recording. Implement automatic session termination after the approved time window. Require vendor access to be pre-approved by the OT Cybersecurity Manager.',
+    description:
+      'Configure CyberArk to enforce time-limited vendor access sessions with full session recording. Implement automatic session termination after the approved time window. Require vendor access to be pre-approved by the OT Cybersecurity Manager.',
     findingId: FINDING_MFA,
     assigneeId: OT_MANAGER_ID,
     status: 'planned',
@@ -476,7 +496,8 @@ const REMEDIATION_ACTIONS = [
     id: 'f2000000-0000-0000-0000-000000000007',
     planId: 'f1000000-0000-0000-0000-000000000003',
     title: 'Update and automate OT asset inventory',
-    description: 'Deploy automated asset discovery (Tenable.ot passive monitoring) to identify all OT assets. Replace manual spreadsheet with CMDB integration. Ensure all assets including field instruments, RTUs, and remote controllers are cataloged.',
+    description:
+      'Deploy automated asset discovery (Tenable.ot passive monitoring) to identify all OT assets. Replace manual spreadsheet with CMDB integration. Ensure all assets including field instruments, RTUs, and remote controllers are cataloged.',
     findingId: FINDING_INVENTORY,
     riskId: RISK_PLC_COMPROMISE,
     assigneeId: COMPLIANCE_ID,
@@ -490,7 +511,8 @@ const REMEDIATION_ACTIONS = [
     id: 'f2000000-0000-0000-0000-000000000008',
     planId: 'f1000000-0000-0000-0000-000000000003',
     title: 'Track firmware versions and establish patching schedule',
-    description: 'Implement firmware version tracking for all PLCs and controllers. Establish quarterly firmware review cycle. Deploy PLC firmware patches (V2.9.4) for Siemens S7-1500 during next maintenance window.',
+    description:
+      'Implement firmware version tracking for all PLCs and controllers. Establish quarterly firmware review cycle. Deploy PLC firmware patches (V2.9.4) for Siemens S7-1500 during next maintenance window.',
     findingId: FINDING_FIRMWARE,
     riskId: RISK_PLC_COMPROMISE,
     assigneeId: OT_MANAGER_ID,
@@ -504,7 +526,8 @@ const REMEDIATION_ACTIONS = [
     id: 'f2000000-0000-0000-0000-000000000009',
     planId: 'f1000000-0000-0000-0000-000000000003',
     title: 'Assign ownership for all OT assets and establish lifecycle processes',
-    description: 'Assign a responsible owner for every OT asset in the inventory. Establish lifecycle processes for asset procurement, deployment, maintenance, and decommissioning. Document asset criticality and Purdue level classification.',
+    description:
+      'Assign a responsible owner for every OT asset in the inventory. Establish lifecycle processes for asset procurement, deployment, maintenance, and decommissioning. Document asset criticality and Purdue level classification.',
     findingId: FINDING_INVENTORY,
     assigneeId: COMPLIANCE_ID,
     status: 'planned',
@@ -522,13 +545,15 @@ const VERIFICATIONS = [
     actionId: 'f2000000-0000-0000-0000-000000000001',
     verifiedBy: LEAD_ASSESSOR_ID,
     result: 'pass',
-    notes: 'Firewall rule audit completed. 247 rules reviewed, 12 rules identified for modification, 3 rules removed (direct IT-to-OT bypass). All changes documented and tested.',
+    notes:
+      'Firewall rule audit completed. 247 rules reviewed, 12 rules identified for modification, 3 rules removed (direct IT-to-OT bypass). All changes documented and tested.',
   },
   {
     actionId: 'f2000000-0000-0000-0000-000000000002',
     verifiedBy: LEAD_ASSESSOR_ID,
     result: 'partial',
-    notes: 'VLAN segmentation implemented on the industrial switch. PROFINET direct path removed from engineering workstation. Jump server routing is in progress — MFA configuration pending.',
+    notes:
+      'VLAN segmentation implemented on the industrial switch. PROFINET direct path removed from engineering workstation. Jump server routing is in progress — MFA configuration pending.',
   },
 ] as const;
 
@@ -544,7 +569,15 @@ const REPORTS = [
       scope: 'engagement',
       scopeId: 'a3000000-0000-0000-0000-000000000001',
       dateRange: { from: '2026-01-15', to: '2026-08-01' },
-      includeSections: ['executive_summary', 'scope', 'methodology', 'findings', 'risk_assessment', 'recommendations', 'appendix'],
+      includeSections: [
+        'executive_summary',
+        'scope',
+        'methodology',
+        'findings',
+        'risk_assessment',
+        'recommendations',
+        'appendix',
+      ],
       format: 'pdf',
     },
     fileUrl: '/reports/assessment-summary-2026-08-01.pdf',
@@ -578,7 +611,13 @@ const REPORTS = [
       scope: 'framework',
       scopeId: FRAMEWORK_ID,
       dateRange: null,
-      includeSections: ['framework_overview', 'element_analysis', 'maturity_scores', 'gap_summary', 'improvement_roadmap'],
+      includeSections: [
+        'framework_overview',
+        'element_analysis',
+        'maturity_scores',
+        'gap_summary',
+        'improvement_roadmap',
+      ],
       format: 'pdf',
     },
     fileUrl: '/reports/csms-gap-2026-08-01.pdf',
@@ -595,7 +634,13 @@ const REPORTS = [
       scope: 'tenant',
       scopeId: null,
       dateRange: { from: '2026-01-01', to: '2026-06-30' },
-      includeSections: ['plan_summary', 'action_status', 'budget_tracking', 'verification_results', 'upcoming_milestones'],
+      includeSections: [
+        'plan_summary',
+        'action_status',
+        'budget_tracking',
+        'verification_results',
+        'upcoming_milestones',
+      ],
       format: 'pdf',
     },
     fileUrl: '/reports/remediation-q2-2026.pdf',
@@ -612,7 +657,14 @@ const REPORTS = [
       scope: 'tenant',
       scopeId: null,
       dateRange: { from: '2026-01-01', to: '2026-08-01' },
-      includeSections: ['security_score', 'critical_findings', 'risk_posture', 'remediation_progress', 'compliance_status', 'upcoming_actions'],
+      includeSections: [
+        'security_score',
+        'critical_findings',
+        'risk_posture',
+        'remediation_progress',
+        'compliance_status',
+        'upcoming_actions',
+      ],
       format: 'pdf',
     },
     generatedBy: SEED_USER_ID,
@@ -626,7 +678,12 @@ const REPORTS = [
       scope: 'tenant',
       scopeId: null,
       dateRange: null,
-      includeSections: ['zone_map', 'conduit_analysis', 'segmentation_compliance', 'asset_distribution'],
+      includeSections: [
+        'zone_map',
+        'conduit_analysis',
+        'segmentation_compliance',
+        'asset_distribution',
+      ],
       format: 'pdf',
     },
     fileUrl: '/reports/zone-topology-2026-08-01.pdf',
@@ -738,100 +795,118 @@ async function seed() {
   console.log('[2/8] Creating CSMS elements...');
 
   for (const el of ELEMENTS) {
-    await tenantDb.insert(tenantSchema.elements).values({
-      id: el.id,
-      frameworkId: FRAMEWORK_ID,
-      category: el.category,
-      title: el.title,
-      description: el.description,
-      requirementRef: el.requirementRef,
-      implementationStatus: el.implementationStatus,
-      maturityScore: el.maturityScore,
-      ownerId: el.ownerId,
-      nextReview: el.nextReview,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.elements)
+      .values({
+        id: el.id,
+        frameworkId: FRAMEWORK_ID,
+        category: el.category,
+        title: el.title,
+        description: el.description,
+        requirementRef: el.requirementRef,
+        implementationStatus: el.implementationStatus,
+        maturityScore: el.maturityScore,
+        ownerId: el.ownerId,
+        nextReview: el.nextReview,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 3. CSMS Policies ────────────────────────────────────────────────
   console.log('[3/8] Creating CSMS policies...');
 
   for (const p of POLICIES) {
-    await tenantDb.insert(tenantSchema.policies).values({
-      id: p.id,
-      frameworkId: FRAMEWORK_ID,
-      elementId: p.elementId,
-      title: p.title,
-      version: p.version,
-      status: p.status,
-      body: p.body,
-      approvedBy: p.approvedBy,
-      approvedAt: p.approvedAt,
-      reviewCycle: p.reviewCycle,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.policies)
+      .values({
+        id: p.id,
+        frameworkId: FRAMEWORK_ID,
+        elementId: p.elementId,
+        title: p.title,
+        version: p.version,
+        status: p.status,
+        body: p.body,
+        approvedBy: p.approvedBy,
+        approvedAt: p.approvedAt,
+        reviewCycle: p.reviewCycle,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 4. Improvement Plans ────────────────────────────────────────────
   console.log('[4/8] Creating improvement plans...');
 
   for (const ip of IMPROVEMENT_PLANS) {
-    await tenantDb.insert(tenantSchema.improvementPlans).values({
-      id: ip.id,
-      frameworkId: FRAMEWORK_ID,
-      elementId: ip.elementId,
-      title: ip.title,
-      description: ip.description,
-      priority: ip.priority,
-      targetDate: ip.targetDate,
-      status: ip.status,
-      ownerId: ip.ownerId,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.improvementPlans)
+      .values({
+        id: ip.id,
+        frameworkId: FRAMEWORK_ID,
+        elementId: ip.elementId,
+        title: ip.title,
+        description: ip.description,
+        priority: ip.priority,
+        targetDate: ip.targetDate,
+        status: ip.status,
+        ownerId: ip.ownerId,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 5. Remediation Plans & Actions ──────────────────────────────────
   console.log('[5/8] Creating remediation plans and actions...');
 
   for (const plan of REMEDIATION_PLANS) {
-    await tenantDb.insert(tenantSchema.plans).values({
-      id: plan.id,
-      name: plan.name,
-      description: plan.description,
-      findingIds: [...plan.findingIds],
-      riskIds: [...plan.riskIds],
-      ownerId: plan.ownerId,
-      status: plan.status,
-      budgetEstimate: plan.budgetEstimate,
-      budgetActual: (plan as { budgetActual?: string | null }).budgetActual ?? null,
-      startDate: plan.startDate,
-      targetDate: plan.targetDate,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.plans)
+      .values({
+        id: plan.id,
+        name: plan.name,
+        description: plan.description,
+        findingIds: [...plan.findingIds],
+        riskIds: [...plan.riskIds],
+        ownerId: plan.ownerId,
+        status: plan.status,
+        budgetEstimate: plan.budgetEstimate,
+        budgetActual: (plan as { budgetActual?: string | null }).budgetActual ?? null,
+        startDate: plan.startDate,
+        targetDate: plan.targetDate,
+      })
+      .onConflictDoNothing();
   }
 
   for (const action of REMEDIATION_ACTIONS) {
-    await tenantDb.insert(tenantSchema.actions).values({
-      id: action.id,
-      planId: action.planId,
-      title: action.title,
-      description: action.description,
-      findingId: (action as { findingId?: string | null }).findingId ?? null,
-      riskId: (action as { riskId?: string | null }).riskId ?? null,
-      assigneeId: action.assigneeId,
-      status: action.status,
-      startDate: action.startDate,
-      dueDate: action.dueDate,
-      completedDate: (action as { completedDate?: string | null }).completedDate ?? null,
-      costEstimate: action.costEstimate,
-      costActual: (action as { costActual?: string | null }).costActual ?? null,
-      milestone: (action as { milestone?: string | null }).milestone ?? null,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.actions)
+      .values({
+        id: action.id,
+        planId: action.planId,
+        title: action.title,
+        description: action.description,
+        findingId: (action as { findingId?: string | null }).findingId ?? null,
+        riskId: (action as { riskId?: string | null }).riskId ?? null,
+        assigneeId: action.assigneeId,
+        status: action.status,
+        startDate: action.startDate,
+        dueDate: action.dueDate,
+        completedDate: (action as { completedDate?: string | null }).completedDate ?? null,
+        costEstimate: action.costEstimate,
+        costActual: (action as { costActual?: string | null }).costActual ?? null,
+        milestone: (action as { milestone?: string | null }).milestone ?? null,
+      })
+      .onConflictDoNothing();
   }
 
   for (const v of VERIFICATIONS) {
-    await tenantDb.insert(tenantSchema.verifications).values({
-      actionId: v.actionId,
-      verifiedBy: v.verifiedBy,
-      result: v.result,
-      notes: v.notes,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.verifications)
+      .values({
+        actionId: v.actionId,
+        verifiedBy: v.verifiedBy,
+        result: v.result,
+        notes: v.notes,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 6. Reports ──────────────────────────────────────────────────────
@@ -845,23 +920,26 @@ async function seed() {
       includeSections: readonly string[];
       format: string;
     };
-    await tenantDb.insert(tenantSchema.reports).values({
-      id: r.id,
-      type: r.type,
-      title: r.title,
-      status: r.status,
-      config: {
-        scope: rawConfig.scope,
-        scopeId: rawConfig.scopeId,
-        dateRange: rawConfig.dateRange,
-        includeSections: [...rawConfig.includeSections],
-        format: rawConfig.format,
-      },
-      fileUrl: (r as { fileUrl?: string | null }).fileUrl ?? null,
-      fileSize: (r as { fileSize?: number | null }).fileSize ?? null,
-      generatedBy: r.generatedBy,
-      completedAt: (r as { completedAt?: Date | null }).completedAt ?? null,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.reports)
+      .values({
+        id: r.id,
+        type: r.type,
+        title: r.title,
+        status: r.status,
+        config: {
+          scope: rawConfig.scope,
+          scopeId: rawConfig.scopeId,
+          dateRange: rawConfig.dateRange,
+          includeSections: [...rawConfig.includeSections],
+          format: rawConfig.format,
+        },
+        fileUrl: (r as { fileUrl?: string | null }).fileUrl ?? null,
+        fileSize: (r as { fileSize?: number | null }).fileSize ?? null,
+        generatedBy: r.generatedBy,
+        completedAt: (r as { completedAt?: Date | null }).completedAt ?? null,
+      })
+      .onConflictDoNothing();
   }
 
   await tenantPool.end();
@@ -872,56 +950,84 @@ async function seed() {
   const auditEvents: AuditEventSeed[] = [];
 
   auditEvents.push({
-    tenantId: TENANT_ID, userId: SEED_USER_ID,
-    eventType: 'csms.framework.created', entityType: 'framework', entityId: FRAMEWORK_ID,
-    action: 'create', details: { name: FRAMEWORK.name, version: FRAMEWORK.version },
+    tenantId: TENANT_ID,
+    userId: SEED_USER_ID,
+    eventType: 'csms.framework.created',
+    entityType: 'framework',
+    entityId: FRAMEWORK_ID,
+    action: 'create',
+    details: { name: FRAMEWORK.name, version: FRAMEWORK.version },
   });
 
   for (const el of ELEMENTS) {
     auditEvents.push({
-      tenantId: TENANT_ID, userId: SEED_USER_ID,
-      eventType: 'csms.element.created', entityType: 'csms_element', entityId: el.id,
-      action: 'create', details: { category: el.category, title: el.title, maturityScore: el.maturityScore },
+      tenantId: TENANT_ID,
+      userId: SEED_USER_ID,
+      eventType: 'csms.element.created',
+      entityType: 'csms_element',
+      entityId: el.id,
+      action: 'create',
+      details: { category: el.category, title: el.title, maturityScore: el.maturityScore },
     });
   }
 
   for (const p of POLICIES) {
     auditEvents.push({
-      tenantId: TENANT_ID, userId: SEED_USER_ID,
-      eventType: 'csms.policy.created', entityType: 'policy', entityId: p.id,
-      action: 'create', details: { title: p.title, version: p.version, status: p.status },
+      tenantId: TENANT_ID,
+      userId: SEED_USER_ID,
+      eventType: 'csms.policy.created',
+      entityType: 'policy',
+      entityId: p.id,
+      action: 'create',
+      details: { title: p.title, version: p.version, status: p.status },
     });
   }
 
   for (const plan of REMEDIATION_PLANS) {
     auditEvents.push({
-      tenantId: TENANT_ID, userId: SEED_USER_ID,
-      eventType: 'remediation.plan.created', entityType: 'remediation_plan', entityId: plan.id,
-      action: 'create', details: { name: plan.name, status: plan.status },
+      tenantId: TENANT_ID,
+      userId: SEED_USER_ID,
+      eventType: 'remediation.plan.created',
+      entityType: 'remediation_plan',
+      entityId: plan.id,
+      action: 'create',
+      details: { name: plan.name, status: plan.status },
     });
   }
 
   for (const action of REMEDIATION_ACTIONS) {
     auditEvents.push({
-      tenantId: TENANT_ID, userId: OT_MANAGER_ID,
-      eventType: 'remediation.action.created', entityType: 'remediation_action', entityId: action.id,
-      action: 'create', details: { title: action.title, status: action.status },
+      tenantId: TENANT_ID,
+      userId: OT_MANAGER_ID,
+      eventType: 'remediation.action.created',
+      entityType: 'remediation_action',
+      entityId: action.id,
+      action: 'create',
+      details: { title: action.title, status: action.status },
     });
   }
 
   for (const v of VERIFICATIONS) {
     auditEvents.push({
-      tenantId: TENANT_ID, userId: LEAD_ASSESSOR_ID,
-      eventType: 'remediation.verification.created', entityType: 'verification', entityId: v.actionId,
-      action: 'create', details: { result: v.result },
+      tenantId: TENANT_ID,
+      userId: LEAD_ASSESSOR_ID,
+      eventType: 'remediation.verification.created',
+      entityType: 'verification',
+      entityId: v.actionId,
+      action: 'create',
+      details: { result: v.result },
     });
   }
 
   for (const r of REPORTS) {
     auditEvents.push({
-      tenantId: TENANT_ID, userId: r.generatedBy,
-      eventType: 'report.created', entityType: 'report', entityId: r.id,
-      action: 'create', details: { type: r.type, title: r.title, status: r.status },
+      tenantId: TENANT_ID,
+      userId: r.generatedBy,
+      eventType: 'report.created',
+      entityType: 'report',
+      entityId: r.id,
+      action: 'create',
+      details: { type: r.type, title: r.title, status: r.status },
     });
   }
 
@@ -937,7 +1043,9 @@ async function seed() {
   const completedActions = REMEDIATION_ACTIONS.filter((a) => a.status === 'completed').length;
   const inProgressActions = REMEDIATION_ACTIONS.filter((a) => a.status === 'in_progress').length;
   const plannedActions = REMEDIATION_ACTIONS.filter((a) => a.status === 'planned').length;
-  const remediationProgress = Math.round(((completedActions + inProgressActions * 0.5) / totalActions) * 100);
+  const remediationProgress = Math.round(
+    ((completedActions + inProgressActions * 0.5) / totalActions) * 100,
+  );
 
   const avgMaturity = ELEMENTS.reduce((sum, e) => sum + e.maturityScore, 0) / ELEMENTS.length;
   const securityScore = Math.round((avgMaturity / 4) * 100);

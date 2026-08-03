@@ -1,8 +1,6 @@
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import { assessmentRoutes } from './routes.js';
 
 // ---------------------------------------------------------------------------
@@ -12,10 +10,7 @@ import { assessmentRoutes } from './routes.js';
 declare module 'fastify' {
   interface FastifyInstance {
     db: NodePgDatabase;
-    authenticate: (
-      request: FastifyRequest,
-      reply: FastifyReply,
-    ) => Promise<void>;
+    authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
 
   interface FastifyRequest {
@@ -33,10 +28,7 @@ export interface AssessmentModuleOptions {
   connectionString?: string;
 }
 
-async function assessmentModule(
-  app: FastifyInstance,
-  _options: AssessmentModuleOptions,
-) {
+async function assessmentModule(app: FastifyInstance, _options: AssessmentModuleOptions) {
   // Use the database instance already decorated on the Fastify app
   // (set up by the auth module or app bootstrap)
   const db = app.db as unknown as NodePgDatabase;

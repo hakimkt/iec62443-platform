@@ -1,16 +1,14 @@
-import { eq, and, desc, sql, count } from 'drizzle-orm';
 import crypto from 'node:crypto';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import {
-  templates,
-  questions,
+  auditEvents,
   engagements,
+  questions,
   responses,
   scorecards,
-  auditEvents,
+  templates,
 } from '@iec62443/database';
+import { and, count, desc, eq, sql } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -94,10 +92,7 @@ export interface Progress {
 // Audit hash chain helper
 // ---------------------------------------------------------------------------
 
-async function computeEventHash(
-  data: string,
-  previousHash: string | null,
-): Promise<string> {
+async function computeEventHash(data: string, previousHash: string | null): Promise<string> {
   const input = `${previousHash ?? ''}|${data}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
@@ -118,7 +113,9 @@ export class AssessmentService {
   async listTemplates(filters: TemplateFilters) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const conditions = [];
@@ -139,24 +136,19 @@ export class AssessmentService {
           .orderBy(desc(templates.createdAt));
       }
 
-      return tx
-        .select()
-        .from(templates)
-        .orderBy(desc(templates.createdAt));
+      return tx.select().from(templates).orderBy(desc(templates.createdAt));
     });
   }
 
   async getTemplate(id: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
-      const [template] = await tx
-        .select()
-        .from(templates)
-        .where(eq(templates.id, id))
-        .limit(1);
+      const [template] = await tx.select().from(templates).where(eq(templates.id, id)).limit(1);
 
       if (!template) {
         throw Object.assign(new Error('Template not found'), {
@@ -172,7 +164,9 @@ export class AssessmentService {
   async createTemplate(data: CreateTemplateInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const [newTemplate] = await tx
@@ -213,7 +207,9 @@ export class AssessmentService {
   async listEngagements(filters: EngagementFilters) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const page = filters.page ?? 1;
@@ -271,7 +267,9 @@ export class AssessmentService {
   async getEngagement(id: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const [engagement] = await tx
@@ -294,7 +292,9 @@ export class AssessmentService {
   async createEngagement(data: CreateEngagementInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Validate template exists
@@ -325,10 +325,7 @@ export class AssessmentService {
         templateId: data.templateId,
       };
 
-      const [newEngagement] = await tx
-        .insert(engagements)
-        .values(engagementValues)
-        .returning();
+      const [newEngagement] = await tx.insert(engagements).values(engagementValues).returning();
 
       if (!newEngagement) {
         throw Object.assign(new Error('Failed to create engagement'), {
@@ -354,7 +351,9 @@ export class AssessmentService {
   async updateEngagement(id: string, data: UpdateEngagementInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const engagement = await this.getEngagementTx(tx, id);
@@ -362,7 +361,11 @@ export class AssessmentService {
       // Only allow updates if status is 'draft' or 'in_progress', unless
       // the update is a valid status transition (e.g., completed → review).
       const isStatusOnlyUpdate = Object.keys(data).length === 1 && data.status !== undefined;
-      if (!isStatusOnlyUpdate && engagement.status !== 'draft' && engagement.status !== 'in_progress') {
+      if (
+        !isStatusOnlyUpdate &&
+        engagement.status !== 'draft' &&
+        engagement.status !== 'in_progress'
+      ) {
         throw Object.assign(
           new Error('Cannot update engagement that is in review, completed, or archived'),
           {
@@ -384,7 +387,9 @@ export class AssessmentService {
         const allowed = validTransitions[engagement.status];
         if (!allowed || !allowed.includes(data.status)) {
           throw Object.assign(
-            new Error(`Cannot transition engagement from '${engagement.status}' to '${data.status}'`),
+            new Error(
+              `Cannot transition engagement from '${engagement.status}' to '${data.status}'`,
+            ),
             {
               statusCode: 409,
               code: 'INVALID_STATUS_TRANSITION',
@@ -411,8 +416,14 @@ export class AssessmentService {
         }
       }
       if (data.leadAssessorId !== undefined) updateData['leadAssessorId'] = data.leadAssessorId;
-      if (data.startDate !== undefined) updateData['startDate'] = data.startDate ? data.startDate.toISOString().split('T')[0] : null;
-      if (data.targetDate !== undefined) updateData['targetDate'] = data.targetDate ? data.targetDate.toISOString().split('T')[0] : null;
+      if (data.startDate !== undefined)
+        updateData['startDate'] = data.startDate
+          ? data.startDate.toISOString().split('T')[0]
+          : null;
+      if (data.targetDate !== undefined)
+        updateData['targetDate'] = data.targetDate
+          ? data.targetDate.toISOString().split('T')[0]
+          : null;
       if (data.templateId !== undefined) updateData['templateId'] = data.templateId;
 
       const [updated] = await tx
@@ -445,20 +456,19 @@ export class AssessmentService {
   async deleteEngagement(id: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const engagement = await this.getEngagementTx(tx, id);
 
       // Only allow if status is 'draft'
       if (engagement.status !== 'draft') {
-        throw Object.assign(
-          new Error('Only draft engagements can be deleted'),
-          {
-            statusCode: 409,
-            code: 'ENGAGEMENT_NOT_DELETABLE',
-          },
-        );
+        throw Object.assign(new Error('Only draft engagements can be deleted'), {
+          statusCode: 409,
+          code: 'ENGAGEMENT_NOT_DELETABLE',
+        });
       }
 
       // Soft delete by setting status to 'archived'
@@ -484,7 +494,9 @@ export class AssessmentService {
   async listQuestions(templateId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       return tx
@@ -498,7 +510,9 @@ export class AssessmentService {
   async getEngagementQuestions(engagementId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Get the engagement to find its template
@@ -543,7 +557,9 @@ export class AssessmentService {
   ) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Verify engagement exists and is editable
@@ -577,12 +593,7 @@ export class AssessmentService {
       const [existing] = await tx
         .select({ id: responses.id })
         .from(responses)
-        .where(
-          and(
-            eq(responses.engagementId, engagementId),
-            eq(responses.questionId, questionId),
-          ),
-        )
+        .where(and(eq(responses.engagementId, engagementId), eq(responses.questionId, questionId)))
         .limit(1);
 
       const now = new Date();
@@ -674,7 +685,9 @@ export class AssessmentService {
   async getScorecard(engagementId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Verify engagement exists and get its template
@@ -752,15 +765,12 @@ export class AssessmentService {
         }
 
         // IEC 62443: SL-A = floor(minScoreRatio * 4) — the weakest question caps the level
-        const currentSl = answeredCount > 0
-          ? Math.min(4, Math.floor(minScoreRatio * 4))
-          : 0;
+        const currentSl = answeredCount > 0 ? Math.min(4, Math.floor(minScoreRatio * 4)) : 0;
 
         const targetSl = engagement.targetSl ?? 0;
         const gap = Math.max(0, targetSl - currentSl);
-        const compliancePct = maxPossibleScore > 0
-          ? Math.round((totalScore / maxPossibleScore) * 10000) / 100
-          : 0;
+        const compliancePct =
+          maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 10000) / 100 : 0;
 
         scorecardResults.push({
           category: section,
@@ -781,10 +791,7 @@ export class AssessmentService {
           .select({ id: scorecards.id })
           .from(scorecards)
           .where(
-            and(
-              eq(scorecards.engagementId, engagementId),
-              eq(scorecards.category, entry.category),
-            ),
+            and(eq(scorecards.engagementId, engagementId), eq(scorecards.category, entry.category)),
           )
           .limit(1);
 
@@ -828,7 +835,9 @@ export class AssessmentService {
   async getProgress(engagementId: string): Promise<Progress> {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const engagement = await this.getEngagementTx(tx, engagementId);
@@ -852,12 +861,7 @@ export class AssessmentService {
       const [answeredResult] = await tx
         .select({ total: count() })
         .from(responses)
-        .where(
-          and(
-            eq(responses.engagementId, engagementId),
-            sql`${responses.score} IS NOT NULL`,
-          ),
-        );
+        .where(and(eq(responses.engagementId, engagementId), sql`${responses.score} IS NOT NULL`));
 
       const answeredCount = answeredResult?.total ?? 0;
 
@@ -869,9 +873,8 @@ export class AssessmentService {
         .orderBy(desc(responses.createdAt))
         .limit(1);
 
-      const completionPct = totalQuestions > 0
-        ? Math.round((answeredCount / totalQuestions) * 10000) / 100
-        : 0;
+      const completionPct =
+        totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 10000) / 100 : 0;
 
       return {
         engagementId,
@@ -886,11 +889,7 @@ export class AssessmentService {
   // ── Private helpers ──────────────────────────────────────────────────
 
   private async getEngagementTx(db: DbOrTx, id: string) {
-    const [engagement] = await db
-      .select()
-      .from(engagements)
-      .where(eq(engagements.id, id))
-      .limit(1);
+    const [engagement] = await db.select().from(engagements).where(eq(engagements.id, id)).limit(1);
 
     if (!engagement) {
       throw Object.assign(new Error('Engagement not found'), {
@@ -902,16 +901,19 @@ export class AssessmentService {
     return engagement;
   }
 
-  private async createAuditEvent(db: DbOrTx, params: {
-    userId: string;
-    eventType: string;
-    entityType: string;
-    entityId: string;
-    action: 'create' | 'update' | 'delete' | 'read';
-    details: Record<string, unknown>;
-    ipAddress?: string | null;
-    userAgent?: string | null;
-  }): Promise<void> {
+  private async createAuditEvent(
+    db: DbOrTx,
+    params: {
+      userId: string;
+      eventType: string;
+      entityType: string;
+      entityId: string;
+      action: 'create' | 'update' | 'delete' | 'read';
+      details: Record<string, unknown>;
+      ipAddress?: string | null;
+      userAgent?: string | null;
+    },
+  ): Promise<void> {
     try {
       // Get the last audit event hash for chaining (tenant-scoped)
       const [lastEvent] = await db

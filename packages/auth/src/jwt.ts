@@ -1,5 +1,4 @@
-import type { JWTPayload } from 'jose';
-import { jwtVerify, SignJWT } from 'jose';
+import { jwtVerify, SignJWT, type JWTPayload } from 'jose';
 
 export interface TokenPayload extends JWTPayload {
   sub: string;
@@ -58,10 +57,7 @@ export async function signRefreshToken(
     .sign(getSecretKey(config.secret));
 }
 
-export async function verifyToken(
-  token: string,
-  config: JwtConfig,
-): Promise<TokenPayload> {
+export async function verifyToken(token: string, config: JwtConfig): Promise<TokenPayload> {
   const { payload } = await jwtVerify(token, getSecretKey(config.secret), {
     issuer: config.issuer,
     audience: config.audience,

@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   bigserial,
   check,
@@ -9,7 +10,6 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
 
 export const auditEvents = pgTable(
   'audit_events',
@@ -26,9 +26,7 @@ export const auditEvents = pgTable(
     userAgent: text('user_agent'),
     previousHash: varchar('previous_hash', { length: 64 }),
     eventHash: varchar('event_hash', { length: 64 }).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     check(
@@ -36,13 +34,7 @@ export const auditEvents = pgTable(
       sql`${table.action} IN ('create', 'update', 'delete', 'read')`,
     ),
     index('idx_audit_events_entity').on(table.entityType, table.entityId),
-    index('idx_audit_events_tenant_time').on(
-      table.tenantId,
-      sql`${table.createdAt} DESC`,
-    ),
-    index('idx_audit_events_user').on(
-      table.userId,
-      sql`${table.createdAt} DESC`,
-    ),
+    index('idx_audit_events_tenant_time').on(table.tenantId, sql`${table.createdAt} DESC`),
+    index('idx_audit_events_user').on(table.userId, sql`${table.createdAt} DESC`),
   ],
 );

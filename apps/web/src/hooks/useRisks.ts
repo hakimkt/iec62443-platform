@@ -1,8 +1,15 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type {
+  HeatMapData,
+  RiskAcceptance,
+  RiskEntry,
+  RiskMatrixConfig,
+  RiskRegister,
+  RiskStats,
+  RiskTreatment,
+} from '@iec62443/shared-types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiClient } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
-
-import type { RiskEntry, RiskRegister, RiskTreatment, RiskAcceptance, HeatMapData, RiskMatrixConfig, RiskStats } from '@iec62443/shared-types';
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -22,7 +29,9 @@ interface SingleResponse<T> {
 
 // ── Risk Registers ─────────────────────────────────────────────────────
 
-export function useRiskRegisters(params: { page?: number; perPage?: number; search?: string; status?: string } = {}) {
+export function useRiskRegisters(
+  params: { page?: number; perPage?: number; search?: string; status?: string } = {},
+) {
   const client = getApiClient();
 
   return useQuery({
@@ -49,9 +58,7 @@ export function useRiskRegister(id: string | null) {
   return useQuery({
     queryKey: queryKeys.risks.registers.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<RiskRegister>>(
-        `/risk-registers/${id}`,
-      );
+      const result = await client.get<SingleResponse<RiskRegister>>(`/risk-registers/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -63,11 +70,13 @@ export function useCreateRiskRegister() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { name: string; scopeType?: string; scopeId?: string; ownerId?: string }) => {
-      const result = await client.post<SingleResponse<RiskRegister>>(
-        '/risk-registers',
-        data,
-      );
+    mutationFn: async (data: {
+      name: string;
+      scopeType?: string;
+      scopeId?: string;
+      ownerId?: string;
+    }) => {
+      const result = await client.post<SingleResponse<RiskRegister>>('/risk-registers', data);
       return result.data;
     },
     onSuccess: () => {
@@ -140,10 +149,7 @@ export function useRisks(params: RiskListParams = {}) {
       if (params.search) queryParams['search'] = params.search;
       if (params.sort) queryParams['sort'] = params.sort;
 
-      const result = await client.get<PaginatedResponse<RiskEntry>>(
-        '/risks',
-        queryParams,
-      );
+      const result = await client.get<PaginatedResponse<RiskEntry>>('/risks', queryParams);
       return result;
     },
   });
@@ -155,9 +161,7 @@ export function useRisk(id: string | null) {
   return useQuery({
     queryKey: queryKeys.risks.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<RiskEntry>>(
-        `/risks/${id}`,
-      );
+      const result = await client.get<SingleResponse<RiskEntry>>(`/risks/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -173,10 +177,7 @@ export function useRiskStats(registerId?: string) {
       const queryParams: Record<string, string> = {};
       if (registerId) queryParams['registerId'] = registerId;
 
-      const result = await client.get<SingleResponse<RiskStats>>(
-        '/risks/stats',
-        queryParams,
-      );
+      const result = await client.get<SingleResponse<RiskStats>>('/risks/stats', queryParams);
       return result.data;
     },
   });
@@ -205,10 +206,7 @@ export function useCreateRisk() {
       iecRequirement?: string;
       reassessBy?: string;
     }) => {
-      const result = await client.post<SingleResponse<RiskEntry>>(
-        '/risks',
-        data,
-      );
+      const result = await client.post<SingleResponse<RiskEntry>>('/risks', data);
       return result.data;
     },
     onSuccess: () => {
@@ -224,10 +222,7 @@ export function useUpdateRisk() {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: { id: string; [key: string]: unknown }) => {
-      const result = await client.patch<SingleResponse<RiskEntry>>(
-        `/risks/${id}`,
-        data,
-      );
+      const result = await client.patch<SingleResponse<RiskEntry>>(`/risks/${id}`, data);
       return result.data;
     },
     onSuccess: (_data, variables) => {
@@ -327,7 +322,17 @@ export function useCreateRiskTreatment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ riskId, ...data }: { riskId: string; type: string; description: string; responsibleId?: string; targetDate?: string; costEstimate?: number }) => {
+    mutationFn: async ({
+      riskId,
+      ...data
+    }: {
+      riskId: string;
+      type: string;
+      description: string;
+      responsibleId?: string;
+      targetDate?: string;
+      costEstimate?: number;
+    }) => {
       const result = await client.post<SingleResponse<RiskTreatment>>(
         `/risks/${riskId}/treatments`,
         data,
@@ -347,7 +352,15 @@ export function useUpdateRiskTreatment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ riskId, treatmentId, ...data }: { riskId: string; treatmentId: string; [key: string]: unknown }) => {
+    mutationFn: async ({
+      riskId,
+      treatmentId,
+      ...data
+    }: {
+      riskId: string;
+      treatmentId: string;
+      [key: string]: unknown;
+    }) => {
       const result = await client.patch<SingleResponse<RiskTreatment>>(
         `/risks/${riskId}/treatments/${treatmentId}`,
         data,
@@ -398,7 +411,15 @@ export function useCreateRiskAcceptance() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ riskId, ...data }: { riskId: string; justification: string; expiresAt?: string; reviewDate?: string }) => {
+    mutationFn: async ({
+      riskId,
+      ...data
+    }: {
+      riskId: string;
+      justification: string;
+      expiresAt?: string;
+      reviewDate?: string;
+    }) => {
       const result = await client.post<SingleResponse<RiskAcceptance>>(
         `/risks/${riskId}/acceptances`,
         data,

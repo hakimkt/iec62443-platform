@@ -1,7 +1,13 @@
 import { z } from 'zod';
 import { uuidSchema } from './common.schema.js';
 
-export const remediationStatusSchema = z.enum(['planned', 'in_progress', 'completed', 'cancelled', 'overdue']);
+export const remediationStatusSchema = z.enum([
+  'planned',
+  'in_progress',
+  'completed',
+  'cancelled',
+  'overdue',
+]);
 export const verificationResultSchema = z.enum(['passed', 'failed', 'partial']);
 
 export const createPlanSchema = z.object({

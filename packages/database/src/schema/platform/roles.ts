@@ -20,9 +20,7 @@ export const roles = pgTable('roles', {
   description: text('description'),
   isSystem: boolean('is_system').notNull().default(false),
   permissions: jsonb('permissions').notNull().default([]),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // ── User Roles ───────────────────────────────────────────────────────────
@@ -39,16 +37,10 @@ export const userRoles = pgTable(
       .references(() => roles.id),
     tenantId: uuid('tenant_id').references(() => tenants.id),
     grantedBy: uuid('granted_by').references(() => users.id),
-    grantedAt: timestamp('granted_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    grantedAt: timestamp('granted_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    unique('user_roles_unique_assignment').on(
-      table.userId,
-      table.roleId,
-      table.tenantId,
-    ),
+    unique('user_roles_unique_assignment').on(table.userId, table.roleId, table.tenantId),
   ],
 );
 
@@ -68,16 +60,9 @@ export const tenantMemberships = pgTable(
     status: varchar('status', { length: 20 }).default('active'),
     invitedBy: uuid('invited_by').references(() => users.id),
     joinedAt: timestamp('joined_at', { withTimezone: true }),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [
-    unique('tenant_memberships_unique_membership').on(
-      table.tenantId,
-      table.userId,
-    ),
-  ],
+  (table) => [unique('tenant_memberships_unique_membership').on(table.tenantId, table.userId)],
 );
 
 // ── API Keys ─────────────────────────────────────────────────────────────
@@ -97,7 +82,5 @@ export const apiKeys = pgTable('api_keys', {
   lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
   expiresAt: timestamp('expires_at', { withTimezone: true }),
   revokedAt: timestamp('revoked_at', { withTimezone: true }),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });

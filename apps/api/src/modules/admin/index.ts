@@ -1,8 +1,6 @@
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import { adminRoutes } from './routes.js';
 
 // ---------------------------------------------------------------------------
@@ -13,10 +11,7 @@ export interface AdminModuleOptions {
   connectionString?: string;
 }
 
-async function adminModule(
-  app: FastifyInstance,
-  _options: AdminModuleOptions,
-) {
+async function adminModule(app: FastifyInstance, _options: AdminModuleOptions) {
   const db = app.db as unknown as NodePgDatabase;
 
   await app.register(adminRoutes, { db });

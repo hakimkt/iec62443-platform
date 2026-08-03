@@ -1,16 +1,14 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-
 import {
-  createPurdueModelSchema,
-  updatePurdueModelSchema,
-  createLevelSchema,
-  updateLevelSchema,
   assetMappingSchema,
   communicationRuleSchema,
-  updateCommunicationRuleSchema,
+  createLevelSchema,
+  createPurdueModelSchema,
   paginationSchema,
+  updateCommunicationRuleSchema,
+  updateLevelSchema,
+  updatePurdueModelSchema,
 } from '@iec62443/shared-schemas';
-
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { PurdueService } from './purdue.service.js';
 
 // ---------------------------------------------------------------------------
@@ -87,9 +85,7 @@ export class PurdueController {
         perPage,
         search: query['search'],
       });
-      return reply.status(200).send(
-        paginatedResponse(result.data, result.pagination, request.id),
-      );
+      return reply.status(200).send(paginatedResponse(result.data, result.pagination, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -100,9 +96,9 @@ export class PurdueController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id));
     }
 
     try {
@@ -120,16 +116,16 @@ export class PurdueController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -145,9 +141,9 @@ export class PurdueController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id));
     }
 
     const parsed = updatePurdueModelSchema.safeParse(request.body);
@@ -156,18 +152,18 @@ export class PurdueController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const body = parsed.data;
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -183,16 +179,16 @@ export class PurdueController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -210,9 +206,9 @@ export class PurdueController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id));
     }
 
     try {
@@ -228,9 +224,9 @@ export class PurdueController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id));
     }
 
     const parsed = createLevelSchema.safeParse(request.body);
@@ -239,16 +235,16 @@ export class PurdueController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -265,9 +261,9 @@ export class PurdueController {
     const levelId = params['levelId'];
 
     if (!id || !levelId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID and Level ID are required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID and Level ID are required', request.id));
     }
 
     const parsed = updateLevelSchema.safeParse(request.body);
@@ -276,18 +272,18 @@ export class PurdueController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const body = parsed.data;
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -304,16 +300,16 @@ export class PurdueController {
     const levelId = params['levelId'];
 
     if (!id || !levelId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID and Level ID are required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID and Level ID are required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -331,9 +327,9 @@ export class PurdueController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id));
     }
 
     try {
@@ -349,9 +345,9 @@ export class PurdueController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id));
     }
 
     const parsed = assetMappingSchema.safeParse(request.body);
@@ -360,16 +356,16 @@ export class PurdueController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -386,16 +382,16 @@ export class PurdueController {
     const assetId = params['assetId'];
 
     if (!id || !assetId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID and Asset ID are required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID and Asset ID are required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -413,9 +409,9 @@ export class PurdueController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id));
     }
 
     try {
@@ -431,9 +427,9 @@ export class PurdueController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id));
     }
 
     const parsed = communicationRuleSchema.safeParse(request.body);
@@ -442,16 +438,16 @@ export class PurdueController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -468,9 +464,9 @@ export class PurdueController {
     const ruleId = params['ruleId'];
 
     if (!id || !ruleId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID and Rule ID are required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID and Rule ID are required', request.id));
     }
 
     const parsed = updateCommunicationRuleSchema.safeParse(request.body);
@@ -479,18 +475,18 @@ export class PurdueController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const body = parsed.data;
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -507,16 +503,16 @@ export class PurdueController {
     const ruleId = params['ruleId'];
 
     if (!id || !ruleId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID and Rule ID are required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID and Rule ID are required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -534,9 +530,9 @@ export class PurdueController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Model ID is required', request.id));
     }
 
     try {
@@ -570,12 +566,16 @@ export class PurdueController {
       request.log.warn(error);
     }
 
-    return reply.status(statusCode).send(
-      errorResponse(
-        code,
-        statusCode >= 500 ? 'An unexpected error occurred.' : (err.message ?? 'An error occurred'),
-        request.id,
-      ),
-    );
+    return reply
+      .status(statusCode)
+      .send(
+        errorResponse(
+          code,
+          statusCode >= 500
+            ? 'An unexpected error occurred.'
+            : (err.message ?? 'An error occurred'),
+          request.id,
+        ),
+      );
   }
 }

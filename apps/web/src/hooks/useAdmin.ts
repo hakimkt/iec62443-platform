@@ -1,8 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { AuditEvent, Role, Tenant, TenantMember } from '@iec62443/shared-types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiClient } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
-
-import type { TenantMember, Role, AuditEvent, Tenant } from '@iec62443/shared-types';
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -57,14 +56,8 @@ export function useInviteMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
-      email: string;
-      role: string;
-    }) => {
-      const result = await client.post<SingleResponse<TenantMember>>(
-        '/admin/members/invite',
-        data,
-      );
+    mutationFn: async (data: { email: string; role: string }) => {
+      const result = await client.post<SingleResponse<TenantMember>>('/admin/members/invite', data);
       return result.data;
     },
     onSuccess: () => {
@@ -113,9 +106,7 @@ export function useRoles() {
   return useQuery({
     queryKey: queryKeys.admin.roles.lists(),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<Role[]>>(
-        '/admin/roles',
-      );
+      const result = await client.get<SingleResponse<Role[]>>('/admin/roles');
       return result.data;
     },
   });
@@ -126,15 +117,8 @@ export function useCreateRole() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
-      name: string;
-      description?: string;
-      permissions?: string[];
-    }) => {
-      const result = await client.post<SingleResponse<Role>>(
-        '/admin/roles',
-        data,
-      );
+    mutationFn: async (data: { name: string; description?: string; permissions?: string[] }) => {
+      const result = await client.post<SingleResponse<Role>>('/admin/roles', data);
       return result.data;
     },
     onSuccess: () => {
@@ -149,10 +133,7 @@ export function useUpdateRole() {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: { id: string; [key: string]: unknown }) => {
-      const result = await client.patch<SingleResponse<Role>>(
-        `/admin/roles/${id}`,
-        data,
-      );
+      const result = await client.patch<SingleResponse<Role>>(`/admin/roles/${id}`, data);
       return result.data;
     },
     onSuccess: () => {
@@ -192,9 +173,7 @@ export function useApiKeys() {
   return useQuery({
     queryKey: queryKeys.admin.apiKeys.lists(),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<ApiKeyShape[]>>(
-        '/admin/api-keys',
-      );
+      const result = await client.get<SingleResponse<ApiKeyShape[]>>('/admin/api-keys');
       return result.data;
     },
   });
@@ -205,10 +184,7 @@ export function useCreateApiKey() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
-      name: string;
-      expiresAt?: string;
-    }) => {
+    mutationFn: async (data: { name: string; expiresAt?: string }) => {
       const result = await client.post<SingleResponse<{ id: string; key: string }>>(
         '/admin/api-keys',
         data,
@@ -281,9 +257,7 @@ export function useTenantSettings() {
   return useQuery({
     queryKey: queryKeys.admin.settings.detail(),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<Tenant>>(
-        '/admin/settings',
-      );
+      const result = await client.get<SingleResponse<Tenant>>('/admin/settings');
       return result.data;
     },
   });
@@ -295,10 +269,7 @@ export function useUpdateTenantSettings() {
 
   return useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
-      const result = await client.patch<SingleResponse<Tenant>>(
-        '/admin/settings',
-        data,
-      );
+      const result = await client.patch<SingleResponse<Tenant>>('/admin/settings', data);
       return result.data;
     },
     onSuccess: () => {

@@ -192,20 +192,20 @@ Widget heights:
 
 ### 2.2 Role-Based Dashboard Variants
 
-| Widget | CISO (Owner) | Plant Engineer (PM) | Lead Assessor | Assessor | Viewer |
-|---|---|---|---|---|---|
-| Security Score | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Open Findings | ✓ | ✓ | ✓ | ✓ (own) | ✓ |
-| Active Risks | ✓ | ✓ | ✓ | ✓ (RO) | ✓ |
-| Remediation | ✓ | ✓ (editable) | ✓ (RO) | ✓ (RO) | ✓ (RO) |
-| Radar Chart | ✓ | ✓ | ✓ (editable) | ✓ (RO) | ✓ |
-| Assessment Progress | ✓ | ✓ | ✓ | ✓ (own) | ✓ |
-| Risk Heat Map | ✓ | ✓ | ✓ | ✓ (RO) | ✓ |
-| Recent Findings | ✓ | ✓ | ✓ | ✓ (own) | ✓ |
-| Remediation Timeline | ✓ | ✓ (editable) | ✓ (RO) | ✓ (RO) | ✓ (RO) |
-| CSMS Maturity | ✓ | ✓ | ✓ (RO) | ✓ (RO) | ✓ |
-| Budget Summary | ✓ | ✓ | — | — | — |
-| Audit Activity | ✓ | ✓ | — | — | — |
+| Widget               | CISO (Owner) | Plant Engineer (PM) | Lead Assessor | Assessor | Viewer |
+| -------------------- | ------------ | ------------------- | ------------- | -------- | ------ |
+| Security Score       | ✓            | ✓                   | ✓             | ✓        | ✓      |
+| Open Findings        | ✓            | ✓                   | ✓             | ✓ (own)  | ✓      |
+| Active Risks         | ✓            | ✓                   | ✓             | ✓ (RO)   | ✓      |
+| Remediation          | ✓            | ✓ (editable)        | ✓ (RO)        | ✓ (RO)   | ✓ (RO) |
+| Radar Chart          | ✓            | ✓                   | ✓ (editable)  | ✓ (RO)   | ✓      |
+| Assessment Progress  | ✓            | ✓                   | ✓             | ✓ (own)  | ✓      |
+| Risk Heat Map        | ✓            | ✓                   | ✓             | ✓ (RO)   | ✓      |
+| Recent Findings      | ✓            | ✓                   | ✓             | ✓ (own)  | ✓      |
+| Remediation Timeline | ✓            | ✓ (editable)        | ✓ (RO)        | ✓ (RO)   | ✓ (RO) |
+| CSMS Maturity        | ✓            | ✓                   | ✓ (RO)        | ✓ (RO)   | ✓      |
+| Budget Summary       | ✓            | ✓                   | —             | —        | —      |
+| Audit Activity       | ✓            | ✓                   | —             | —        | —      |
 
 ---
 
@@ -508,35 +508,35 @@ interface DashboardWidget {
   description: string;
   size: { cols: number; minRows: number; maxRows?: number };
   dataEndpoint: string;
-  refreshInterval: number;  // seconds, 0 = no auto-refresh
-  roles: string[];          // which roles can see this widget
-  configurable: boolean;    // can user customize display?
-  drillDownRoute?: string;  // where clicking the widget navigates
+  refreshInterval: number; // seconds, 0 = no auto-refresh
+  roles: string[]; // which roles can see this widget
+  configurable: boolean; // can user customize display?
+  drillDownRoute?: string; // where clicking the widget navigates
 }
 ```
 
 ### 7.2 Available Widgets
 
-| Widget | Type | Size | Roles | Refresh |
-|---|---|---|---|---|
-| Security Score | metric | 3×1 | all | 300s |
-| Open Findings | metric | 3×1 | all | 60s (WS) |
-| Active Risks | metric | 3×1 | all | 300s |
-| Remediation Status | metric | 3×1 | all | 300s |
-| SL Radar Chart | chart | 8×2 | all | 0 (manual) |
-| Assessment Progress | list | 4×2 | all | 300s |
-| Risk Heat Map | chart | 6×2 | all | 0 (manual) |
-| Risk Distribution | chart | 6×2 | PM+ | 300s |
-| Recent Findings | list | 6×2 | all | 60s (WS) |
-| Risk Trend | chart | 8×2 | PM+ | 3600s |
-| Top Risks | list | 4×2 | all | 300s |
-| Remediation Gantt | timeline | 12×1 | PM+ | 3600s |
-| Completion Rate | chart | 6×2 | PM+ | 3600s |
-| Budget Tracking | chart | 6×2 | Owner, PM | 3600s |
-| CSMS Maturity | chart | 6×2 | all | 3600s |
-| Audit Activity | list | 6×2 | Admin+ | 300s |
-| Facility Overview | custom | 12×1 | all | 3600s |
-| Engagement Timeline | timeline | 12×1 | all | 3600s |
+| Widget              | Type     | Size | Roles     | Refresh    |
+| ------------------- | -------- | ---- | --------- | ---------- |
+| Security Score      | metric   | 3×1  | all       | 300s       |
+| Open Findings       | metric   | 3×1  | all       | 60s (WS)   |
+| Active Risks        | metric   | 3×1  | all       | 300s       |
+| Remediation Status  | metric   | 3×1  | all       | 300s       |
+| SL Radar Chart      | chart    | 8×2  | all       | 0 (manual) |
+| Assessment Progress | list     | 4×2  | all       | 300s       |
+| Risk Heat Map       | chart    | 6×2  | all       | 0 (manual) |
+| Risk Distribution   | chart    | 6×2  | PM+       | 300s       |
+| Recent Findings     | list     | 6×2  | all       | 60s (WS)   |
+| Risk Trend          | chart    | 8×2  | PM+       | 3600s      |
+| Top Risks           | list     | 4×2  | all       | 300s       |
+| Remediation Gantt   | timeline | 12×1 | PM+       | 3600s      |
+| Completion Rate     | chart    | 6×2  | PM+       | 3600s      |
+| Budget Tracking     | chart    | 6×2  | Owner, PM | 3600s      |
+| CSMS Maturity       | chart    | 6×2  | all       | 3600s      |
+| Audit Activity      | list     | 6×2  | Admin+    | 300s       |
+| Facility Overview   | custom   | 12×1 | all       | 3600s      |
+| Engagement Timeline | timeline | 12×1 | all       | 3600s      |
 
 ### 7.3 Dashboard Customization
 
@@ -575,16 +575,16 @@ Default layout is restored via [Reset to Default].
 
 ## 8. Data Refresh Strategy
 
-| Data Type | Strategy | Frequency | Mechanism |
-|---|---|---|---|
-| KPI metrics | Polling | 5 min | TanStack Query `refetchInterval` |
-| Finding counts | Real-time | Instant | WebSocket `finding.updated` |
-| Risk changes | Real-time | Instant | WebSocket `risk.level_changed` |
-| Assessment progress | Real-time | Instant | WebSocket `assessment.progress` |
-| Charts (radar, heat map) | On load + manual | — | User clicks refresh or navigates |
-| Remediation timeline | Polling | 1 hour | TanStack Query `refetchInterval` |
-| Audit activity | Polling | 5 min | TanStack Query `refetchInterval` |
-| Report status | Polling (while generating) | 3 sec | Until status = completed |
+| Data Type                | Strategy                   | Frequency | Mechanism                        |
+| ------------------------ | -------------------------- | --------- | -------------------------------- |
+| KPI metrics              | Polling                    | 5 min     | TanStack Query `refetchInterval` |
+| Finding counts           | Real-time                  | Instant   | WebSocket `finding.updated`      |
+| Risk changes             | Real-time                  | Instant   | WebSocket `risk.level_changed`   |
+| Assessment progress      | Real-time                  | Instant   | WebSocket `assessment.progress`  |
+| Charts (radar, heat map) | On load + manual           | —         | User clicks refresh or navigates |
+| Remediation timeline     | Polling                    | 1 hour    | TanStack Query `refetchInterval` |
+| Audit activity           | Polling                    | 5 min     | TanStack Query `refetchInterval` |
+| Report status            | Polling (while generating) | 3 sec     | Until status = completed         |
 
 ```
 Refresh indicator:
@@ -657,29 +657,29 @@ Dashboard loading (before first data fetch):
 
 ## 10. Dashboard Performance Targets
 
-| Metric | Target |
-|---|---|
-| Initial dashboard load (TTI) | < 2 seconds |
-| Widget data fetch (single) | < 500ms |
-| Full dashboard render (all widgets) | < 3 seconds |
-| WebSocket event → UI update | < 100ms |
-| Skeleton → data transition | No layout shift (CLS < 0.1) |
-| Dashboard customization save | < 200ms |
-| Chart render time | < 300ms per chart |
+| Metric                              | Target                      |
+| ----------------------------------- | --------------------------- |
+| Initial dashboard load (TTI)        | < 2 seconds                 |
+| Widget data fetch (single)          | < 500ms                     |
+| Full dashboard render (all widgets) | < 3 seconds                 |
+| WebSocket event → UI update         | < 100ms                     |
+| Skeleton → data transition          | No layout shift (CLS < 0.1) |
+| Dashboard customization save        | < 200ms                     |
+| Chart render time                   | < 300ms per chart           |
 
 ### Performance Strategies
 
-| Strategy | Implementation |
-|---|---|
-| Lazy widget loading | Intersection Observer — load widgets as they scroll into view |
-| Parallel data fetching | TanStack Query parallel queries for all widgets |
-| Chart lazy rendering | Defer chart render until container is visible |
-| Optimistic updates | Update KPI counts immediately on WebSocket event |
-| Memoization | React.memo on widget components; stable query keys |
-| Caching | 5-minute stale-while-revalidate for non-real-time data |
-| Virtual scrolling | For lists with 50+ items |
-| Image optimization | Lazy-load evidence thumbnails; use WebP format |
+| Strategy               | Implementation                                                |
+| ---------------------- | ------------------------------------------------------------- |
+| Lazy widget loading    | Intersection Observer — load widgets as they scroll into view |
+| Parallel data fetching | TanStack Query parallel queries for all widgets               |
+| Chart lazy rendering   | Defer chart render until container is visible                 |
+| Optimistic updates     | Update KPI counts immediately on WebSocket event              |
+| Memoization            | React.memo on widget components; stable query keys            |
+| Caching                | 5-minute stale-while-revalidate for non-real-time data        |
+| Virtual scrolling      | For lists with 50+ items                                      |
+| Image optimization     | Lazy-load evidence thumbnails; use WebP format                |
 
 ---
 
-*Back to: [Sitemap →](sitemap.md) | [User Flows →](user-flows.md) | [Design System →](design-system.md) | [Wireframes →](wireframes.md) | [Component Library →](component-library.md)*
+_Back to: [Sitemap →](sitemap.md) | [User Flows →](user-flows.md) | [Design System →](design-system.md) | [Wireframes →](wireframes.md) | [Component Library →](component-library.md)_

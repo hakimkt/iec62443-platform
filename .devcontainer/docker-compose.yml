@@ -20,8 +20,8 @@ services:
       JWT_ACCESS_TOKEN_TTL: 15m
       JWT_REFRESH_TOKEN_TTL: 7d
       NODE_ENV: development
-      API_PORT: "4000"
-      WEB_PORT: "3000"
+      API_PORT: '4000'
+      WEB_PORT: '3000'
       LOG_LEVEL: debug
       MFA_ISSUER: IEC62443-Platform
     depends_on:
@@ -44,11 +44,11 @@ services:
       POSTGRES_PASSWORD: iec62443_dev
       POSTGRES_DB: iec62443_platform
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U iec62443 -d iec62443_platform"]
+      test: ['CMD-SHELL', 'pg_isready -U iec62443 -d iec62443_platform']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -57,11 +57,11 @@ services:
     image: redis:7-alpine
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -73,13 +73,13 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ['CMD', 'mc', 'ready', 'local']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -88,13 +88,13 @@ services:
     image: nats:2-alpine
     restart: unless-stopped
     ports:
-      - "4222:4222"
-      - "8222:8222"
-    command: ["--jetstream", "--store_dir", "/data"]
+      - '4222:4222'
+      - '8222:8222'
+    command: ['--jetstream', '--store_dir', '/data']
     volumes:
       - nats_data:/data
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:8222/healthz']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -108,7 +108,7 @@ services:
       - DISABLE_SECURITY_PLUGIN=true
       - bootstrap.memory_lock=true
     ports:
-      - "9200:9200"
+      - '9200:9200'
     volumes:
       - opensearch_data:/usr/share/opensearch/data
     ulimits:
@@ -119,7 +119,7 @@ services:
         soft: 65536
         hard: 65536
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -f http://localhost:9200/_cluster/health || exit 1']
       interval: 15s
       timeout: 10s
       retries: 5

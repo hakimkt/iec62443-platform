@@ -1,19 +1,25 @@
 'use client';
 
-import { use, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@iec62443/ui/primitives';
-import { Badge } from '@iec62443/ui/primitives';
-import { Separator } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
-import { Textarea } from '@iec62443/ui/primitives';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@iec62443/ui/primitives';
-import { ArrowLeft, Save, Trash2 } from 'lucide-react';
+import type { AssetCriticality, AssetType } from '@iec62443/shared-types';
 import { cn } from '@iec62443/ui';
+import {
+  Badge,
+  Button,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Textarea,
+} from '@iec62443/ui/primitives';
+import { ArrowLeft, Save, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { useAsset, useUpdateAsset, useDeleteAsset, useAssetRelationships } from '@/hooks/useAssets';
-import type { AssetType, AssetCriticality } from '@iec62443/shared-types';
+import { useRouter } from 'next/navigation';
+import { use, useState } from 'react';
+import { useAsset, useAssetRelationships, useDeleteAsset, useUpdateAsset } from '@/hooks/useAssets';
 
 const typeOptions: { value: AssetType; label: string }[] = [
   { value: 'plc', label: 'PLC' },
@@ -120,17 +126,27 @@ export default function AssetDetailPage({ params }: { params: Promise<{ id: stri
           </Link>
           <h1 className="text-xl font-semibold text-surface-900">{asset.name}</h1>
           <div className="mt-2 flex items-center gap-3">
-            <Badge variant="completed" size="sm">{asset.type.replace(/_/g, ' ')}</Badge>
-            <span className={cn(
-              'text-xs font-medium px-2 py-0.5 rounded',
-              asset.criticality === 'safety_critical' ? 'bg-red-100 text-red-700' :
-              asset.criticality === 'mission_critical' ? 'bg-orange-100 text-orange-700' :
-              asset.criticality === 'business_critical' ? 'bg-amber-100 text-amber-700' :
-              'bg-blue-100 text-blue-700',
-            )}>
+            <Badge variant="completed" size="sm">
+              {asset.type.replace(/_/g, ' ')}
+            </Badge>
+            <span
+              className={cn(
+                'text-xs font-medium px-2 py-0.5 rounded',
+                asset.criticality === 'safety_critical'
+                  ? 'bg-red-100 text-red-700'
+                  : asset.criticality === 'mission_critical'
+                    ? 'bg-orange-100 text-orange-700'
+                    : asset.criticality === 'business_critical'
+                      ? 'bg-amber-100 text-amber-700'
+                      : 'bg-blue-100 text-blue-700',
+              )}
+            >
               {asset.criticality.replace(/_/g, ' ')}
             </span>
-            <Badge variant={asset.operationalStatus === 'operational' ? 'completed' : 'in_progress'} size="sm">
+            <Badge
+              variant={asset.operationalStatus === 'operational' ? 'completed' : 'in_progress'}
+              size="sm"
+            >
               {asset.operationalStatus.replace(/_/g, ' ')}
             </Badge>
           </div>
@@ -138,13 +154,31 @@ export default function AssetDetailPage({ params }: { params: Promise<{ id: stri
         <div className="flex items-center gap-2">
           {isEditing ? (
             <>
-              <Button variant="secondary" onClick={() => setIsEditing(false)}>Cancel</Button>
-              <Button variant="primary" onClick={handleSave} loading={updateAsset.isPending} icon={Save}>Save</Button>
+              <Button variant="secondary" onClick={() => setIsEditing(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSave}
+                loading={updateAsset.isPending}
+                icon={Save}
+              >
+                Save
+              </Button>
             </>
           ) : (
             <>
-              <Button variant="secondary" onClick={handleEdit}>Edit</Button>
-              <Button variant="danger" onClick={handleDelete} loading={deleteAsset.isPending} icon={Trash2}>Delete</Button>
+              <Button variant="secondary" onClick={handleEdit}>
+                Edit
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleDelete}
+                loading={deleteAsset.isPending}
+                icon={Trash2}
+              >
+                Delete
+              </Button>
             </>
           )}
         </div>
@@ -153,10 +187,10 @@ export default function AssetDetailPage({ params }: { params: Promise<{ id: stri
       {/* Tabs */}
       <div className="border-b border-surface-200">
         <nav className="flex gap-6" role="tablist" aria-label="Asset sections">
-          {([
+          {[
             { key: 'details' as TabKey, label: 'Details' },
             { key: 'relationships' as TabKey, label: 'Relationships' },
-          ]).map((tab) => (
+          ].map((tab) => (
             <button
               key={tab.key}
               role="tab"
@@ -183,40 +217,79 @@ export default function AssetDetailPage({ params }: { params: Promise<{ id: stri
               <div className="mt-4 space-y-3">
                 <div className="space-y-1">
                   <Label>Name</Label>
-                  <Input value={String(formState['name'] ?? '')} onChange={(e) => setFormState((s) => ({ ...s, name: e.target.value }))} />
+                  <Input
+                    value={String(formState['name'] ?? '')}
+                    onChange={(e) => setFormState((s) => ({ ...s, name: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label>Description</Label>
-                  <Textarea value={String(formState['description'] ?? '')} onChange={(e) => setFormState((s) => ({ ...s, description: e.target.value }))} rows={3} />
+                  <Textarea
+                    value={String(formState['description'] ?? '')}
+                    onChange={(e) => setFormState((s) => ({ ...s, description: e.target.value }))}
+                    rows={3}
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label>Type</Label>
-                  <Select value={String(formState['type'] ?? '')} onValueChange={(v) => setFormState((s) => ({ ...s, type: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select
+                    value={String(formState['type'] ?? '')}
+                    onValueChange={(v) => setFormState((s) => ({ ...s, type: v }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
-                      {typeOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                      {typeOptions.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>
+                          {o.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1">
                   <Label>Criticality</Label>
-                  <Select value={String(formState['criticality'] ?? '')} onValueChange={(v) => setFormState((s) => ({ ...s, criticality: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select
+                    value={String(formState['criticality'] ?? '')}
+                    onValueChange={(v) => setFormState((s) => ({ ...s, criticality: v }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
-                      {criticalityOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                      {criticalityOptions.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>
+                          {o.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
             ) : (
               <dl className="mt-4 space-y-3">
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Name</dt><dd className="text-sm text-surface-900">{asset.name}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Name</dt>
+                  <dd className="text-sm text-surface-900">{asset.name}</dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Description</dt><dd className="text-sm text-surface-900">{asset.description || '—'}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Description</dt>
+                  <dd className="text-sm text-surface-900">{asset.description || '—'}</dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Type</dt><dd className="text-sm text-surface-900">{asset.type.replace(/_/g, ' ')}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Type</dt>
+                  <dd className="text-sm text-surface-900">{asset.type.replace(/_/g, ' ')}</dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Criticality</dt><dd className="text-sm text-surface-900">{asset.criticality.replace(/_/g, ' ')}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Criticality</dt>
+                  <dd className="text-sm text-surface-900">
+                    {asset.criticality.replace(/_/g, ' ')}
+                  </dd>
+                </div>
               </dl>
             )}
           </div>
@@ -227,52 +300,110 @@ export default function AssetDetailPage({ params }: { params: Promise<{ id: stri
               <div className="mt-4 space-y-3">
                 <div className="space-y-1">
                   <Label>Vendor</Label>
-                  <Input value={String(formState['vendor'] ?? '')} onChange={(e) => setFormState((s) => ({ ...s, vendor: e.target.value }))} />
+                  <Input
+                    value={String(formState['vendor'] ?? '')}
+                    onChange={(e) => setFormState((s) => ({ ...s, vendor: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label>Model</Label>
-                  <Input value={String(formState['model'] ?? '')} onChange={(e) => setFormState((s) => ({ ...s, model: e.target.value }))} />
+                  <Input
+                    value={String(formState['model'] ?? '')}
+                    onChange={(e) => setFormState((s) => ({ ...s, model: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label>Firmware Version</Label>
-                  <Input value={String(formState['firmwareVersion'] ?? '')} onChange={(e) => setFormState((s) => ({ ...s, firmwareVersion: e.target.value }))} />
+                  <Input
+                    value={String(formState['firmwareVersion'] ?? '')}
+                    onChange={(e) =>
+                      setFormState((s) => ({ ...s, firmwareVersion: e.target.value }))
+                    }
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label>Serial Number</Label>
-                  <Input value={String(formState['serialNumber'] ?? '')} onChange={(e) => setFormState((s) => ({ ...s, serialNumber: e.target.value }))} />
+                  <Input
+                    value={String(formState['serialNumber'] ?? '')}
+                    onChange={(e) => setFormState((s) => ({ ...s, serialNumber: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label>IP Address</Label>
-                  <Input value={String(formState['ipAddress'] ?? '')} onChange={(e) => setFormState((s) => ({ ...s, ipAddress: e.target.value }))} />
+                  <Input
+                    value={String(formState['ipAddress'] ?? '')}
+                    onChange={(e) => setFormState((s) => ({ ...s, ipAddress: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label>MAC Address</Label>
-                  <Input value={String(formState['macAddress'] ?? '')} onChange={(e) => setFormState((s) => ({ ...s, macAddress: e.target.value }))} />
+                  <Input
+                    value={String(formState['macAddress'] ?? '')}
+                    onChange={(e) => setFormState((s) => ({ ...s, macAddress: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label>Location</Label>
-                  <Input value={String(formState['location'] ?? '')} onChange={(e) => setFormState((s) => ({ ...s, location: e.target.value }))} />
+                  <Input
+                    value={String(formState['location'] ?? '')}
+                    onChange={(e) => setFormState((s) => ({ ...s, location: e.target.value }))}
+                  />
                 </div>
               </div>
             ) : (
               <dl className="mt-4 space-y-3">
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Vendor</dt><dd className="text-sm text-surface-900">{asset.vendor || '—'}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Vendor</dt>
+                  <dd className="text-sm text-surface-900">{asset.vendor || '—'}</dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Model</dt><dd className="text-sm text-surface-900">{asset.model || '—'}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Model</dt>
+                  <dd className="text-sm text-surface-900">{asset.model || '—'}</dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Firmware</dt><dd className="text-sm text-surface-900">{asset.firmwareVersion || '—'}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Firmware</dt>
+                  <dd className="text-sm text-surface-900">{asset.firmwareVersion || '—'}</dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Serial</dt><dd className="text-sm font-mono text-surface-900">{asset.serialNumber || '—'}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Serial</dt>
+                  <dd className="text-sm font-mono text-surface-900">
+                    {asset.serialNumber || '—'}
+                  </dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">IP Address</dt><dd className="text-sm font-mono text-surface-900">{asset.ipAddress || '—'}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">IP Address</dt>
+                  <dd className="text-sm font-mono text-surface-900">{asset.ipAddress || '—'}</dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">MAC Address</dt><dd className="text-sm font-mono text-surface-900">{asset.macAddress || '—'}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">MAC Address</dt>
+                  <dd className="text-sm font-mono text-surface-900">{asset.macAddress || '—'}</dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Purdue Level</dt><dd className="text-sm text-surface-900">{asset.purdueLevel !== null ? purdueLevelLabels[asset.purdueLevel] ?? `L${asset.purdueLevel}` : '—'}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Purdue Level</dt>
+                  <dd className="text-sm text-surface-900">
+                    {asset.purdueLevel !== null
+                      ? (purdueLevelLabels[asset.purdueLevel] ?? `L${asset.purdueLevel}`)
+                      : '—'}
+                  </dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Location</dt><dd className="text-sm text-surface-900">{asset.location || '—'}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Location</dt>
+                  <dd className="text-sm text-surface-900">{asset.location || '—'}</dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Status</dt><dd className="text-sm text-surface-900">{asset.operationalStatus.replace(/_/g, ' ')}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Status</dt>
+                  <dd className="text-sm text-surface-900">
+                    {asset.operationalStatus.replace(/_/g, ' ')}
+                  </dd>
+                </div>
               </dl>
             )}
           </div>
@@ -284,9 +415,14 @@ export default function AssetDetailPage({ params }: { params: Promise<{ id: stri
         <div className="space-y-3">
           {relationships && relationships.length > 0 ? (
             relationships.map((rel) => (
-              <div key={rel.id} className="flex items-center gap-4 rounded-lg border border-surface-200 bg-surface-0 p-4">
+              <div
+                key={rel.id}
+                className="flex items-center gap-4 rounded-lg border border-surface-200 bg-surface-0 p-4"
+              >
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-surface-700">{rel.relationshipType.replace(/_/g, ' ')}</p>
+                  <p className="text-sm font-medium text-surface-700">
+                    {rel.relationshipType.replace(/_/g, ' ')}
+                  </p>
                   <p className="text-xs text-surface-500">
                     {rel.protocol ? `Protocol: ${rel.protocol}` : 'No protocol specified'}
                   </p>
@@ -297,7 +433,9 @@ export default function AssetDetailPage({ params }: { params: Promise<{ id: stri
               </div>
             ))
           ) : (
-            <p className="py-8 text-center text-sm text-surface-500">No relationships configured for this asset.</p>
+            <p className="py-8 text-center text-sm text-surface-500">
+              No relationships configured for this asset.
+            </p>
           )}
         </div>
       )}

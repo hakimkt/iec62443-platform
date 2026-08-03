@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 const emptyStateIconVariants = cva('', {
@@ -16,8 +16,7 @@ const emptyStateIconVariants = cva('', {
 });
 
 export interface EmptyStateProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof emptyStateIconVariants> {
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof emptyStateIconVariants> {
   /** Icon component rendered above the title */
   icon?: React.ElementType;
   /** Primary message */
@@ -29,28 +28,17 @@ export interface EmptyStateProps
 }
 
 const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
-  (
-    { className, icon: Icon, title, description, action, size, ...props },
-    ref,
-  ) => (
+  ({ className, icon: Icon, title, description, action, size, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn(
-        'flex flex-col items-center justify-center text-center py-12',
-        className,
-      )}
+      className={cn('flex flex-col items-center justify-center text-center py-12', className)}
       {...props}
     >
       {Icon && (
-        <Icon
-          className={cn('text-surface-300', emptyStateIconVariants({ size }))}
-          aria-hidden
-        />
+        <Icon className={cn('text-surface-300', emptyStateIconVariants({ size }))} aria-hidden />
       )}
       <h3 className="text-lg font-medium text-surface-700">{title}</h3>
-      {description && (
-        <p className="text-sm text-surface-500 mt-1 max-w-sm">{description}</p>
-      )}
+      {description && <p className="text-sm text-surface-500 mt-1 max-w-sm">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   ),

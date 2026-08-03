@@ -1,5 +1,5 @@
-import * as React from 'react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 const Popover = PopoverPrimitive.Root;
@@ -8,8 +8,9 @@ const PopoverAnchor = PopoverPrimitive.Anchor;
 
 /* ─── Content ─────────────────────────────────────────────────────── */
 
-export interface PopoverContentProps
-  extends React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> {
+export interface PopoverContentProps extends React.ComponentPropsWithoutRef<
+  typeof PopoverPrimitive.Content
+> {
   /** Whether to show the arrow pointing to the trigger */
   showArrow?: boolean;
 }
@@ -30,17 +31,10 @@ const PopoverContent = React.forwardRef<
       {...props}
     >
       {props.children}
-      {showArrow && (
-        <PopoverPrimitive.Arrow className="fill-surface-0 drop-shadow-sm" />
-      )}
+      {showArrow && <PopoverPrimitive.Arrow className="fill-surface-0 drop-shadow-sm" />}
     </PopoverPrimitive.Content>
   </PopoverPrimitive.Portal>
 ));
 PopoverContent.displayName = 'PopoverContent';
 
-export {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverAnchor,
-};
+export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };

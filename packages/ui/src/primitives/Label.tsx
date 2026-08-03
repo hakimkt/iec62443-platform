@@ -1,7 +1,7 @@
-import * as React from 'react';
 import * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Label variants ─────────────────── */
@@ -29,7 +29,8 @@ const labelVariants = cva(
 /* ───────────────────────────── Label component ────────────────── */
 
 interface LabelProps
-  extends React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>,
+  extends
+    React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>,
     VariantProps<typeof labelVariants> {
   /** Show a required indicator asterisk */
   required?: boolean;
@@ -37,29 +38,21 @@ interface LabelProps
   asChild?: boolean;
 }
 
-const Label = React.forwardRef<
-  React.ComponentRef<typeof LabelPrimitive.Root>,
-  LabelProps
->(({ className, error, disabled, required, asChild = false, children, ...props }, ref) => {
-  const Comp = asChild ? Slot : LabelPrimitive.Root;
-  return (
-    <Comp
-      ref={ref}
-      className={cn(labelVariants({ error, disabled }), className)}
-      {...props}
-    >
-      {children}
-      {required && (
-        <span
-          className="ml-0.5 text-red-500 dark:text-red-400"
-          aria-hidden="true"
-        >
-          *
-        </span>
-      )}
-    </Comp>
-  );
-});
+const Label = React.forwardRef<React.ComponentRef<typeof LabelPrimitive.Root>, LabelProps>(
+  ({ className, error, disabled, required, asChild = false, children, ...props }, ref) => {
+    const Comp = asChild ? Slot : LabelPrimitive.Root;
+    return (
+      <Comp ref={ref} className={cn(labelVariants({ error, disabled }), className)} {...props}>
+        {children}
+        {required && (
+          <span className="ml-0.5 text-red-500 dark:text-red-400" aria-hidden="true">
+            *
+          </span>
+        )}
+      </Comp>
+    );
+  },
+);
 Label.displayName = LabelPrimitive.Root.displayName;
 
 /* ────────────────────────── Exports ───────────────────────────── */

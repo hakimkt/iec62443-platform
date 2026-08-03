@@ -1,15 +1,13 @@
-import { eq, and, desc, count, ilike, sql } from 'drizzle-orm';
 import crypto from 'node:crypto';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import {
-  csmsFrameworks,
+  auditEvents,
   csmsElements,
+  csmsFrameworks,
   csmsPolicies,
   improvementPlans,
-  auditEvents,
 } from '@iec62443/database';
+import { and, count, desc, eq, ilike, sql } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -115,10 +113,7 @@ export interface GapAnalysisItem {
 // Audit hash chain helper
 // ---------------------------------------------------------------------------
 
-async function computeEventHash(
-  data: string,
-  previousHash: string | null,
-): Promise<string> {
+async function computeEventHash(data: string, previousHash: string | null): Promise<string> {
   const input = `${previousHash ?? ''}|${data}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
@@ -139,7 +134,9 @@ export class CSMSService {
   async listFrameworks(filters: FrameworkFilters) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const page = filters.page ?? 1;
@@ -157,16 +154,16 @@ export class CSMSService {
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       const items = await tx
-          .select()
-          .from(csmsFrameworks)
-          .where(whereClause)
-          .orderBy(desc(csmsFrameworks.createdAt))
-          .limit(perPage)
-          .offset(offset);
+        .select()
+        .from(csmsFrameworks)
+        .where(whereClause)
+        .orderBy(desc(csmsFrameworks.createdAt))
+        .limit(perPage)
+        .offset(offset);
       const totalResult = await tx
-          .select({ count: count() })
-          .from(csmsFrameworks)
-          .where(whereClause);
+        .select({ count: count() })
+        .from(csmsFrameworks)
+        .where(whereClause);
 
       const total = totalResult[0]?.count ?? 0;
 
@@ -188,7 +185,9 @@ export class CSMSService {
   async getFramework(id: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       return this.getFrameworkWithTx(tx, id);
@@ -198,7 +197,9 @@ export class CSMSService {
   async createFramework(data: CreateFrameworkInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const [newFramework] = await tx
@@ -231,10 +232,16 @@ export class CSMSService {
     });
   }
 
-  async updateFramework(id: string, data: { name?: string; version?: string; status?: string }, userId: string) {
+  async updateFramework(
+    id: string,
+    data: { name?: string; version?: string; status?: string },
+    userId: string,
+  ) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getFrameworkWithTx(tx, id);
@@ -244,10 +251,7 @@ export class CSMSService {
       if (data.version !== undefined) updateData['version'] = data.version;
       if (data.status !== undefined) updateData['status'] = data.status;
 
-      await tx
-        .update(csmsFrameworks)
-        .set(updateData)
-        .where(eq(csmsFrameworks.id, id));
+      await tx.update(csmsFrameworks).set(updateData).where(eq(csmsFrameworks.id, id));
 
       await this.createAuditEvent(tx, {
         userId,
@@ -265,7 +269,9 @@ export class CSMSService {
   async deleteFramework(id: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getFrameworkWithTx(tx, id);
@@ -288,7 +294,9 @@ export class CSMSService {
   async listElements(filters: ElementFilters) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const page = filters.page ?? 1;
@@ -309,16 +317,13 @@ export class CSMSService {
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       const items = await tx
-          .select()
-          .from(csmsElements)
-          .where(whereClause)
-          .orderBy(desc(csmsElements.createdAt))
-          .limit(perPage)
-          .offset(offset);
-      const totalResult = await tx
-          .select({ count: count() })
-          .from(csmsElements)
-          .where(whereClause);
+        .select()
+        .from(csmsElements)
+        .where(whereClause)
+        .orderBy(desc(csmsElements.createdAt))
+        .limit(perPage)
+        .offset(offset);
+      const totalResult = await tx.select({ count: count() }).from(csmsElements).where(whereClause);
 
       const total = totalResult[0]?.count ?? 0;
 
@@ -346,7 +351,9 @@ export class CSMSService {
   async getElement(id: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       return this.getElementWithTx(tx, id);
@@ -356,7 +363,9 @@ export class CSMSService {
   async createElement(frameworkId: string, data: CreateElementInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getFrameworkWithTx(tx, frameworkId);
@@ -399,7 +408,9 @@ export class CSMSService {
   async updateElement(id: string, data: UpdateElementInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getElementWithTx(tx, id);
@@ -409,16 +420,14 @@ export class CSMSService {
       if (data.title !== undefined) updateData['title'] = data.title;
       if (data.description !== undefined) updateData['description'] = data.description;
       if (data.requirementRef !== undefined) updateData['requirementRef'] = data.requirementRef;
-      if (data.implementationStatus !== undefined) updateData['implementationStatus'] = data.implementationStatus;
+      if (data.implementationStatus !== undefined)
+        updateData['implementationStatus'] = data.implementationStatus;
       if (data.maturityScore !== undefined) updateData['maturityScore'] = data.maturityScore;
       if (data.ownerId !== undefined) updateData['ownerId'] = data.ownerId;
       if (data.lastReviewed !== undefined) updateData['lastReviewed'] = data.lastReviewed;
       if (data.nextReview !== undefined) updateData['nextReview'] = data.nextReview;
 
-      await tx
-        .update(csmsElements)
-        .set(updateData)
-        .where(eq(csmsElements.id, id));
+      await tx.update(csmsElements).set(updateData).where(eq(csmsElements.id, id));
 
       await this.createAuditEvent(tx, {
         userId,
@@ -436,7 +445,9 @@ export class CSMSService {
   async deleteElement(id: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getElementWithTx(tx, id);
@@ -459,7 +470,9 @@ export class CSMSService {
   async listPolicies(filters: PolicyFilters) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const page = filters.page ?? 1;
@@ -477,16 +490,13 @@ export class CSMSService {
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       const items = await tx
-          .select()
-          .from(csmsPolicies)
-          .where(whereClause)
-          .orderBy(desc(csmsPolicies.createdAt))
-          .limit(perPage)
-          .offset(offset);
-      const totalResult = await tx
-          .select({ count: count() })
-          .from(csmsPolicies)
-          .where(whereClause);
+        .select()
+        .from(csmsPolicies)
+        .where(whereClause)
+        .orderBy(desc(csmsPolicies.createdAt))
+        .limit(perPage)
+        .offset(offset);
+      const totalResult = await tx.select({ count: count() }).from(csmsPolicies).where(whereClause);
 
       const total = totalResult[0]?.count ?? 0;
 
@@ -513,7 +523,9 @@ export class CSMSService {
   async getPolicy(id: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       return this.getPolicyWithTx(tx, id);
@@ -523,7 +535,9 @@ export class CSMSService {
   async createPolicy(frameworkId: string, data: CreatePolicyInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getFrameworkWithTx(tx, frameworkId);
@@ -564,7 +578,9 @@ export class CSMSService {
   async updatePolicy(id: string, data: UpdatePolicyInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getPolicyWithTx(tx, id);
@@ -577,10 +593,7 @@ export class CSMSService {
       if (data.body !== undefined) updateData['body'] = data.body;
       if (data.reviewCycle !== undefined) updateData['reviewCycle'] = data.reviewCycle;
 
-      await tx
-        .update(csmsPolicies)
-        .set(updateData)
-        .where(eq(csmsPolicies.id, id));
+      await tx.update(csmsPolicies).set(updateData).where(eq(csmsPolicies.id, id));
 
       await this.createAuditEvent(tx, {
         userId,
@@ -598,7 +611,9 @@ export class CSMSService {
   async approvePolicy(id: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getPolicyWithTx(tx, id);
@@ -629,7 +644,9 @@ export class CSMSService {
   async deletePolicy(id: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getPolicyWithTx(tx, id);
@@ -652,7 +669,9 @@ export class CSMSService {
   async listImprovementPlans(frameworkId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getFrameworkWithTx(tx, frameworkId);
@@ -679,10 +698,16 @@ export class CSMSService {
     });
   }
 
-  async createImprovementPlan(frameworkId: string, data: CreateImprovementPlanInput, userId: string) {
+  async createImprovementPlan(
+    frameworkId: string,
+    data: CreateImprovementPlanInput,
+    userId: string,
+  ) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getFrameworkWithTx(tx, frameworkId);
@@ -735,10 +760,14 @@ export class CSMSService {
 
   // ── Gap Analysis ────────────────────────────────────────────────────
 
-  async getGapAnalysis(frameworkId: string): Promise<{ frameworkId: string; elements: GapAnalysisItem[] }> {
+  async getGapAnalysis(
+    frameworkId: string,
+  ): Promise<{ frameworkId: string; elements: GapAnalysisItem[] }> {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getFrameworkWithTx(tx, frameworkId);
@@ -757,9 +786,12 @@ export class CSMSService {
           currentStatus: e.implementationStatus ?? 'not_started',
           targetStatus: 'implemented',
           gap: `${e.title} is currently ${e.implementationStatus ?? 'not started'}, needs to reach implemented status`,
-          priority: e.maturityScore !== null && e.maturityScore <= 2 ? 'critical'
-            : e.maturityScore !== null && e.maturityScore <= 3 ? 'high'
-            : 'medium',
+          priority:
+            e.maturityScore !== null && e.maturityScore <= 2
+              ? 'critical'
+              : e.maturityScore !== null && e.maturityScore <= 3
+                ? 'high'
+                : 'medium',
         }));
 
       return { frameworkId, elements: gapItems };
@@ -794,11 +826,7 @@ export class CSMSService {
   }
 
   private async getElementWithTx(db: DbOrTx, id: string) {
-    const [element] = await db
-      .select()
-      .from(csmsElements)
-      .where(eq(csmsElements.id, id))
-      .limit(1);
+    const [element] = await db.select().from(csmsElements).where(eq(csmsElements.id, id)).limit(1);
 
     if (!element) {
       throw Object.assign(new Error('CSMS element not found'), {
@@ -825,11 +853,7 @@ export class CSMSService {
   }
 
   private async getPolicyWithTx(db: DbOrTx, id: string) {
-    const [policy] = await db
-      .select()
-      .from(csmsPolicies)
-      .where(eq(csmsPolicies.id, id))
-      .limit(1);
+    const [policy] = await db.select().from(csmsPolicies).where(eq(csmsPolicies.id, id)).limit(1);
 
     if (!policy) {
       throw Object.assign(new Error('CSMS policy not found'), {
@@ -854,16 +878,19 @@ export class CSMSService {
     };
   }
 
-  private async createAuditEvent(db: DbOrTx, params: {
-    userId: string;
-    eventType: string;
-    entityType: string;
-    entityId: string;
-    action: 'create' | 'update' | 'delete' | 'read';
-    details: Record<string, unknown>;
-    ipAddress?: string | null;
-    userAgent?: string | null;
-  }): Promise<void> {
+  private async createAuditEvent(
+    db: DbOrTx,
+    params: {
+      userId: string;
+      eventType: string;
+      entityType: string;
+      entityId: string;
+      action: 'create' | 'update' | 'delete' | 'read';
+      details: Record<string, unknown>;
+      ipAddress?: string | null;
+      userAgent?: string | null;
+    },
+  ): Promise<void> {
     try {
       const [lastEvent] = await db
         .select({ eventHash: auditEvents.eventHash })

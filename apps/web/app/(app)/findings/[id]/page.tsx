@@ -1,16 +1,18 @@
 'use client';
 
-import { use, useState } from 'react';
-import Link from 'next/link';
-import { Button } from '@iec62443/ui/primitives';
-import { Badge } from '@iec62443/ui/primitives';
-import { Separator } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Textarea } from '@iec62443/ui/primitives';
-import { ArrowLeft, AlertTriangle, MessageSquare, History, Send } from 'lucide-react';
-import { cn } from '@iec62443/ui';
-import { useFinding, useTransitionFinding, useFindingComments, useAddComment, useFindingHistory } from '@/hooks/useFindings';
 import type { FindingSeverity } from '@iec62443/shared-types';
+import { cn } from '@iec62443/ui';
+import { Badge, Button, Input, Separator, Textarea } from '@iec62443/ui/primitives';
+import { AlertTriangle, ArrowLeft, History, MessageSquare, Send } from 'lucide-react';
+import Link from 'next/link';
+import { use, useState } from 'react';
+import {
+  useAddComment,
+  useFinding,
+  useFindingComments,
+  useFindingHistory,
+  useTransitionFinding,
+} from '@/hooks/useFindings';
 
 const severityColors: Record<FindingSeverity, string> = {
   critical: 'bg-red-100 text-red-700',
@@ -20,7 +22,10 @@ const severityColors: Record<FindingSeverity, string> = {
   informational: 'bg-surface-100 text-surface-600',
 };
 
-const statusBadgeVariant: Record<string, 'draft' | 'in_progress' | 'review' | 'completed' | 'archived'> = {
+const statusBadgeVariant: Record<
+  string,
+  'draft' | 'in_progress' | 'review' | 'completed' | 'archived'
+> = {
   draft: 'draft',
   open: 'in_progress',
   acknowledged: 'in_progress',
@@ -101,19 +106,30 @@ export default function FindingDetailPage({ params }: { params: Promise<{ id: st
             Findings
           </Link>
           <div className="flex items-center gap-3">
-            <AlertTriangle className={cn(
-              'h-5 w-5',
-              finding.severity === 'critical' ? 'text-red-500' :
-              finding.severity === 'high' ? 'text-orange-500' :
-              finding.severity === 'medium' ? 'text-amber-500' : 'text-blue-500',
-            )} />
+            <AlertTriangle
+              className={cn(
+                'h-5 w-5',
+                finding.severity === 'critical'
+                  ? 'text-red-500'
+                  : finding.severity === 'high'
+                    ? 'text-orange-500'
+                    : finding.severity === 'medium'
+                      ? 'text-amber-500'
+                      : 'text-blue-500',
+              )}
+            />
             <h1 className="text-xl font-semibold text-surface-900">{finding.title}</h1>
           </div>
           <div className="mt-2 flex items-center gap-3">
             <Badge variant={statusBadgeVariant[finding.status] ?? 'draft'} size="sm">
               {finding.status.replace(/_/g, ' ')}
             </Badge>
-            <span className={cn('text-xs font-medium px-2 py-0.5 rounded', severityColors[finding.severity])}>
+            <span
+              className={cn(
+                'text-xs font-medium px-2 py-0.5 rounded',
+                severityColors[finding.severity],
+              )}
+            >
               {finding.severity.charAt(0).toUpperCase() + finding.severity.slice(1)}
             </span>
             {finding.iecRequirement && (
@@ -149,11 +165,11 @@ export default function FindingDetailPage({ params }: { params: Promise<{ id: st
       {/* Tabs */}
       <div className="border-b border-surface-200">
         <nav className="flex gap-6" role="tablist" aria-label="Finding sections">
-          {([
+          {[
             { key: 'details' as TabKey, label: 'Details', icon: AlertTriangle },
             { key: 'comments' as TabKey, label: 'Comments', icon: MessageSquare },
             { key: 'history' as TabKey, label: 'History', icon: History },
-          ]).map((tab) => (
+          ].map((tab) => (
             <button
               key={tab.key}
               role="tab"
@@ -180,7 +196,12 @@ export default function FindingDetailPage({ params }: { params: Promise<{ id: st
             <dl className="mt-4 space-y-3">
               <div className="flex justify-between">
                 <dt className="text-sm text-surface-500">Severity</dt>
-                <dd className={cn('text-sm font-medium px-2 py-0.5 rounded', severityColors[finding.severity])}>
+                <dd
+                  className={cn(
+                    'text-sm font-medium px-2 py-0.5 rounded',
+                    severityColors[finding.severity],
+                  )}
+                >
                   {finding.severity.charAt(0).toUpperCase() + finding.severity.slice(1)}
                 </dd>
               </div>
@@ -197,7 +218,9 @@ export default function FindingDetailPage({ params }: { params: Promise<{ id: st
               <Separator />
               <div className="flex justify-between">
                 <dt className="text-sm text-surface-500">Discovered</dt>
-                <dd className="text-sm text-surface-900">{new Date(finding.discoveredAt).toLocaleDateString()}</dd>
+                <dd className="text-sm text-surface-900">
+                  {new Date(finding.discoveredAt).toLocaleDateString()}
+                </dd>
               </div>
               <Separator />
               <div className="flex justify-between">
@@ -257,7 +280,9 @@ export default function FindingDetailPage({ params }: { params: Promise<{ id: st
                   </span>
                 </div>
                 {comment.isInternal && (
-                  <span className="text-2xs text-surface-400 bg-surface-100 px-1.5 py-0.5 rounded">Internal</span>
+                  <span className="text-2xs text-surface-400 bg-surface-100 px-1.5 py-0.5 rounded">
+                    Internal
+                  </span>
                 )}
               </div>
               <p className="mt-2 text-sm text-surface-700">{comment.body}</p>
@@ -272,17 +297,20 @@ export default function FindingDetailPage({ params }: { params: Promise<{ id: st
       {activeTab === 'history' && (
         <div className="space-y-3">
           {history?.map((entry) => (
-            <div key={entry.id} className="flex items-center gap-4 rounded-lg border border-surface-200 bg-surface-0 p-4">
+            <div
+              key={entry.id}
+              className="flex items-center gap-4 rounded-lg border border-surface-200 bg-surface-0 p-4"
+            >
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-100">
                 <History className="h-4 w-4 text-surface-500" />
               </div>
               <div className="flex-1">
                 <p className="text-sm text-surface-700">
-                  Status changed from <span className="font-medium">{entry.fromStatus?.replace(/_/g, ' ') ?? '—'}</span> to <span className="font-medium">{entry.toStatus.replace(/_/g, ' ')}</span>
+                  Status changed from{' '}
+                  <span className="font-medium">{entry.fromStatus?.replace(/_/g, ' ') ?? '—'}</span>{' '}
+                  to <span className="font-medium">{entry.toStatus.replace(/_/g, ' ')}</span>
                 </p>
-                {entry.reason && (
-                  <p className="mt-1 text-xs text-surface-500">{entry.reason}</p>
-                )}
+                {entry.reason && <p className="mt-1 text-xs text-surface-500">{entry.reason}</p>}
               </div>
               <span className="text-xs text-surface-400">
                 {new Date(entry.changedAt).toLocaleDateString()}
@@ -290,7 +318,9 @@ export default function FindingDetailPage({ params }: { params: Promise<{ id: st
             </div>
           ))}
           {(!history || history.length === 0) && (
-            <p className="py-8 text-center text-sm text-surface-500">No status history available.</p>
+            <p className="py-8 text-center text-sm text-surface-500">
+              No status history available.
+            </p>
           )}
         </div>
       )}

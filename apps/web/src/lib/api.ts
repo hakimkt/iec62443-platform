@@ -1,5 +1,4 @@
 import { ApiClient } from '@iec62443/api-client';
-
 import { getApiBaseUrl } from './codespace';
 
 const API_BASE_URL = getApiBaseUrl();

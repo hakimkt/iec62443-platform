@@ -29,12 +29,18 @@ export const resetPasswordSchema = z.object({
 export const mfaSetupSchema = z.object({});
 
 export const mfaVerifySchema = z.object({
-  code: z.string().length(6).regex(/^\d{6}$/),
+  code: z
+    .string()
+    .length(6)
+    .regex(/^\d{6}$/),
   secret: z.string().min(1),
 });
 
 export const mfaChallengeSchema = z.object({
-  code: z.string().length(6).regex(/^\d{6}$/),
+  code: z
+    .string()
+    .length(6)
+    .regex(/^\d{6}$/),
   requestId: z.string().min(1),
 });
 

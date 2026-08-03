@@ -1,11 +1,11 @@
 'use client';
 
-import { useMemo } from 'react';
-import Link from 'next/link';
-import { PageHeader, EmptyState } from '@iec62443/ui/components';
-import { LayoutGrid } from 'lucide-react';
-import { useZoneTopology } from '@/hooks/useZones';
 import type { ZoneType } from '@iec62443/shared-types';
+import { EmptyState, PageHeader } from '@iec62443/ui/components';
+import { LayoutGrid } from 'lucide-react';
+import Link from 'next/link';
+import { useMemo } from 'react';
+import { useZoneTopology } from '@/hooks/useZones';
 
 const zoneTypeLabels: Partial<Record<ZoneType, string>> = {
   process_control: 'Process Control',
@@ -98,7 +98,10 @@ export default function TopologyDesignerPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Zone Topology Designer" description="Visualize zone and conduit relationships" />
+        <PageHeader
+          title="Zone Topology Designer"
+          description="Visualize zone and conduit relationships"
+        />
         <div className="flex items-center justify-center py-12">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-surface-200 border-t-brand-600" />
         </div>
@@ -109,7 +112,10 @@ export default function TopologyDesignerPage() {
   if (zones.length === 0) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Zone Topology Designer" description="Visualize zone and conduit relationships" />
+        <PageHeader
+          title="Zone Topology Designer"
+          description="Visualize zone and conduit relationships"
+        />
         <EmptyState
           icon={LayoutGrid}
           title="No topology to display"
@@ -140,7 +146,9 @@ export default function TopologyDesignerPage() {
         {Object.entries(defaultZoneColors).map(([type, color]) => (
           <div key={type} className="flex items-center gap-1.5">
             <span className="h-3 w-3 rounded" style={{ backgroundColor: color }} />
-            <span className="text-xs text-surface-600">{zoneTypeLabels[type as ZoneType] ?? type}</span>
+            <span className="text-xs text-surface-600">
+              {zoneTypeLabels[type as ZoneType] ?? type}
+            </span>
           </div>
         ))}
         <span className="ml-4 text-xs text-surface-500">—</span>
@@ -149,11 +157,7 @@ export default function TopologyDesignerPage() {
 
       {/* Topology canvas */}
       <div className="overflow-auto rounded-lg border border-surface-200 bg-surface-0">
-        <svg
-          width={svgDimensions.width}
-          height={svgDimensions.height}
-          className="min-w-full"
-        >
+        <svg width={svgDimensions.width} height={svgDimensions.height} className="min-w-full">
           {/* Conduit lines */}
           {conduits.map((conduit) => {
             const source = positionMap[conduit.sourceZoneId];
@@ -238,11 +242,7 @@ export default function TopologyDesignerPage() {
                       {zone.name}
                     </text>
                     {/* Zone type */}
-                    <text
-                      x={zone.x + 12}
-                      y={zone.y + 44}
-                      className="text-[10px] fill-surface-500"
-                    >
+                    <text x={zone.x + 12} y={zone.y + 44} className="text-[10px] fill-surface-500">
                       {zoneTypeLabels[zone.zoneType as ZoneType] ?? zone.zoneType}
                     </text>
                     {/* SL badge */}

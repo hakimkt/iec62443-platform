@@ -68,9 +68,7 @@ export function GaugeChart({
           {Math.round(normalizedValue)}
         </text>
       </svg>
-      {label && (
-        <span className="text-sm text-surface-500">{label}</span>
-      )}
+      {label && <span className="text-sm text-surface-500">{label}</span>}
     </div>
   );
 }

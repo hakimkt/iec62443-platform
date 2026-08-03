@@ -1,16 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import type { AssessmentEngagement, AssessmentStatus } from '@iec62443/shared-types';
+import { cn } from '@iec62443/ui';
+import { Badge, Button } from '@iec62443/ui/primitives';
+import { Filter, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { cn } from '@iec62443/ui';
-import { Button } from '@iec62443/ui/primitives';
-import { Badge } from '@iec62443/ui/primitives';
-import { Plus, Search, Filter } from 'lucide-react';
+import { useState } from 'react';
 import { useAssessments } from '@/hooks/useAssessments';
-import type { AssessmentEngagement, AssessmentStatus } from '@iec62443/shared-types';
 
-const statusBadgeVariant: Record<AssessmentStatus, 'draft' | 'in_progress' | 'review' | 'completed' | 'archived'> = {
+const statusBadgeVariant: Record<
+  AssessmentStatus,
+  'draft' | 'in_progress' | 'review' | 'completed' | 'archived'
+> = {
   draft: 'draft',
   in_progress: 'in_progress',
   review: 'review',
@@ -38,9 +40,7 @@ export default function AssessmentsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-surface-900">Assessments</h1>
-          <p className="mt-1 text-sm text-surface-500">
-            Manage IEC 62443 assessment engagements
-          </p>
+          <p className="mt-1 text-sm text-surface-500">Manage IEC 62443 assessment engagements</p>
         </div>
         <Link href="/assessments/new">
           <Button variant="primary" icon={Plus}>
@@ -56,7 +56,10 @@ export default function AssessmentsPage() {
             type="text"
             placeholder="Search assessments..."
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className="h-9 w-full rounded-md border border-surface-200 bg-surface-0 pl-9 pr-3 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
           />
         </div>
@@ -64,7 +67,10 @@ export default function AssessmentsPage() {
           {['', 'draft', 'in_progress', 'review', 'completed', 'archived'].map((status) => (
             <button
               key={status}
-              onClick={() => { setStatusFilter(status); setPage(1); }}
+              onClick={() => {
+                setStatusFilter(status);
+                setPage(1);
+              }}
               className={cn(
                 'rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
                 statusFilter === status
@@ -72,7 +78,9 @@ export default function AssessmentsPage() {
                   : 'bg-surface-100 text-surface-600 hover:bg-surface-200',
               )}
             >
-              {status === '' ? 'All' : status.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+              {status === ''
+                ? 'All'
+                : status.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
             </button>
           ))}
         </div>
@@ -107,12 +115,24 @@ export default function AssessmentsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-200 bg-surface-50">
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Target SL</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Target Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Updated</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Target SL
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Target Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Updated
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -126,8 +146,9 @@ export default function AssessmentsPage() {
           {pagination && pagination.totalPages > 1 && (
             <div className="flex items-center justify-between text-sm text-surface-500">
               <span>
-                Showing {((pagination.page - 1) * pagination.perPage) + 1}–
-                {Math.min(pagination.page * pagination.perPage, pagination.total)} of {pagination.total}
+                Showing {(pagination.page - 1) * pagination.perPage + 1}–
+                {Math.min(pagination.page * pagination.perPage, pagination.total)} of{' '}
+                {pagination.total}
               </span>
               <div className="flex items-center gap-1">
                 <Button
@@ -139,7 +160,10 @@ export default function AssessmentsPage() {
                   Previous
                 </Button>
                 {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                  .filter((p) => p === 1 || p === pagination.totalPages || Math.abs(p - pagination.page) <= 1)
+                  .filter(
+                    (p) =>
+                      p === 1 || p === pagination.totalPages || Math.abs(p - pagination.page) <= 1,
+                  )
                   .map((p, i, arr) => (
                     <span key={p}>
                       {i > 0 && arr[i - 1] !== p - 1 && <span className="px-1">…</span>}

@@ -1,14 +1,5 @@
-import {
-  check,
-  date,
-  numeric,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-  varchar,
-} from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
+import { check, date, numeric, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 
 // ── Plans ────────────────────────────────────────────────────────────────
 
@@ -27,12 +18,8 @@ export const plans = pgTable(
     startDate: date('start_date'),
     targetDate: date('target_date'),
     completedAt: timestamp('completed_at', { withTimezone: true }),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     check(
@@ -63,12 +50,8 @@ export const actions = pgTable(
     costEstimate: numeric('cost_estimate', { precision: 12, scale: 2 }),
     costActual: numeric('cost_actual', { precision: 12, scale: 2 }),
     milestone: text('milestone'),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     check(
@@ -91,14 +74,9 @@ export const verifications = pgTable(
     verificationDate: timestamp('verification_date', { withTimezone: true }),
     result: varchar('result', { length: 30 }).notNull(),
     notes: text('notes'),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    check(
-      'verifications_result_check',
-      sql`${table.result} IN ('pass', 'fail', 'partial')`,
-    ),
+    check('verifications_result_check', sql`${table.result} IN ('pass', 'fail', 'partial')`),
   ],
 );

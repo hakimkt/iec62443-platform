@@ -1,8 +1,8 @@
 'use client';
 
+import { CloudOff, WifiOff } from 'lucide-react';
 import { useEffect } from 'react';
 import { useOfflineStore } from '@/stores/offline-store';
-import { WifiOff, CloudOff } from 'lucide-react';
 
 export function OfflineBanner() {
   const { isOnline, pendingMutations, setOnline } = useOfflineStore();

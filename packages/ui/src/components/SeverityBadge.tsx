@@ -1,11 +1,9 @@
 import * as React from 'react';
-import { Badge } from '../primitives/Badge';
-import type { BadgeVariantKey } from '../primitives/Badge';
+import { Badge, type BadgeVariantKey } from '../primitives/Badge';
 
 /* ───────────────────────────── Props ──────────────────────────── */
 
-export interface SeverityBadgeProps
-  extends React.HTMLAttributes<HTMLSpanElement> {
+export interface SeverityBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   severity: 'critical' | 'high' | 'medium' | 'low' | 'informational';
   size?: 'sm' | 'md' | 'lg';
   dot?: boolean;

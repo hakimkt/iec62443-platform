@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { AssessmentService } from './assessment.service.js';
 
 // ---------------------------------------------------------------------------
@@ -24,7 +25,7 @@ function createMockDb() {
   }
 
   return {
-    db: createChain() as import('drizzle-orm/node-postgres').NodePgDatabase,
+    db: createChain() as unknown as NodePgDatabase,
     enqueue: (...values: unknown[]) => resolvedQueue.push(...values),
   };
 }
@@ -122,9 +123,9 @@ describe('AssessmentService', () => {
       void _questions;
 
       const responses = [
-        { questionId: 'q-1', score: 4 },  // 4/4 = 1.0
-        { questionId: 'q-2', score: 3 },  // 3/4 = 0.75
-        { questionId: 'q-3', score: 0 },  // 0/4 = 0.0 — weakest link!
+        { questionId: 'q-1', score: 4 }, // 4/4 = 1.0
+        { questionId: 'q-2', score: 3 }, // 3/4 = 0.75
+        { questionId: 'q-3', score: 0 }, // 0/4 = 0.0 — weakest link!
       ];
 
       // With minimum-bar scoring:
@@ -146,9 +147,9 @@ describe('AssessmentService', () => {
 
     it('should give SL-A = 2 when minimum score ratio is 0.5', async () => {
       const responses = [
-        { score: 4, maxScore: 4 },  // ratio = 1.0
-        { score: 2, maxScore: 4 },  // ratio = 0.5 — weakest link
-        { score: 3, maxScore: 4 },  // ratio = 0.75
+        { score: 4, maxScore: 4 }, // ratio = 1.0
+        { score: 2, maxScore: 4 }, // ratio = 0.5 — weakest link
+        { score: 3, maxScore: 4 }, // ratio = 0.75
       ];
 
       const minScoreRatio = Math.min(...responses.map((r) => r.score / r.maxScore));

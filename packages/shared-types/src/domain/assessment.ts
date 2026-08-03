@@ -16,12 +16,7 @@ type UUID = string & { readonly __brand: unique symbol };
 export type AssessmentType = 'gap' | 'system' | 'component' | 'csms' | 'custom';
 
 /** Lifecycle status of an assessment engagement. */
-export type AssessmentStatus =
-  | 'draft'
-  | 'in_progress'
-  | 'review'
-  | 'completed'
-  | 'archived';
+export type AssessmentStatus = 'draft' | 'in_progress' | 'review' | 'completed' | 'archived';
 
 /** IEC 62443 part number being assessed. */
 export type IecPart = '62443-1' | '62443-2' | '62443-3' | '62443-4';

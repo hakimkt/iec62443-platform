@@ -1,9 +1,9 @@
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import * as React from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Checkbox } from '../primitives/Checkbox';
-import { Pagination } from './Pagination';
 import { EmptyState } from './EmptyState';
+import { Pagination } from './Pagination';
 
 /* ───────────────────────────── Column type ────────────────────── */
 
@@ -17,8 +17,7 @@ export interface Column<T> {
 
 /* ───────────────────────────── Props ──────────────────────────── */
 
-export interface DataTableProps<T>
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface DataTableProps<T> extends React.HTMLAttributes<HTMLDivElement> {
   columns: Column<T>[];
   data: T[];
   keyExtractor: (row: T) => string;
@@ -48,13 +47,7 @@ function getCellValue(row: unknown, key: string): unknown {
   return (row as Record<string, unknown>)[key];
 }
 
-function SortIcon({
-  active,
-  direction,
-}: {
-  active: boolean;
-  direction: 'asc' | 'desc';
-}) {
+function SortIcon({ active, direction }: { active: boolean; direction: 'asc' | 'desc' }) {
   if (!active) return <ArrowUpDown className="h-3.5 w-3.5 text-surface-400" />;
   return direction === 'asc' ? (
     <ArrowUp className="h-3.5 w-3.5 text-brand-600" />
@@ -65,10 +58,7 @@ function SortIcon({
 
 /* ───────────────────────────── Component ──────────────────────── */
 
-function DataTableInner<T>(
-  props: DataTableProps<T>,
-  ref: React.ForwardedRef<HTMLDivElement>,
-) {
+function DataTableInner<T>(props: DataTableProps<T>, ref: React.ForwardedRef<HTMLDivElement>) {
   const {
     className,
     columns,
@@ -88,15 +78,10 @@ function DataTableInner<T>(
     ...rest
   } = props;
 
-  const allKeys = React.useMemo(
-    () => new Set(data.map(keyExtractor)),
-    [data, keyExtractor],
-  );
+  const allKeys = React.useMemo(() => new Set(data.map(keyExtractor)), [data, keyExtractor]);
 
-  const allSelected =
-    allKeys.size > 0 && [...allKeys].every((k) => selectedKeys?.has(k));
-  const someSelected =
-    !allSelected && [...allKeys].some((k) => selectedKeys?.has(k));
+  const allSelected = allKeys.size > 0 && [...allKeys].every((k) => selectedKeys?.has(k));
+  const someSelected = !allSelected && [...allKeys].some((k) => selectedKeys?.has(k));
 
   const handleToggleAll = React.useCallback(() => {
     if (!onSelectionChange) return;
@@ -124,24 +109,18 @@ function DataTableInner<T>(
   const handleSort = React.useCallback(
     (key: string) => {
       if (!onSort) return;
-      const nextDirection =
-        sortKey === key && sortDirection === 'asc' ? 'desc' : 'asc';
+      const nextDirection = sortKey === key && sortDirection === 'asc' ? 'desc' : 'asc';
       onSort(key, nextDirection);
     },
     [onSort, sortKey, sortDirection],
   );
 
-  const totalPages = pagination
-    ? Math.max(1, Math.ceil(pagination.total / pagination.perPage))
-    : 0;
+  const totalPages = pagination ? Math.max(1, Math.ceil(pagination.total / pagination.perPage)) : 0;
 
   return (
     <div
       ref={ref}
-      className={cn(
-        'rounded-lg border border-surface-200 bg-surface-0 overflow-hidden',
-        className,
-      )}
+      className={cn('rounded-lg border border-surface-200 bg-surface-0 overflow-hidden', className)}
       {...rest}
     >
       {/* Table */}
@@ -168,19 +147,12 @@ function DataTableInner<T>(
                     col.sortable && sortable && 'cursor-pointer select-none',
                     col.className,
                   )}
-                  onClick={
-                    col.sortable && sortable
-                      ? () => handleSort(col.key)
-                      : undefined
-                  }
+                  onClick={col.sortable && sortable ? () => handleSort(col.key) : undefined}
                 >
                   <div className="flex items-center gap-1.5">
                     <span>{col.header}</span>
                     {col.sortable && sortable && (
-                      <SortIcon
-                        active={sortKey === col.key}
-                        direction={sortDirection ?? 'asc'}
-                      />
+                      <SortIcon active={sortKey === col.key} direction={sortDirection ?? 'asc'} />
                     )}
                   </div>
                 </th>
@@ -192,10 +164,7 @@ function DataTableInner<T>(
           <tbody>
             {loading ? (
               <tr>
-                <td
-                  colSpan={columns.length + (selectable ? 1 : 0)}
-                  className="py-12"
-                >
+                <td colSpan={columns.length + (selectable ? 1 : 0)} className="py-12">
                   <div className="flex items-center justify-center text-surface-400">
                     <span className="text-sm">Loading…</span>
                   </div>
@@ -203,15 +172,8 @@ function DataTableInner<T>(
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td
-                  colSpan={columns.length + (selectable ? 1 : 0)}
-                  className="py-0"
-                >
-                  <EmptyState
-                    title={emptyMessage}
-                    size="sm"
-                    className="py-12"
-                  />
+                <td colSpan={columns.length + (selectable ? 1 : 0)} className="py-0">
+                  <EmptyState title={emptyMessage} size="sm" className="py-12" />
                 </td>
               </tr>
             ) : (
@@ -232,10 +194,7 @@ function DataTableInner<T>(
                     onClick={onRowClick ? () => onRowClick(row) : undefined}
                   >
                     {selectable && (
-                      <td
-                        className="w-12 px-4"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <td className="w-12 px-4" onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => handleToggleRow(key)}
@@ -248,14 +207,11 @@ function DataTableInner<T>(
                       return (
                         <td
                           key={col.key}
-                          className={cn(
-                            'px-4 py-3 text-sm text-surface-700',
-                            col.className,
-                          )}
+                          className={cn('px-4 py-3 text-sm text-surface-700', col.className)}
                         >
                           {col.render
                             ? col.render(value, row)
-                            : (value as React.ReactNode) ?? null}
+                            : ((value as React.ReactNode) ?? null)}
                         </td>
                       );
                     })}

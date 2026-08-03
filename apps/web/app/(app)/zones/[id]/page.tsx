@@ -1,26 +1,32 @@
 'use client';
 
-import { use, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button } from '@iec62443/ui/primitives';
-import { Badge } from '@iec62443/ui/primitives';
-import { Separator } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
-import { Textarea } from '@iec62443/ui/primitives';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@iec62443/ui/primitives';
-import { SecurityLevelBadge } from '@iec62443/ui/components';
-import { ArrowLeft, Save, Trash2, X, Network, Box } from 'lucide-react';
-import {
-  useZone,
-  useUpdateZone,
-  useDeleteZone,
-  useConduits,
-  useZoneMemberships,
-  useRemoveZoneMembership,
-} from '@/hooks/useZones';
 import type { ZoneType } from '@iec62443/shared-types';
+import { SecurityLevelBadge } from '@iec62443/ui/components';
+import {
+  Badge,
+  Button,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Textarea,
+} from '@iec62443/ui/primitives';
+import { ArrowLeft, Box, Network, Save, Trash2, X } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { use, useState } from 'react';
+import {
+  useConduits,
+  useDeleteZone,
+  useRemoveZoneMembership,
+  useUpdateZone,
+  useZone,
+  useZoneMemberships,
+} from '@/hooks/useZones';
 
 const zoneTypeLabels: Partial<Record<ZoneType, string>> = {
   process_control: 'Process Control',
@@ -135,13 +141,31 @@ export default function ZoneDetailPage({ params }: { params: Promise<{ id: strin
         <div className="flex items-center gap-2">
           {isEditing ? (
             <>
-              <Button variant="secondary" onClick={() => setIsEditing(false)}>Cancel</Button>
-              <Button variant="primary" onClick={handleSave} loading={updateZone.isPending} icon={Save}>Save</Button>
+              <Button variant="secondary" onClick={() => setIsEditing(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSave}
+                loading={updateZone.isPending}
+                icon={Save}
+              >
+                Save
+              </Button>
             </>
           ) : (
             <>
-              <Button variant="secondary" onClick={handleEdit}>Edit</Button>
-              <Button variant="danger" onClick={handleDelete} loading={deleteZone.isPending} icon={Trash2}>Delete</Button>
+              <Button variant="secondary" onClick={handleEdit}>
+                Edit
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleDelete}
+                loading={deleteZone.isPending}
+                icon={Trash2}
+              >
+                Delete
+              </Button>
             </>
           )}
         </div>
@@ -150,10 +174,10 @@ export default function ZoneDetailPage({ params }: { params: Promise<{ id: strin
       {/* Tabs */}
       <div className="border-b border-surface-200">
         <nav className="flex gap-6" role="tablist" aria-label="Zone sections">
-          {([
+          {[
             { key: 'details' as TabKey, label: 'Details' },
             { key: 'memberships' as TabKey, label: 'Memberships' },
-          ]).map((tab) => (
+          ].map((tab) => (
             <button
               key={tab.key}
               role="tab"
@@ -181,29 +205,54 @@ export default function ZoneDetailPage({ params }: { params: Promise<{ id: strin
               <div className="mt-4 space-y-3">
                 <div className="space-y-1">
                   <Label>Name</Label>
-                  <Input value={String(formState['name'] ?? '')} onChange={(e) => setFormState((s) => ({ ...s, name: e.target.value }))} />
+                  <Input
+                    value={String(formState['name'] ?? '')}
+                    onChange={(e) => setFormState((s) => ({ ...s, name: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label>Description</Label>
-                  <Textarea value={String(formState['description'] ?? '')} onChange={(e) => setFormState((s) => ({ ...s, description: e.target.value }))} rows={3} />
+                  <Textarea
+                    value={String(formState['description'] ?? '')}
+                    onChange={(e) => setFormState((s) => ({ ...s, description: e.target.value }))}
+                    rows={3}
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <Label>Zone Type</Label>
-                    <Select value={String(formState['zoneType'] ?? '')} onValueChange={(v) => setFormState((s) => ({ ...s, zoneType: v }))}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                    <Select
+                      value={String(formState['zoneType'] ?? '')}
+                      onValueChange={(v) => setFormState((s) => ({ ...s, zoneType: v }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
-                        {zoneTypeOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                        {zoneTypeOptions.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>
+                            {o.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-1">
                     <Label>Security Level</Label>
-                    <Select value={String(formState['securityLevel'] ?? '')} onValueChange={(v) => setFormState((s) => ({ ...s, securityLevel: parseInt(v, 10) }))}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                    <Select
+                      value={String(formState['securityLevel'] ?? '')}
+                      onValueChange={(v) =>
+                        setFormState((s) => ({ ...s, securityLevel: parseInt(v, 10) }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         {['0', '1', '2', '3', '4'].map((l) => (
-                          <SelectItem key={l} value={l}>SL {l}</SelectItem>
+                          <SelectItem key={l} value={l}>
+                            SL {l}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -212,11 +261,20 @@ export default function ZoneDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <Label>Purdue Level</Label>
-                    <Select value={String(formState['purdueLevel'] ?? '')} onValueChange={(v) => setFormState((s) => ({ ...s, purdueLevel: parseInt(v, 10) }))}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                    <Select
+                      value={String(formState['purdueLevel'] ?? '')}
+                      onValueChange={(v) =>
+                        setFormState((s) => ({ ...s, purdueLevel: parseInt(v, 10) }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         {['0', '1', '2', '3', '4', '5'].map((l) => (
-                          <SelectItem key={l} value={l}>{purdueLevelLabels[parseInt(l, 10)]}</SelectItem>
+                          <SelectItem key={l} value={l}>
+                            {purdueLevelLabels[parseInt(l, 10)]}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -241,15 +299,38 @@ export default function ZoneDetailPage({ params }: { params: Promise<{ id: strin
               </div>
             ) : (
               <dl className="mt-4 space-y-3">
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Name</dt><dd className="text-sm text-surface-900">{zone.name}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Name</dt>
+                  <dd className="text-sm text-surface-900">{zone.name}</dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Description</dt><dd className="text-sm text-surface-900">{zone.description || '—'}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Description</dt>
+                  <dd className="text-sm text-surface-900">{zone.description || '—'}</dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Zone Type</dt><dd className="text-sm text-surface-900">{zoneTypeLabels[zone.zoneType as ZoneType] ?? zone.zoneType}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Zone Type</dt>
+                  <dd className="text-sm text-surface-900">
+                    {zoneTypeLabels[zone.zoneType as ZoneType] ?? zone.zoneType}
+                  </dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Security Level</dt><dd className="text-sm text-surface-900"><SecurityLevelBadge level={zone.securityLevel} size="sm" /></dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Security Level</dt>
+                  <dd className="text-sm text-surface-900">
+                    <SecurityLevelBadge level={zone.securityLevel} size="sm" />
+                  </dd>
+                </div>
                 <Separator />
-                <div className="flex justify-between"><dt className="text-sm text-surface-500">Purdue Level</dt><dd className="text-sm text-surface-900">{zone.purdueLevel !== null ? purdueLevelLabels[zone.purdueLevel] ?? `L${zone.purdueLevel}` : '—'}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-sm text-surface-500">Purdue Level</dt>
+                  <dd className="text-sm text-surface-900">
+                    {zone.purdueLevel !== null
+                      ? (purdueLevelLabels[zone.purdueLevel] ?? `L${zone.purdueLevel}`)
+                      : '—'}
+                  </dd>
+                </div>
                 <Separator />
                 <div className="flex justify-between items-center">
                   <dt className="text-sm text-surface-500">Color</dt>
@@ -273,7 +354,10 @@ export default function ZoneDetailPage({ params }: { params: Promise<{ id: strin
                   const isSource = conduit.sourceZoneId === zoneId;
                   const connectedZoneId = isSource ? conduit.targetZoneId : conduit.sourceZoneId;
                   return (
-                    <div key={conduit.id} className="flex items-center gap-4 rounded-lg border border-surface-200 bg-surface-0 p-4">
+                    <div
+                      key={conduit.id}
+                      className="flex items-center gap-4 rounded-lg border border-surface-200 bg-surface-0 p-4"
+                    >
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-100">
                         <Network className="h-4 w-4 text-surface-500" />
                       </div>
@@ -282,7 +366,8 @@ export default function ZoneDetailPage({ params }: { params: Promise<{ id: strin
                         <p className="text-xs text-surface-500">
                           {conduit.conduitType.replace(/_/g, ' ')}
                           {conduit.protocol && ` · ${conduit.protocol}`}
-                          {' · '}{isSource ? 'Outbound' : 'Inbound'}
+                          {' · '}
+                          {isSource ? 'Outbound' : 'Inbound'}
                         </p>
                       </div>
                       <SecurityLevelBadge level={conduit.securityLevel} size="sm" />
@@ -296,7 +381,9 @@ export default function ZoneDetailPage({ params }: { params: Promise<{ id: strin
                   );
                 })
               ) : (
-                <p className="py-8 text-center text-sm text-surface-500">No conduits connected to this zone.</p>
+                <p className="py-8 text-center text-sm text-surface-500">
+                  No conduits connected to this zone.
+                </p>
               )}
             </div>
           </div>
@@ -308,12 +395,17 @@ export default function ZoneDetailPage({ params }: { params: Promise<{ id: strin
         <div className="space-y-3">
           {memberships && memberships.length > 0 ? (
             memberships.map((membership) => (
-              <div key={membership.id} className="flex items-center gap-4 rounded-lg border border-surface-200 bg-surface-0 p-4">
+              <div
+                key={membership.id}
+                className="flex items-center gap-4 rounded-lg border border-surface-200 bg-surface-0 p-4"
+              >
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-100">
                   <Box className="h-4 w-4 text-surface-500" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-surface-700">Asset {membership.assetId.slice(0, 8)}</p>
+                  <p className="text-sm font-medium text-surface-700">
+                    Asset {membership.assetId.slice(0, 8)}
+                  </p>
                   <p className="text-xs text-surface-500">
                     Assigned {new Date(membership.assignedAt).toLocaleDateString()}
                   </p>
@@ -330,7 +422,9 @@ export default function ZoneDetailPage({ params }: { params: Promise<{ id: strin
               </div>
             ))
           ) : (
-            <p className="py-8 text-center text-sm text-surface-500">No assets assigned to this zone.</p>
+            <p className="py-8 text-center text-sm text-surface-500">
+              No assets assigned to this zone.
+            </p>
           )}
         </div>
       )}

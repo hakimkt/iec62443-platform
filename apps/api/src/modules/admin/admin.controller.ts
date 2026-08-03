@@ -1,14 +1,12 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-
 import {
-  createRoleSchema,
-  updateRoleSchema,
   createApiKeySchema,
+  createRoleSchema,
   inviteMemberSchema,
   updateMemberSchema,
+  updateRoleSchema,
   updateTenantSchema,
 } from '@iec62443/shared-schemas';
-
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { AdminService } from './admin.service.js';
 
 // ---------------------------------------------------------------------------
@@ -70,7 +68,9 @@ export class AdminController {
       return reply.send(paginatedResponse(result.items, result.pagination, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to list members', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to list members', requestId));
     }
   }
 
@@ -80,13 +80,17 @@ export class AdminController {
     const parsed = inviteMemberSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const member = await this.adminService.inviteMember(
@@ -98,10 +102,14 @@ export class AdminController {
     } catch (error) {
       const err = error as { statusCode?: number; code?: string };
       if (err.statusCode === 409) {
-        return reply.status(409).send(errorResponse('CONFLICT', 'User is already a member', requestId));
+        return reply
+          .status(409)
+          .send(errorResponse('CONFLICT', 'User is already a member', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to invite member', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to invite member', requestId));
     }
   }
 
@@ -112,13 +120,17 @@ export class AdminController {
     const parsed = updateMemberSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const updatedBy = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const updatedBy =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.adminService.updateMember(userId, parsed.data.role, updatedBy);
@@ -126,24 +138,31 @@ export class AdminController {
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'Membership not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'Membership not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to update member', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to update member', requestId));
     }
   }
 
   async removeMember(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { userId } = request.params as { userId: string };
-    const removedBy = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const removedBy =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.adminService.removeMember(userId, removedBy);
       return reply.status(204).send();
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to remove member', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to remove member', requestId));
     }
   }
 
@@ -157,7 +176,9 @@ export class AdminController {
       return reply.send(successResponse(roles, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to list roles', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to list roles', requestId));
     }
   }
 
@@ -167,23 +188,33 @@ export class AdminController {
     const parsed = createRoleSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const role = await this.adminService.createRole(
-        { name: parsed.data.name, description: parsed.data.description, permissions: parsed.data.permissions },
+        {
+          name: parsed.data.name,
+          description: parsed.data.description,
+          permissions: parsed.data.permissions,
+        },
         userId,
       );
       return reply.status(201).send(successResponse(role, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to create role', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to create role', requestId));
     }
   }
 
@@ -194,38 +225,51 @@ export class AdminController {
     const parsed = updateRoleSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
-      await this.adminService.updateRole(id, {
-        name: parsed.data.name,
-        description: parsed.data.description,
-        permissions: parsed.data.permissions,
-      }, userId);
+      await this.adminService.updateRole(
+        id,
+        {
+          name: parsed.data.name,
+          description: parsed.data.description,
+          permissions: parsed.data.permissions,
+        },
+        userId,
+      );
       return reply.send(successResponse({ id, updated: true }, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to update role', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to update role', requestId));
     }
   }
 
   async deleteRole(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.adminService.deleteRole(id, userId);
       return reply.status(204).send();
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to delete role', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to delete role', requestId));
     }
   }
 
@@ -239,7 +283,9 @@ export class AdminController {
       return reply.send(successResponse(keys, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to list API keys', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to list API keys', requestId));
     }
   }
 
@@ -249,13 +295,17 @@ export class AdminController {
     const parsed = createApiKeySchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const key = await this.adminService.createApiKey(
@@ -269,21 +319,26 @@ export class AdminController {
       return reply.status(201).send(successResponse(key, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to create API key', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to create API key', requestId));
     }
   }
 
   async revokeApiKey(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.adminService.revokeApiKey(id, userId);
       return reply.send(successResponse({ id, revoked: true }, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to revoke API key', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to revoke API key', requestId));
     }
   }
 
@@ -307,7 +362,9 @@ export class AdminController {
       return reply.send(paginatedResponse(result.items, result.pagination, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to get audit log', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to get audit log', requestId));
     }
   }
 
@@ -321,7 +378,9 @@ export class AdminController {
       return reply.send(successResponse(settings, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to get tenant settings', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to get tenant settings', requestId));
     }
   }
 
@@ -331,13 +390,17 @@ export class AdminController {
     const parsed = updateTenantSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const settings = await this.adminService.updateTenantSettings(
@@ -350,7 +413,9 @@ export class AdminController {
       return reply.send(successResponse(settings, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to update tenant settings', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to update tenant settings', requestId));
     }
   }
 }

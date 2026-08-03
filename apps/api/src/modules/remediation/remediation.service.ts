@@ -1,14 +1,12 @@
-import { eq, and, desc, count, ilike, sql } from 'drizzle-orm';
 import crypto from 'node:crypto';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import {
-  remediationPlans,
-  remediationActions,
-  verifications,
   auditEvents,
+  remediationActions,
+  remediationPlans,
+  verifications,
 } from '@iec62443/database';
+import { and, count, desc, eq, ilike, sql } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -98,10 +96,7 @@ export interface VerifyActionInput {
 // Audit hash chain helper
 // ---------------------------------------------------------------------------
 
-async function computeEventHash(
-  data: string,
-  previousHash: string | null,
-): Promise<string> {
+async function computeEventHash(data: string, previousHash: string | null): Promise<string> {
   const input = `${previousHash ?? ''}|${data}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
@@ -122,7 +117,9 @@ export class RemediationService {
   async listPlans(filters: PlanFilters) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const page = filters.page ?? 1;
@@ -140,16 +137,16 @@ export class RemediationService {
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       const items = await tx
-          .select()
-          .from(remediationPlans)
-          .where(whereClause)
-          .orderBy(desc(remediationPlans.createdAt))
-          .limit(perPage)
-          .offset(offset);
+        .select()
+        .from(remediationPlans)
+        .where(whereClause)
+        .orderBy(desc(remediationPlans.createdAt))
+        .limit(perPage)
+        .offset(offset);
       const totalResult = await tx
-          .select({ count: count() })
-          .from(remediationPlans)
-          .where(whereClause);
+        .select({ count: count() })
+        .from(remediationPlans)
+        .where(whereClause);
 
       const total = totalResult[0]?.count ?? 0;
 
@@ -178,7 +175,9 @@ export class RemediationService {
   async getPlan(id: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const [plan] = await tx
@@ -216,7 +215,9 @@ export class RemediationService {
   async createPlan(data: CreatePlanInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const [newPlan] = await tx
@@ -257,7 +258,9 @@ export class RemediationService {
   async updatePlan(id: string, data: UpdatePlanInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getPlanWithTx(tx, id);
@@ -274,15 +277,14 @@ export class RemediationService {
           updateData['completedAt'] = new Date();
         }
       }
-      if (data.budgetEstimate !== undefined) updateData['budgetEstimate'] = data.budgetEstimate.toString();
-      if (data.budgetActual !== undefined) updateData['budgetActual'] = data.budgetActual.toString();
+      if (data.budgetEstimate !== undefined)
+        updateData['budgetEstimate'] = data.budgetEstimate.toString();
+      if (data.budgetActual !== undefined)
+        updateData['budgetActual'] = data.budgetActual.toString();
       if (data.startDate !== undefined) updateData['startDate'] = data.startDate;
       if (data.targetDate !== undefined) updateData['targetDate'] = data.targetDate;
 
-      await tx
-        .update(remediationPlans)
-        .set(updateData)
-        .where(eq(remediationPlans.id, id));
+      await tx.update(remediationPlans).set(updateData).where(eq(remediationPlans.id, id));
 
       await this.createAuditEvent(tx, {
         userId,
@@ -300,7 +302,9 @@ export class RemediationService {
   async deletePlan(id: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getPlanWithTx(tx, id);
@@ -323,7 +327,9 @@ export class RemediationService {
   async listActions(filters: ActionFilters) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const page = filters.page ?? 1;
@@ -344,16 +350,16 @@ export class RemediationService {
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       const items = await tx
-          .select()
-          .from(remediationActions)
-          .where(whereClause)
-          .orderBy(desc(remediationActions.createdAt))
-          .limit(perPage)
-          .offset(offset);
+        .select()
+        .from(remediationActions)
+        .where(whereClause)
+        .orderBy(desc(remediationActions.createdAt))
+        .limit(perPage)
+        .offset(offset);
       const totalResult = await tx
-          .select({ count: count() })
-          .from(remediationActions)
-          .where(whereClause);
+        .select({ count: count() })
+        .from(remediationActions)
+        .where(whereClause);
 
       const total = totalResult[0]?.count ?? 0;
 
@@ -384,7 +390,9 @@ export class RemediationService {
   async getAction(id: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const [action] = await tx
@@ -424,7 +432,9 @@ export class RemediationService {
   async createAction(planId: string, data: CreateActionInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getPlanWithTx(tx, planId);
@@ -469,7 +479,9 @@ export class RemediationService {
   async updateAction(id: string, data: UpdateActionInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getActionWithTx(tx, id);
@@ -483,20 +495,19 @@ export class RemediationService {
       if (data.status !== undefined) {
         updateData['status'] = data.status;
         if (data.status === 'completed') {
-          updateData['completedDate'] = data.completedDate ?? new Date().toISOString().split('T')[0];
+          updateData['completedDate'] =
+            data.completedDate ?? new Date().toISOString().split('T')[0];
         }
       }
       if (data.startDate !== undefined) updateData['startDate'] = data.startDate;
       if (data.dueDate !== undefined) updateData['dueDate'] = data.dueDate;
       if (data.completedDate !== undefined) updateData['completedDate'] = data.completedDate;
-      if (data.costEstimate !== undefined) updateData['costEstimate'] = data.costEstimate.toString();
+      if (data.costEstimate !== undefined)
+        updateData['costEstimate'] = data.costEstimate.toString();
       if (data.costActual !== undefined) updateData['costActual'] = data.costActual.toString();
       if (data.milestone !== undefined) updateData['milestone'] = data.milestone;
 
-      await tx
-        .update(remediationActions)
-        .set(updateData)
-        .where(eq(remediationActions.id, id));
+      await tx.update(remediationActions).set(updateData).where(eq(remediationActions.id, id));
 
       await this.createAuditEvent(tx, {
         userId,
@@ -514,7 +525,9 @@ export class RemediationService {
   async deleteAction(id: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getActionWithTx(tx, id);
@@ -537,7 +550,9 @@ export class RemediationService {
   async listVerifications(actionId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getActionWithTx(tx, actionId);
@@ -563,7 +578,9 @@ export class RemediationService {
   async verifyAction(actionId: string, data: VerifyActionInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getActionWithTx(tx, actionId);
@@ -675,16 +692,19 @@ export class RemediationService {
     };
   }
 
-  private async createAuditEvent(db: DbOrTx, params: {
-    userId: string;
-    eventType: string;
-    entityType: string;
-    entityId: string;
-    action: 'create' | 'update' | 'delete' | 'read';
-    details: Record<string, unknown>;
-    ipAddress?: string | null;
-    userAgent?: string | null;
-  }): Promise<void> {
+  private async createAuditEvent(
+    db: DbOrTx,
+    params: {
+      userId: string;
+      eventType: string;
+      entityType: string;
+      entityId: string;
+      action: 'create' | 'update' | 'delete' | 'read';
+      details: Record<string, unknown>;
+      ipAddress?: string | null;
+      userAgent?: string | null;
+    },
+  ): Promise<void> {
     try {
       const [lastEvent] = await db
         .select({ eventHash: auditEvents.eventHash })

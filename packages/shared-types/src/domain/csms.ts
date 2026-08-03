@@ -37,12 +37,7 @@ export interface CSMSFramework {
 // ---------------------------------------------------------------------------
 
 /** Implementation status of a CSMS element. */
-export type ImplementationStatus =
-  | 'implemented'
-  | 'partial'
-  | 'planned'
-  | 'not_started'
-  | 'na';
+export type ImplementationStatus = 'implemented' | 'partial' | 'planned' | 'not_started' | 'na';
 
 /**
  * A single element within a CSMS framework, representing a distinct
@@ -105,11 +100,7 @@ export interface CSMS_POLICY {
 export type CSMSImprovementPriority = 'low' | 'medium' | 'high' | 'critical';
 
 /** Status of a CSMS improvement plan. */
-export type CSMSImprovementStatus =
-  | 'planned'
-  | 'in_progress'
-  | 'completed'
-  | 'cancelled';
+export type CSMSImprovementStatus = 'planned' | 'in_progress' | 'completed' | 'cancelled';
 
 /**
  * A planned improvement action to close a gap in a CSMS element.

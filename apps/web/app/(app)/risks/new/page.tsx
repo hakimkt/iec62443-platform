@@ -1,15 +1,21 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
-import { Textarea } from '@iec62443/ui/primitives';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@iec62443/ui/primitives';
-import { ArrowLeft } from 'lucide-react';
-import { useCreateRisk, useRiskRegisters } from '@/hooks/useRisks';
 import type { RiskCategory, RiskTreatmentStrategy } from '@iec62443/shared-types';
+import {
+  Button,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+} from '@iec62443/ui/primitives';
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useCreateRisk, useRiskRegisters } from '@/hooks/useRisks';
 
 const categoryOptions: { value: RiskCategory; label: string }[] = [
   { value: 'safety', label: 'Safety' },
@@ -89,39 +95,73 @@ export default function NewRiskPage() {
           <h3 className="text-sm font-medium text-surface-700">General Information</h3>
           <div className="space-y-1">
             <Label>Register *</Label>
-            <Select value={form.registerId} onValueChange={(v) => setForm((f) => ({ ...f, registerId: v }))}>
-              <SelectTrigger><SelectValue placeholder="Select risk register" /></SelectTrigger>
+            <Select
+              value={form.registerId}
+              onValueChange={(v) => setForm((f) => ({ ...f, registerId: v }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select risk register" />
+              </SelectTrigger>
               <SelectContent>
                 {registers.map((reg) => (
-                  <SelectItem key={reg.id} value={reg.id}>{reg.name}</SelectItem>
+                  <SelectItem key={reg.id} value={reg.id}>
+                    {reg.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">
             <Label>Title *</Label>
-            <Input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required placeholder="e.g. Unauthorized access to PLC" />
+            <Input
+              value={form.title}
+              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              required
+              placeholder="e.g. Unauthorized access to PLC"
+            />
           </div>
           <div className="space-y-1">
             <Label>Description</Label>
-            <Textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} />
+            <Textarea
+              value={form.description}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              rows={3}
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>Category</Label>
-              <Select value={form.category} onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+              <Select
+                value={form.category}
+                onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
                 <SelectContent>
-                  {categoryOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                  {categoryOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
               <Label>Treatment Strategy</Label>
-              <Select value={form.treatment} onValueChange={(v) => setForm((f) => ({ ...f, treatment: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select strategy" /></SelectTrigger>
+              <Select
+                value={form.treatment}
+                onValueChange={(v) => setForm((f) => ({ ...f, treatment: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select strategy" />
+                </SelectTrigger>
                 <SelectContent>
-                  {treatmentOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                  {treatmentOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -132,31 +172,53 @@ export default function NewRiskPage() {
           <h3 className="text-sm font-medium text-surface-700">Threat Analysis</h3>
           <div className="space-y-1">
             <Label>Threat Source</Label>
-            <Input value={form.threatSource} onChange={(e) => setForm((f) => ({ ...f, threatSource: e.target.value }))} placeholder="e.g. Nation-state actor, Malware" />
+            <Input
+              value={form.threatSource}
+              onChange={(e) => setForm((f) => ({ ...f, threatSource: e.target.value }))}
+              placeholder="e.g. Nation-state actor, Malware"
+            />
           </div>
           <div className="space-y-1">
             <Label>Vulnerability</Label>
-            <Input value={form.vulnerability} onChange={(e) => setForm((f) => ({ ...f, vulnerability: e.target.value }))} placeholder="e.g. Unpatched firmware, Default credentials" />
+            <Input
+              value={form.vulnerability}
+              onChange={(e) => setForm((f) => ({ ...f, vulnerability: e.target.value }))}
+              placeholder="e.g. Unpatched firmware, Default credentials"
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>Likelihood (1–5)</Label>
-              <Select value={form.likelihood} onValueChange={(v) => setForm((f) => ({ ...f, likelihood: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select likelihood" /></SelectTrigger>
+              <Select
+                value={form.likelihood}
+                onValueChange={(v) => setForm((f) => ({ ...f, likelihood: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select likelihood" />
+                </SelectTrigger>
                 <SelectContent>
                   {['1', '2', '3', '4', '5'].map((l) => (
-                    <SelectItem key={l} value={l}>{l}</SelectItem>
+                    <SelectItem key={l} value={l}>
+                      {l}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
               <Label>Impact (1–5)</Label>
-              <Select value={form.impact} onValueChange={(v) => setForm((f) => ({ ...f, impact: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select impact" /></SelectTrigger>
+              <Select
+                value={form.impact}
+                onValueChange={(v) => setForm((f) => ({ ...f, impact: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select impact" />
+                </SelectTrigger>
                 <SelectContent>
                   {['1', '2', '3', '4', '5'].map((l) => (
-                    <SelectItem key={l} value={l}>{l}</SelectItem>
+                    <SelectItem key={l} value={l}>
+                      {l}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -168,11 +230,19 @@ export default function NewRiskPage() {
           <h3 className="text-sm font-medium text-surface-700">Compliance & Review</h3>
           <div className="space-y-1">
             <Label>IEC Requirement</Label>
-            <Input value={form.iecRequirement} onChange={(e) => setForm((f) => ({ ...f, iecRequirement: e.target.value }))} placeholder="e.g. SR 5.1" />
+            <Input
+              value={form.iecRequirement}
+              onChange={(e) => setForm((f) => ({ ...f, iecRequirement: e.target.value }))}
+              placeholder="e.g. SR 5.1"
+            />
           </div>
           <div className="space-y-1">
             <Label>Reassess By</Label>
-            <Input type="date" value={form.reassessBy} onChange={(e) => setForm((f) => ({ ...f, reassessBy: e.target.value }))} />
+            <Input
+              type="date"
+              value={form.reassessBy}
+              onChange={(e) => setForm((f) => ({ ...f, reassessBy: e.target.value }))}
+            />
           </div>
         </div>
 
@@ -180,7 +250,12 @@ export default function NewRiskPage() {
           <Button variant="secondary" type="button" onClick={() => router.push('/risks')}>
             Cancel
           </Button>
-          <Button variant="primary" type="submit" disabled={!form.title || !form.registerId} loading={createRisk.isPending}>
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={!form.title || !form.registerId}
+            loading={createRisk.isPending}
+          >
             Create Risk
           </Button>
         </div>

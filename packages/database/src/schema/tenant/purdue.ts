@@ -18,12 +18,8 @@ export const models = pgTable('models', {
   facilityId: uuid('facility_id'),
   description: text('description'),
   isDefault: boolean('is_default').notNull().default(false),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // ── Levels ───────────────────────────────────────────────────────────────
@@ -54,13 +50,9 @@ export const assetMappings = pgTable(
       .notNull()
       .references(() => levels.id),
     assignedBy: uuid('assigned_by'),
-    assignedAt: timestamp('assigned_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    assignedAt: timestamp('assigned_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [
-    unique('asset_mappings_unique_model_asset').on(table.modelId, table.assetId),
-  ],
+  (table) => [unique('asset_mappings_unique_model_asset').on(table.modelId, table.assetId)],
 );
 
 // ── Communication Rules ──────────────────────────────────────────────────
@@ -79,7 +71,5 @@ export const communicationRules = pgTable('communication_rules', {
   isAllowed: boolean('is_allowed').notNull().default(false),
   condition: text('condition'),
   protocol: varchar('protocol', { length: 100 }),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });

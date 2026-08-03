@@ -1,12 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useAuth } from '@/providers/auth-provider';
-import { Button } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
+import { Button, Input, Label } from '@iec62443/ui/primitives';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useAuth } from '@/providers/auth-provider';
 
 export default function LoginPage() {
   const { login, isLoading } = useAuth();
@@ -88,32 +86,19 @@ export default function LoginPage() {
               tabIndex={-1}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
         </div>
 
-        <Button
-          type="submit"
-          variant="primary"
-          className="w-full"
-          loading={isLoading}
-          icon={LogIn}
-        >
+        <Button type="submit" variant="primary" className="w-full" loading={isLoading} icon={LogIn}>
           Sign in
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-surface-500">
         Don&apos;t have an account?{' '}
-        <Link
-          href="/register"
-          className="font-medium text-brand-600 hover:text-brand-700"
-        >
+        <Link href="/register" className="font-medium text-brand-600 hover:text-brand-700">
           Create an account
         </Link>
       </p>

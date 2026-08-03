@@ -1,13 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@iec62443/ui/primitives';
+import {
+  Button,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@iec62443/ui/primitives';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import { useCreateAssessment, useAssessmentTemplates } from '@/hooks/useAssessments';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useAssessmentTemplates, useCreateAssessment } from '@/hooks/useAssessments';
 
 const STEPS = [
   { title: 'Basic Info', description: 'Name and description' },
@@ -31,11 +37,16 @@ export default function NewAssessmentPage() {
 
   const canProceed = () => {
     switch (currentStep) {
-      case 0: return name.trim().length > 0;
-      case 1: return templateId.length > 0;
-      case 2: return true;
-      case 3: return true;
-      default: return false;
+      case 0:
+        return name.trim().length > 0;
+      case 1:
+        return templateId.length > 0;
+      case 2:
+        return true;
+      case 3:
+        return true;
+      default:
+        return false;
     }
   };
 
@@ -81,14 +92,18 @@ export default function NewAssessmentPage() {
                 {index < currentStep ? <Check className="h-4 w-4" /> : index + 1}
               </div>
               <div className="hidden sm:block">
-                <p className={`text-xs font-medium ${index === currentStep ? 'text-surface-900' : 'text-surface-500'}`}>
+                <p
+                  className={`text-xs font-medium ${index === currentStep ? 'text-surface-900' : 'text-surface-500'}`}
+                >
                   {step.title}
                 </p>
                 <p className="text-2xs text-surface-400">{step.description}</p>
               </div>
             </div>
             {index < STEPS.length - 1 && (
-              <div className={`mx-2 h-0.5 w-8 ${index < currentStep ? 'bg-green-600' : 'bg-surface-200'}`} />
+              <div
+                className={`mx-2 h-0.5 w-8 ${index < currentStep ? 'bg-green-600' : 'bg-surface-200'}`}
+              />
             )}
           </div>
         ))}
@@ -235,7 +250,9 @@ export default function NewAssessmentPage() {
               {targetDate && (
                 <div className="flex justify-between">
                   <dt className="text-sm text-surface-500">Target Date</dt>
-                  <dd className="text-sm text-surface-900">{new Date(targetDate).toLocaleDateString()}</dd>
+                  <dd className="text-sm text-surface-900">
+                    {new Date(targetDate).toLocaleDateString()}
+                  </dd>
                 </div>
               )}
             </dl>
@@ -247,7 +264,9 @@ export default function NewAssessmentPage() {
       <div className="flex items-center justify-between">
         <Button
           variant="secondary"
-          onClick={() => currentStep > 0 ? setCurrentStep((s) => s - 1) : router.push('/assessments')}
+          onClick={() =>
+            currentStep > 0 ? setCurrentStep((s) => s - 1) : router.push('/assessments')
+          }
           icon={ArrowLeft}
         >
           {currentStep > 0 ? 'Back' : 'Cancel'}

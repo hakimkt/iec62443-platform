@@ -1,13 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
-import { Textarea } from '@iec62443/ui/primitives';
 import { PageHeader } from '@iec62443/ui/components';
+import { Button, Input, Label, Textarea } from '@iec62443/ui/primitives';
 import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useCreatePurdueModel } from '@/hooks/usePurdue';
 
 export default function NewPurdueModelPage() {
@@ -51,17 +48,13 @@ export default function NewPurdueModelPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="rounded-lg border border-surface-200 bg-surface-0 p-6 space-y-4">
-          <h3 className="text-sm font-medium text-surface-700">
-            General Information
-          </h3>
+          <h3 className="text-sm font-medium text-surface-700">General Information</h3>
 
           <div className="space-y-1">
             <Label>Name *</Label>
             <Input
               value={form.name}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, name: e.target.value }))
-              }
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               placeholder="e.g. Plant A Purdue Model"
               required
             />
@@ -71,9 +64,7 @@ export default function NewPurdueModelPage() {
             <Label>Description</Label>
             <Textarea
               value={form.description}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, description: e.target.value }))
-              }
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               rows={3}
               placeholder="Describe the scope and purpose of this Purdue Model"
             />
@@ -84,9 +75,7 @@ export default function NewPurdueModelPage() {
               type="checkbox"
               id="isDefault"
               checked={form.isDefault}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, isDefault: e.target.checked }))
-              }
+              onChange={(e) => setForm((f) => ({ ...f, isDefault: e.target.checked }))}
               className="h-4 w-4 rounded border-surface-300 text-brand-600 focus:ring-brand-500"
             />
             <Label htmlFor="isDefault">Set as default model</Label>
@@ -94,11 +83,7 @@ export default function NewPurdueModelPage() {
         </div>
 
         <div className="flex items-center justify-end gap-3">
-          <Button
-            variant="secondary"
-            type="button"
-            onClick={() => router.push('/purdue')}
-          >
+          <Button variant="secondary" type="button" onClick={() => router.push('/purdue')}>
             Cancel
           </Button>
           <Button

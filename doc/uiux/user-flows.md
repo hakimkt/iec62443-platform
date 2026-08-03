@@ -8,68 +8,68 @@
 
 ### 1.1 IEC 62443 Lead Auditor
 
-| Attribute | Detail |
-|---|---|
-| **Name** | Sarah Chen |
-| **Role** | Lead Assessor at OT Security Consulting firm |
-| **Context** | Manages 5–8 concurrent client assessments |
+| Attribute         | Detail                                                                                    |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| **Name**          | Sarah Chen                                                                                |
+| **Role**          | Lead Assessor at OT Security Consulting firm                                              |
+| **Context**       | Manages 5–8 concurrent client assessments                                                 |
 | **Primary tasks** | Plan assessments, evaluate requirements, review team work, generate certification reports |
-| **Pain points** | Scattered evidence across email/drives, manual scorecard tracking, report formatting |
-| **Platform role** | Lead Assessor |
-| **Frequency** | Daily, 4–6 hours/day |
-| **Device** | Laptop (office), tablet (on-site at client plants) |
+| **Pain points**   | Scattered evidence across email/drives, manual scorecard tracking, report formatting      |
+| **Platform role** | Lead Assessor                                                                             |
+| **Frequency**     | Daily, 4–6 hours/day                                                                      |
+| **Device**        | Laptop (office), tablet (on-site at client plants)                                        |
 
 ### 1.2 OT Cybersecurity Consultant
 
-| Attribute | Detail |
-|---|---|
-| **Name** | Marcus Weber |
-| **Role** | Senior OT Security Consultant |
-| **Context** | Conducts field assessments at industrial facilities |
-| **Primary tasks** | Walk plant floors, interview operators, capture evidence, document findings |
-| **Pain points** | Poor connectivity in plant environments, re-entering field notes, linking evidence to findings |
-| **Platform role** | Assessor |
-| **Frequency** | Daily during engagements, often on-site |
-| **Device** | Tablet (field work), laptop (report writing) |
+| Attribute         | Detail                                                                                         |
+| ----------------- | ---------------------------------------------------------------------------------------------- |
+| **Name**          | Marcus Weber                                                                                   |
+| **Role**          | Senior OT Security Consultant                                                                  |
+| **Context**       | Conducts field assessments at industrial facilities                                            |
+| **Primary tasks** | Walk plant floors, interview operators, capture evidence, document findings                    |
+| **Pain points**   | Poor connectivity in plant environments, re-entering field notes, linking evidence to findings |
+| **Platform role** | Assessor                                                                                       |
+| **Frequency**     | Daily during engagements, often on-site                                                        |
+| **Device**        | Tablet (field work), laptop (report writing)                                                   |
 
 ### 1.3 Plant Security Engineer
 
-| Attribute | Detail |
-|---|---|
-| **Name** | Yuki Tanaka |
-| **Role** | OT Security Engineer at a chemical manufacturing company |
-| **Context** | Responsible for security posture of 3 plant sites |
+| Attribute         | Detail                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| **Name**          | Yuki Tanaka                                                                                 |
+| **Role**          | OT Security Engineer at a chemical manufacturing company                                    |
+| **Context**       | Responsible for security posture of 3 plant sites                                           |
 | **Primary tasks** | Track remediation actions, manage asset inventory, review risk register, prepare for audits |
-| **Pain points** | No centralized risk view, remediation tracking in spreadsheets, audit preparation stress |
-| **Platform role** | Project Manager (for their tenant) |
-| **Frequency** | Daily, 2–3 hours/day |
-| **Device** | Desktop workstation |
+| **Pain points**   | No centralized risk view, remediation tracking in spreadsheets, audit preparation stress    |
+| **Platform role** | Project Manager (for their tenant)                                                          |
+| **Frequency**     | Daily, 2–3 hours/day                                                                        |
+| **Device**        | Desktop workstation                                                                         |
 
 ### 1.4 CISO
 
-| Attribute | Detail |
-|---|---|
-| **Name** | David Okonkwo |
-| **Role** | Chief Information Security Officer |
-| **Context** | Oversees OT and IT security for a multinational energy company |
-| **Primary tasks** | Review dashboards, approve risk acceptances, present to board, track program maturity |
-| **Pain points** | No executive-level OT security visibility, translating technical risk to business language |
-| **Platform role** | Tenant Owner |
-| **Frequency** | Weekly review, monthly deep-dive |
-| **Device** | Desktop + mobile (quick checks) |
+| Attribute         | Detail                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------ |
+| **Name**          | David Okonkwo                                                                              |
+| **Role**          | Chief Information Security Officer                                                         |
+| **Context**       | Oversees OT and IT security for a multinational energy company                             |
+| **Primary tasks** | Review dashboards, approve risk acceptances, present to board, track program maturity      |
+| **Pain points**   | No executive-level OT security visibility, translating technical risk to business language |
+| **Platform role** | Tenant Owner                                                                               |
+| **Frequency**     | Weekly review, monthly deep-dive                                                           |
+| **Device**        | Desktop + mobile (quick checks)                                                            |
 
 ### 1.5 Asset Owner
 
-| Attribute | Detail |
-|---|---|
-| **Name** | Elena Rodriguez |
-| **Role** | Plant Manager at a pharmaceutical facility |
-| **Context** | Accountable for plant safety and compliance, not a security specialist |
-| **Primary tasks** | Review assessment results, approve remediation budgets, sign risk acceptances |
-| **Pain points** | Technical jargon, unclear what actions are needed, compliance deadline pressure |
-| **Platform role** | Viewer (with risk acceptance authority delegated) |
-| **Frequency** | Monthly or as needed |
-| **Device** | Desktop, occasionally mobile |
+| Attribute         | Detail                                                                          |
+| ----------------- | ------------------------------------------------------------------------------- |
+| **Name**          | Elena Rodriguez                                                                 |
+| **Role**          | Plant Manager at a pharmaceutical facility                                      |
+| **Context**       | Accountable for plant safety and compliance, not a security specialist          |
+| **Primary tasks** | Review assessment results, approve remediation budgets, sign risk acceptances   |
+| **Pain points**   | Technical jargon, unclear what actions are needed, compliance deadline pressure |
+| **Platform role** | Viewer (with risk acceptance authority delegated)                               |
+| **Frequency**     | Monthly or as needed                                                            |
+| **Device**        | Desktop, occasionally mobile                                                    |
 
 ---
 
@@ -393,7 +393,7 @@
   Alternative paths:
   • Acknowledged → Risk Accepted → Closed
   • Acknowledged → False Positive → Closed
-  
+
   UI actions per transition:
   • Created → Open: [Submit] button (assessor)
   • Open → Acknowledged: [Acknowledge] button (asset owner/PM)
@@ -649,4 +649,4 @@
 
 ---
 
-*Next: [Wireframes →](wireframes.md)*
+_Next: [Wireframes →](wireframes.md)_

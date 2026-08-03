@@ -1,3 +1,5 @@
+import type { PurdueLevel } from './zone';
+
 /**
  * IEC 62443 Asset Domain Types
  *
@@ -35,22 +37,13 @@ export type AssetType =
 
 /** Criticality classification of an asset. */
 export type AssetCriticality =
-  | 'safety_critical'
-  | 'mission_critical'
-  | 'business_critical'
-  | 'operational'
-  | 'non_critical';
+  'safety_critical' | 'mission_critical' | 'business_critical' | 'operational' | 'non_critical';
 
 /** Operational status of an asset. */
-export type AssetOperationalStatus =
-  | 'operational'
-  | 'maintenance'
-  | 'decommissioned'
-  | 'standby';
+export type AssetOperationalStatus = 'operational' | 'maintenance' | 'decommissioned' | 'standby';
 
 /** Purdue Model level (0–5) — re-exported from zone for convenience. */
 export type { PurdueLevel } from './zone';
-import type { PurdueLevel } from './zone';
 
 /**
  * A physical or logical asset within the IACS environment.
@@ -89,11 +82,7 @@ export interface Asset {
 
 /** Types of relationships between assets. */
 export type AssetRelationshipType =
-  | 'communicates_with'
-  | 'depends_on'
-  | 'controls'
-  | 'monitored_by'
-  | 'connected_to';
+  'communicates_with' | 'depends_on' | 'controls' | 'monitored_by' | 'connected_to';
 
 /**
  * A directional relationship between two assets.

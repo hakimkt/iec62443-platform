@@ -1,8 +1,6 @@
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import { csmsRoutes } from './routes.js';
 
 // ---------------------------------------------------------------------------
@@ -13,10 +11,7 @@ export interface CSMSModuleOptions {
   connectionString?: string;
 }
 
-async function csmsModule(
-  app: FastifyInstance,
-  _options: CSMSModuleOptions,
-) {
+async function csmsModule(app: FastifyInstance, _options: CSMSModuleOptions) {
   const db = app.db as unknown as NodePgDatabase;
 
   await app.register(csmsRoutes, { db });

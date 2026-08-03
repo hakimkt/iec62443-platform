@@ -1,8 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { Button } from '@iec62443/ui/primitives';
 import { ArrowLeft, Upload } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function AssetImportPage() {
   const router = useRouter();
@@ -25,22 +25,46 @@ export default function AssetImportPage() {
         <h3 className="text-sm font-medium text-surface-700">CSV Import</h3>
         <div className="rounded-lg border border-dashed border-surface-300 bg-surface-50 p-8 text-center">
           <Upload className="mx-auto h-10 w-10 text-surface-300" />
-          <p className="mt-3 text-sm text-surface-500">Drag and drop a CSV file here, or click to browse</p>
+          <p className="mt-3 text-sm text-surface-500">
+            Drag and drop a CSV file here, or click to browse
+          </p>
           <p className="mt-1 text-xs text-surface-400">
-            CSV must include columns: name, type, criticality (optional), vendor (optional), model (optional)
+            CSV must include columns: name, type, criticality (optional), vendor (optional), model
+            (optional)
           </p>
         </div>
         <div className="rounded-md bg-surface-50 p-4">
           <h4 className="text-xs font-medium text-surface-700">Required CSV Columns</h4>
           <ul className="mt-2 space-y-1 text-xs text-surface-500">
-            <li><code className="bg-surface-100 px-1 rounded">name</code> — Asset name (required)</li>
-            <li><code className="bg-surface-100 px-1 rounded">type</code> — Asset type: plc, hmi, scada_server, etc. (required)</li>
-            <li><code className="bg-surface-100 px-1 rounded">criticality</code> — safety_critical, mission_critical, etc. (optional)</li>
-            <li><code className="bg-surface-100 px-1 rounded">vendor</code> — Vendor name (optional)</li>
-            <li><code className="bg-surface-100 px-1 rounded">model</code> — Model identifier (optional)</li>
-            <li><code className="bg-surface-100 px-1 rounded">ip_address</code> — IP address (optional)</li>
-            <li><code className="bg-surface-100 px-1 rounded">purdue_level</code> — 0–5 (optional)</li>
-            <li><code className="bg-surface-100 px-1 rounded">location</code> — Physical location (optional)</li>
+            <li>
+              <code className="bg-surface-100 px-1 rounded">name</code> — Asset name (required)
+            </li>
+            <li>
+              <code className="bg-surface-100 px-1 rounded">type</code> — Asset type: plc, hmi,
+              scada_server, etc. (required)
+            </li>
+            <li>
+              <code className="bg-surface-100 px-1 rounded">criticality</code> — safety_critical,
+              mission_critical, etc. (optional)
+            </li>
+            <li>
+              <code className="bg-surface-100 px-1 rounded">vendor</code> — Vendor name (optional)
+            </li>
+            <li>
+              <code className="bg-surface-100 px-1 rounded">model</code> — Model identifier
+              (optional)
+            </li>
+            <li>
+              <code className="bg-surface-100 px-1 rounded">ip_address</code> — IP address
+              (optional)
+            </li>
+            <li>
+              <code className="bg-surface-100 px-1 rounded">purdue_level</code> — 0–5 (optional)
+            </li>
+            <li>
+              <code className="bg-surface-100 px-1 rounded">location</code> — Physical location
+              (optional)
+            </li>
           </ul>
         </div>
       </div>

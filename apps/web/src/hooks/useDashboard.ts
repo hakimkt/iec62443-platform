@@ -1,8 +1,13 @@
+import type {
+  AssessmentProgressItem,
+  DashboardSummary,
+  RecentFindingItem,
+  RemediationStatus,
+  RiskHeatMapData,
+} from '@iec62443/shared-types';
 import { useQuery } from '@tanstack/react-query';
 import { getApiClient } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
-
-import type { DashboardSummary, RiskHeatMapData, AssessmentProgressItem, RecentFindingItem, RemediationStatus } from '@iec62443/shared-types';
 
 interface SingleResponse<T> {
   data: T;
@@ -17,9 +22,7 @@ export function useDashboardSummary() {
   return useQuery({
     queryKey: queryKeys.dashboard.summary(),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<DashboardSummary>>(
-        '/dashboard/summary',
-      );
+      const result = await client.get<SingleResponse<DashboardSummary>>('/dashboard/summary');
       return result.data;
     },
   });

@@ -1,8 +1,8 @@
 import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
+import importPlugin from 'eslint-plugin-import';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
-import importPlugin from 'eslint-plugin-import';
+import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
@@ -13,6 +13,8 @@ export default tseslint.config(
       '**/.turbo/**',
       '**/coverage/**',
       '**/build/**',
+      '**/next-env.d.ts',
+      'packages/database/src/seed/**',
     ],
   },
   js.configs.recommended,
@@ -29,7 +31,6 @@ export default tseslint.config(
         version: 'detect',
       },
       'import/resolver': {
-        typescript: true,
         node: true,
       },
     },

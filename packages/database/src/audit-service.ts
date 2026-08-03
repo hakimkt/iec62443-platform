@@ -1,6 +1,5 @@
-import { desc, eq, sql } from 'drizzle-orm';
 import crypto from 'node:crypto';
-
+import { desc, eq, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { auditEvents } from './schema/platform/audit-events.js';
 
@@ -20,10 +19,7 @@ export interface CreateAuditEventParams {
   tenantId?: string | null;
 }
 
-async function computeEventHash(
-  data: string,
-  previousHash: string | null,
-): Promise<string> {
+async function computeEventHash(data: string, previousHash: string | null): Promise<string> {
   const input = `${previousHash ?? ''}|${data}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
@@ -38,9 +34,7 @@ export class AuditService {
     try {
       // Acquire a transaction-level advisory lock to prevent concurrent hash chain forks.
       // pg_advisory_xact_lock is automatically released when the transaction ends.
-      await this.db.execute(
-        sql`SELECT pg_advisory_xact_lock(${AUDIT_CHAIN_LOCK_ID})`,
-      );
+      await this.db.execute(sql`SELECT pg_advisory_xact_lock(${AUDIT_CHAIN_LOCK_ID})`);
 
       // Fetch the last event hash within the lock scope
       const lastEventQuery = params.tenantId

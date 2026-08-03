@@ -109,17 +109,17 @@
 
 **Widget Specifications:**
 
-| Widget | Data Source | Refresh | Interaction |
-|---|---|---|---|
-| Security Score | `GET /dashboard/summary` | On load | Click → Assessment overview |
-| Open Findings | `GET /findings?status=open` | Real-time (WS) | Click badge → filtered findings |
-| Active Risks | `GET /dashboard/risk-heatmap` | On load | Click → risk register |
-| Remediation | `GET /dashboard/remediation-status` | On load | Click → remediation tracker |
-| Radar Chart | `GET /assessments/:id/scorecard` | On load | Click → scorecard detail |
-| Assessment Progress | `GET /assessments` | On load | Click → assessment detail |
-| Risk Heat Map | `GET /dashboard/risk-heatmap` | On load | Click cell → filtered risks |
-| Recent Findings | `GET /findings?sort=-created_at&per_page=5` | Real-time (WS) | Click row → context panel |
-| Remediation Timeline | `GET /remediation-plans` | On load | Click bar → action detail |
+| Widget               | Data Source                                 | Refresh        | Interaction                     |
+| -------------------- | ------------------------------------------- | -------------- | ------------------------------- |
+| Security Score       | `GET /dashboard/summary`                    | On load        | Click → Assessment overview     |
+| Open Findings        | `GET /findings?status=open`                 | Real-time (WS) | Click badge → filtered findings |
+| Active Risks         | `GET /dashboard/risk-heatmap`               | On load        | Click → risk register           |
+| Remediation          | `GET /dashboard/remediation-status`         | On load        | Click → remediation tracker     |
+| Radar Chart          | `GET /assessments/:id/scorecard`            | On load        | Click → scorecard detail        |
+| Assessment Progress  | `GET /assessments`                          | On load        | Click → assessment detail       |
+| Risk Heat Map        | `GET /dashboard/risk-heatmap`               | On load        | Click cell → filtered risks     |
+| Recent Findings      | `GET /findings?sort=-created_at&per_page=5` | Real-time (WS) | Click row → context panel       |
+| Remediation Timeline | `GET /remediation-plans`                    | On load        | Click bar → action detail       |
 
 ---
 
@@ -178,6 +178,7 @@
 ```
 
 **Card Actions Menu (⋯):**
+
 - Open
 - Duplicate
 - Export (PDF/Excel)
@@ -980,4 +981,4 @@ Chart loading:
 
 ---
 
-*Next: [Component Library →](component-library.md)*
+_Next: [Component Library →](component-library.md)_

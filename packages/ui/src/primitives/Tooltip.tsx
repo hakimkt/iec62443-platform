@@ -1,6 +1,6 @@
-import * as React from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 const TooltipProvider = TooltipPrimitive.Provider;
@@ -25,7 +25,8 @@ const tooltipContentVariants = cva(
 );
 
 export interface TooltipContentProps
-  extends React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>,
+  extends
+    React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>,
     VariantProps<typeof tooltipContentVariants> {
   /** Delay in ms before the tooltip appears. Defaults to 300. */
   delayDuration?: number;
@@ -49,22 +50,14 @@ TooltipContent.displayName = 'TooltipContent';
 
 /* ─── Rich Tooltip composition ────────────────────────────────────── */
 
-export interface RichTooltipHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const RichTooltipHeader = React.forwardRef<HTMLDivElement, RichTooltipHeaderProps>(
+const RichTooltipHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('font-medium text-white', className)}
-      {...props}
-    />
+    <div ref={ref} className={cn('font-medium text-white', className)} {...props} />
   ),
 );
 RichTooltipHeader.displayName = 'RichTooltipHeader';
 
-export interface RichTooltipBodyProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const RichTooltipBody = React.forwardRef<HTMLDivElement, RichTooltipBodyProps>(
+const RichTooltipBody = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
@@ -78,16 +71,11 @@ const RichTooltipBody = React.forwardRef<HTMLDivElement, RichTooltipBodyProps>(
 );
 RichTooltipBody.displayName = 'RichTooltipBody';
 
-export interface RichTooltipFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const RichTooltipFooter = React.forwardRef<HTMLDivElement, RichTooltipFooterProps>(
+const RichTooltipFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn(
-        'mt-1.5 border-t border-white/20 pt-1.5 text-xs text-surface-300',
-        className,
-      )}
+      className={cn('mt-1.5 border-t border-white/20 pt-1.5 text-xs text-surface-300', className)}
       {...props}
     />
   ),

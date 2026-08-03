@@ -1,45 +1,94 @@
 'use client';
 
-import { use, useMemo, useState } from 'react';
-import Link from 'next/link';
-import {
-  PageHeader,
-  MetricCard,
-  EmptyState,
-} from '@iec62443/ui/components';
+import type { Asset, PurdueAssetMapping } from '@iec62443/shared-types';
 import { cn } from '@iec62443/ui';
+import { EmptyState, MetricCard, PageHeader } from '@iec62443/ui/components';
 import { Button } from '@iec62443/ui/primitives';
 import {
+  AlertTriangle,
   ArrowLeft,
-  Edit,
-  ShieldCheck,
-  Network,
-  Search,
   ChevronDown,
   ChevronRight,
-  AlertTriangle,
+  Edit,
+  Network,
+  Search,
+  ShieldCheck,
 } from 'lucide-react';
+import Link from 'next/link';
+import { use, useMemo, useState } from 'react';
+import { useAssets } from '@/hooks/useAssets';
 import {
-  usePurdueModel,
-  usePurdueLevels,
   usePurdueAssetMappings,
   usePurdueCompliance,
+  usePurdueLevels,
+  usePurdueModel,
 } from '@/hooks/usePurdue';
-import { useAssets } from '@/hooks/useAssets';
-import type {
-  PurdueAssetMapping,
-  Asset,
-} from '@iec62443/shared-types';
 
 /** Standard Purdue levels used when no custom levels are defined. */
 const STANDARD_LEVELS = [
-  { id: 'L5', modelId: '', levelNumber: 5, name: 'Enterprise', description: 'Corporate IT network', color: '#6366f1', sortOrder: 0 },
-  { id: 'L4', modelId: '', levelNumber: 4, name: 'Business', description: 'Business planning & logistics', color: '#8b5cf6', sortOrder: 1 },
-  { id: 'L3.5', modelId: '', levelNumber: 3.5, name: 'DMZ', description: 'Demilitarized zone / iDMZ', color: '#f59e0b', sortOrder: 2 },
-  { id: 'L3', modelId: '', levelNumber: 3, name: 'Operations', description: 'Manufacturing operations', color: '#10b981', sortOrder: 3 },
-  { id: 'L2', modelId: '', levelNumber: 2, name: 'Supervisory', description: 'Area supervisory control', color: '#3b82f6', sortOrder: 4 },
-  { id: 'L1', modelId: '', levelNumber: 1, name: 'Basic Control', description: 'Basic control loops', color: '#06b6d4', sortOrder: 5 },
-  { id: 'L0', modelId: '', levelNumber: 0, name: 'Process', description: 'Physical process', color: '#ef4444', sortOrder: 6 },
+  {
+    id: 'L5',
+    modelId: '',
+    levelNumber: 5,
+    name: 'Enterprise',
+    description: 'Corporate IT network',
+    color: '#6366f1',
+    sortOrder: 0,
+  },
+  {
+    id: 'L4',
+    modelId: '',
+    levelNumber: 4,
+    name: 'Business',
+    description: 'Business planning & logistics',
+    color: '#8b5cf6',
+    sortOrder: 1,
+  },
+  {
+    id: 'L3.5',
+    modelId: '',
+    levelNumber: 3.5,
+    name: 'DMZ',
+    description: 'Demilitarized zone / iDMZ',
+    color: '#f59e0b',
+    sortOrder: 2,
+  },
+  {
+    id: 'L3',
+    modelId: '',
+    levelNumber: 3,
+    name: 'Operations',
+    description: 'Manufacturing operations',
+    color: '#10b981',
+    sortOrder: 3,
+  },
+  {
+    id: 'L2',
+    modelId: '',
+    levelNumber: 2,
+    name: 'Supervisory',
+    description: 'Area supervisory control',
+    color: '#3b82f6',
+    sortOrder: 4,
+  },
+  {
+    id: 'L1',
+    modelId: '',
+    levelNumber: 1,
+    name: 'Basic Control',
+    description: 'Basic control loops',
+    color: '#06b6d4',
+    sortOrder: 5,
+  },
+  {
+    id: 'L0',
+    modelId: '',
+    levelNumber: 0,
+    name: 'Process',
+    description: 'Physical process',
+    color: '#ef4444',
+    sortOrder: 6,
+  },
 ];
 
 const CRITICALITY_COLORS: Record<string, string> = {
@@ -66,18 +115,14 @@ const VENDOR_COLORS: Record<string, string> = {
   ABB: '#FF000F',
   Rockwell: '#E31937',
   Yokogawa: '#003366',
-  'Fortinet': '#EE3124',
+  Fortinet: '#EE3124',
   'Palo Alto': '#FA582D',
   Cisco: '#049FD9',
   Microsoft: '#00A4EF',
-  'CrowdStrike': '#FF0000',
+  CrowdStrike: '#FF0000',
 };
 
-export default function PurdueModelDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function PurdueModelDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: modelId } = use(params);
 
   const { data: model, isLoading: modelLoading } = usePurdueModel(modelId);
@@ -122,9 +167,7 @@ export default function PurdueModelDetailPage({
   // Get assets for a level
   const getAssetsForLevel = (levelId: string): Asset[] => {
     const levelMappings = mappingsByLevel.get(levelId) ?? [];
-    return levelMappings
-      .map((m) => assetMap.get(m.assetId))
-      .filter((a): a is Asset => !!a);
+    return levelMappings.map((m) => assetMap.get(m.assetId)).filter((a): a is Asset => !!a);
   };
 
   if (modelLoading || !model) {
@@ -167,26 +210,10 @@ export default function PurdueModelDetailPage({
       {/* Compliance metrics */}
       {compliance && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <MetricCard
-            label="Compliant"
-            value={compliance.compliantCount}
-            color="green"
-          />
-          <MetricCard
-            label="Violations"
-            value={compliance.violationCount}
-            color="red"
-          />
-          <MetricCard
-            label="Total Assets"
-            value={mappings?.length ?? 0}
-            color="blue"
-          />
-          <MetricCard
-            label="Levels"
-            value={levels.length}
-            color="brand"
-          />
+          <MetricCard label="Compliant" value={compliance.compliantCount} color="green" />
+          <MetricCard label="Violations" value={compliance.violationCount} color="red" />
+          <MetricCard label="Total Assets" value={mappings?.length ?? 0} color="blue" />
+          <MetricCard label="Levels" value={levels.length} color="brand" />
         </div>
       )}
 
@@ -203,12 +230,8 @@ export default function PurdueModelDetailPage({
                 <span className="font-medium">{v.sourceLevel}</span>
                 {' → '}
                 <span className="font-medium">{v.targetLevel}</span>
-                {v.protocol && (
-                  <span className="ml-1 text-amber-600">({v.protocol})</span>
-                )}
-                {v.condition && (
-                  <span className="ml-1">— {v.condition}</span>
-                )}
+                {v.protocol && <span className="ml-1 text-amber-600">({v.protocol})</span>}
+                {v.condition && <span className="ml-1">— {v.condition}</span>}
               </li>
             ))}
           </ul>
@@ -216,10 +239,7 @@ export default function PurdueModelDetailPage({
       )}
 
       {/* Purdue Model Diagram */}
-      <PurdueDiagram
-        levels={levels}
-        getAssetsForLevel={getAssetsForLevel}
-      />
+      <PurdueDiagram levels={levels} getAssetsForLevel={getAssetsForLevel} />
 
       {/* Empty state when no levels */}
       {levels.length === 0 && (
@@ -248,10 +268,7 @@ interface PurdueDiagramProps {
   getAssetsForLevel: (levelId: string) => Asset[];
 }
 
-function PurdueDiagram({
-  levels,
-  getAssetsForLevel,
-}: PurdueDiagramProps) {
+function PurdueDiagram({ levels, getAssetsForLevel }: PurdueDiagramProps) {
   const [search, setSearch] = useState('');
   const [filterCriticality, setFilterCriticality] = useState<string>('');
   const [expandedLevels, setExpandedLevels] = useState<Set<string>>(new Set());
@@ -322,9 +339,7 @@ function PurdueDiagram({
       <div className="border-b border-surface-200 px-6 py-3">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-medium text-surface-700">
-              Purdue Model Diagram
-            </h3>
+            <h3 className="text-sm font-medium text-surface-700">Purdue Model Diagram</h3>
             <p className="text-xs text-surface-500 mt-0.5">
               Network segmentation levels — L5 at top, L0 at bottom
             </p>
@@ -389,9 +404,7 @@ function PurdueDiagram({
                 hasFilteredAssets ? 'bg-surface-0' : 'bg-surface-50/50',
               )}
               style={{
-                borderLeft: level.color
-                  ? `4px solid ${level.color}`
-                  : undefined,
+                borderLeft: level.color ? `4px solid ${level.color}` : undefined,
               }}
             >
               {/* Level header — always visible */}
@@ -416,9 +429,7 @@ function PurdueDiagram({
                 {/* Level description and asset count */}
                 <div className="flex-1 min-w-0">
                   {level.description && (
-                    <p className="text-xs text-surface-500 mb-1">
-                      {level.description}
-                    </p>
+                    <p className="text-xs text-surface-500 mb-1">{level.description}</p>
                   )}
                   <div className="flex items-center gap-2">
                     {hasAssets && (
@@ -436,9 +447,7 @@ function PurdueDiagram({
                         {allAssets.length} asset{allAssets.length !== 1 ? 's' : ''}
                       </span>
                     )}
-                    {hasAssets && (
-                      <VendorBadges assets={allAssets} levelColor={level.color} />
-                    )}
+                    {hasAssets && <VendorBadges assets={allAssets} levelColor={level.color} />}
                   </div>
                 </div>
 
@@ -451,9 +460,7 @@ function PurdueDiagram({
                       <ChevronRight className="h-4 w-4 text-surface-400" />
                     )
                   ) : (
-                    <span className="text-xs text-surface-400 italic">
-                      No assets
-                    </span>
+                    <span className="text-xs text-surface-400 italic">No assets</span>
                   )}
                 </div>
               </button>
@@ -463,10 +470,7 @@ function PurdueDiagram({
                 <div className="px-6 pb-4 pl-[5.5rem]">
                   <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredAssets.map((asset) => (
-                      <AssetCard
-                        key={asset.id}
-                        asset={asset}
-                      />
+                      <AssetCard key={asset.id} asset={asset} />
                     ))}
                   </div>
                   {filteredAssets.length < allAssets.length && (
@@ -494,9 +498,7 @@ function VendorBadges({ assets, levelColor }: { assets: Asset[]; levelColor?: st
         map.set(a.vendor, (map.get(a.vendor) ?? 0) + 1);
       }
     }
-    return [...map.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5); // Show top 5 vendors
+    return [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5); // Show top 5 vendors
   }, [assets]);
 
   return (
@@ -524,9 +526,7 @@ function VendorBadges({ assets, levelColor }: { assets: Asset[]; levelColor?: st
 
 function AssetCard({ asset }: { asset: Asset }) {
   return (
-    <div
-      className="flex items-start gap-2 rounded-md border border-surface-200 bg-surface-0 px-2.5 py-2"
-    >
+    <div className="flex items-start gap-2 rounded-md border border-surface-200 bg-surface-0 px-2.5 py-2">
       {/* Criticality indicator */}
       <div
         className={cn(
@@ -542,9 +542,7 @@ function AssetCard({ asset }: { asset: Asset }) {
 
       <div className="flex-1 min-w-0">
         {/* Asset name */}
-        <p className="text-xs font-medium text-surface-900 truncate">
-          {asset.name}
-        </p>
+        <p className="text-xs font-medium text-surface-900 truncate">{asset.name}</p>
 
         {/* Vendor / Model */}
         <div className="flex items-center gap-1 mt-0.5 flex-wrap">
@@ -558,17 +556,21 @@ function AssetCard({ asset }: { asset: Asset }) {
           )}
           {asset.model && (
             <span className="text-[10px] text-surface-400 truncate">
-              {asset.vendor ? '· ' : ''}{asset.model}
+              {asset.vendor ? '· ' : ''}
+              {asset.model}
             </span>
           )}
         </div>
 
         {/* Status / Type badges */}
         <div className="flex items-center gap-1 mt-1">
-          <span className={cn(
-            'inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium border',
-            CRITICALITY_COLORS[asset.criticality ?? ''] ?? 'bg-surface-100 text-surface-600 border-surface-200',
-          )}>
+          <span
+            className={cn(
+              'inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium border',
+              CRITICALITY_COLORS[asset.criticality ?? ''] ??
+                'bg-surface-100 text-surface-600 border-surface-200',
+            )}
+          >
             {CRITICALITY_LABELS[asset.criticality ?? ''] ?? asset.criticality}
           </span>
           {asset.operationalStatus !== 'operational' && (
@@ -577,9 +579,7 @@ function AssetCard({ asset }: { asset: Asset }) {
             </span>
           )}
           {asset.ipAddress && (
-            <span className="text-[9px] text-surface-400 font-mono">
-              {asset.ipAddress}
-            </span>
+            <span className="text-[9px] text-surface-400 font-mono">{asset.ipAddress}</span>
           )}
         </div>
       </div>

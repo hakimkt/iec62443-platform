@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { Search } from 'lucide-react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { Search } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 import { Input } from '../primitives/Input';
 
@@ -17,10 +17,8 @@ const searchInputSizeVariants = cva('', {
 });
 
 export interface SearchInputProps
-  extends Omit<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    'type' | 'size' | 'prefix' | 'suffix'
-  >,
+  extends
+    Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'size' | 'prefix' | 'suffix'>,
     VariantProps<typeof searchInputSizeVariants> {
   /** Callback when the clear button is clicked */
   onClear?: () => void;
@@ -30,16 +28,7 @@ export interface SearchInputProps
 
 const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   (
-    {
-      className,
-      size,
-      onClear,
-      shortcutHint,
-      value,
-      disabled,
-      placeholder = 'Search…',
-      ...props
-    },
+    { className, size, onClear, shortcutHint, value, disabled, placeholder = 'Search…', ...props },
     ref,
   ) => {
     const hasValue = value !== undefined && value !== '';
@@ -54,14 +43,7 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
           value={value}
           disabled={disabled}
           className={cn(searchInputSizeVariants({ size }))}
-          prefix={
-            <Search
-              className={cn(
-                isSm ? 'h-3.5 w-3.5' : 'h-4 w-4',
-              )}
-              aria-hidden
-            />
-          }
+          prefix={<Search className={cn(isSm ? 'h-3.5 w-3.5' : 'h-4 w-4')} aria-hidden />}
           onClear={onClear}
           {...props}
         />

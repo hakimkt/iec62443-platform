@@ -1,6 +1,6 @@
-import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check, ChevronDown, ChevronUp, Search, X } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ─── Root ────────────────────────────────────────────────────────── */
@@ -11,8 +11,9 @@ const SelectValue = SelectPrimitive.Value;
 
 /* ─── Trigger ─────────────────────────────────────────────────────── */
 
-export interface SelectTriggerProps
-  extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> {
+export interface SelectTriggerProps extends React.ComponentPropsWithoutRef<
+  typeof SelectPrimitive.Trigger
+> {
   icon?: React.ElementType;
 }
 
@@ -71,8 +72,9 @@ SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayNam
 
 /* ─── Content ─────────────────────────────────────────────────────── */
 
-export interface SelectContentProps
-  extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> {
+export interface SelectContentProps extends React.ComponentPropsWithoutRef<
+  typeof SelectPrimitive.Content
+> {
   /** Whether to show a search/filter input at the top of the list */
   searchable?: boolean;
 }
@@ -160,16 +162,13 @@ const SelectLabel = React.forwardRef<
     {...props}
   />
 ));
-SelectLabel.displayName = SelectLabel.displayName;
+SelectLabel.displayName = 'SelectLabel';
 
 /* ─── Item ────────────────────────────────────────────────────────── */
 
-export interface SelectItemProps
-  extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {}
-
 const SelectItem = React.forwardRef<
   React.ComponentRef<typeof SelectPrimitive.Item>,
-  SelectItemProps
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
@@ -187,7 +186,7 @@ const SelectItem = React.forwardRef<
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
   </SelectPrimitive.Item>
 ));
-SelectItem.displayName = SelectItem.displayName;
+SelectItem.displayName = 'SelectItem';
 
 /* ─── Separator ───────────────────────────────────────────────────── */
 
@@ -201,7 +200,7 @@ const SelectSeparator = React.forwardRef<
     {...props}
   />
 ));
-SelectSeparator.displayName = SelectSeparator.displayName;
+SelectSeparator.displayName = 'SelectSeparator';
 
 /* ─── Multi-Select ────────────────────────────────────────────────── */
 
@@ -245,18 +244,13 @@ function MultiSelect({
   }, [options]);
 
   const selectedLabels = React.useMemo(
-    () =>
-      value
-        .map((v) => options.find((o) => o.value === v)?.label)
-        .filter(Boolean) as string[],
+    () => value.map((v) => options.find((o) => o.value === v)?.label).filter(Boolean) as string[],
     [value, options],
   );
 
   const toggle = (itemValue: string) => {
     onValueChange(
-      value.includes(itemValue)
-        ? value.filter((v) => v !== itemValue)
-        : [...value, itemValue],
+      value.includes(itemValue) ? value.filter((v) => v !== itemValue) : [...value, itemValue],
     );
   };
 
@@ -264,11 +258,7 @@ function MultiSelect({
 
   return (
     <SelectPrimitive.Root open={open} onOpenChange={setOpen} value="">
-      <SelectTrigger
-        className={cn(className)}
-        disabled={disabled}
-        aria-label={placeholder}
-      >
+      <SelectTrigger className={cn(className)} disabled={disabled} aria-label={placeholder}>
         {selectedLabels.length > 0 ? (
           <span className="flex flex-wrap gap-1">
             {selectedLabels.slice(0, maxChips).map((label) => (

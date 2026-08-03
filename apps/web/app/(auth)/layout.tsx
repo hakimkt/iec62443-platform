@@ -5,11 +5,7 @@ export const metadata: Metadata = {
   description: 'Industrial Cybersecurity Management Platform',
 };
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
       <div className="relative hidden flex-1 bg-brand-950 lg:block">
@@ -39,13 +35,11 @@ export default function AuthLayout({
               Management
             </h1>
             <p className="mt-4 text-lg text-brand-300">
-              Assess, manage, and certify your IEC 62443 compliance with
-              confidence.
+              Assess, manage, and certify your IEC 62443 compliance with confidence.
             </p>
           </div>
           <p className="text-sm text-brand-400">
-            &copy; {new Date().getFullYear()} IEC 62443 Platform. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} IEC 62443 Platform. All rights reserved.
           </p>
         </div>
       </div>

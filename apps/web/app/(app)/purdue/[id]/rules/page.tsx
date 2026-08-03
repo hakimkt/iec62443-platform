@@ -1,31 +1,28 @@
 'use client';
 
-import { use, useState, useMemo } from 'react';
-import Link from 'next/link';
-import {
-  PageHeader,
-  DataTable,
-  EmptyState,
-} from '@iec62443/ui/components';
-import type { Column } from '@iec62443/ui/components';
+import type { CommunicationRule } from '@iec62443/shared-types';
 import { cn } from '@iec62443/ui';
-import { Button } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@iec62443/ui/primitives';
+import { DataTable, EmptyState, PageHeader, type Column } from '@iec62443/ui/components';
+import {
+  Button,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@iec62443/ui/primitives';
 import { ArrowLeft, Plus, Shield } from 'lucide-react';
+import Link from 'next/link';
+import { use, useMemo, useState } from 'react';
 import {
   useCommunicationRules,
-  usePurdueLevels,
   useCreateCommunicationRule,
+  usePurdueLevels,
 } from '@/hooks/usePurdue';
-import type { CommunicationRule } from '@iec62443/shared-types';
 
-export default function CommunicationRulesPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function CommunicationRulesPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: modelId } = use(params);
   const [showForm, setShowForm] = useState(false);
 
@@ -102,9 +99,7 @@ export default function CommunicationRulesPage({
         <span
           className={cn(
             'inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium',
-            row.isAllowed
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-700',
+            row.isAllowed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700',
           )}
         >
           {row.isAllowed ? 'Allowed' : 'Blocked'}
@@ -115,18 +110,14 @@ export default function CommunicationRulesPage({
       key: 'condition',
       header: 'Condition',
       render: (_value: unknown, row: CommunicationRule) => (
-        <span className="text-sm text-surface-600">
-          {row.condition || '—'}
-        </span>
+        <span className="text-sm text-surface-600">{row.condition || '—'}</span>
       ),
     },
     {
       key: 'protocol',
       header: 'Protocol',
       render: (_value: unknown, row: CommunicationRule) => (
-        <span className="text-sm font-mono text-surface-600">
-          {row.protocol || '—'}
-        </span>
+        <span className="text-sm font-mono text-surface-600">{row.protocol || '—'}</span>
       ),
     },
   ];
@@ -146,11 +137,7 @@ export default function CommunicationRulesPage({
           title="Communication Rules"
           description="Define allowed and blocked communication paths between Purdue levels"
           actions={
-            <Button
-              variant="primary"
-              icon={Plus}
-              onClick={() => setShowForm(!showForm)}
-            >
+            <Button variant="primary" icon={Plus} onClick={() => setShowForm(!showForm)}>
               New Rule
             </Button>
           }
@@ -163,18 +150,14 @@ export default function CommunicationRulesPage({
           onSubmit={handleSubmit}
           className="rounded-lg border border-surface-200 bg-surface-0 p-6 space-y-4"
         >
-          <h3 className="text-sm font-medium text-surface-700">
-            Create Communication Rule
-          </h3>
+          <h3 className="text-sm font-medium text-surface-700">Create Communication Rule</h3>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>Source Level *</Label>
               <Select
                 value={form.sourceLevelId}
-                onValueChange={(v) =>
-                  setForm((f) => ({ ...f, sourceLevelId: v }))
-                }
+                onValueChange={(v) => setForm((f) => ({ ...f, sourceLevelId: v }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select source level" />
@@ -193,9 +176,7 @@ export default function CommunicationRulesPage({
               <Label>Target Level *</Label>
               <Select
                 value={form.targetLevelId}
-                onValueChange={(v) =>
-                  setForm((f) => ({ ...f, targetLevelId: v }))
-                }
+                onValueChange={(v) => setForm((f) => ({ ...f, targetLevelId: v }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select target level" />
@@ -216,9 +197,7 @@ export default function CommunicationRulesPage({
               <Label>Status</Label>
               <Select
                 value={form.isAllowed ? 'allowed' : 'blocked'}
-                onValueChange={(v) =>
-                  setForm((f) => ({ ...f, isAllowed: v === 'allowed' }))
-                }
+                onValueChange={(v) => setForm((f) => ({ ...f, isAllowed: v === 'allowed' }))}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -234,9 +213,7 @@ export default function CommunicationRulesPage({
               <Label>Protocol</Label>
               <Input
                 value={form.protocol}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, protocol: e.target.value }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, protocol: e.target.value }))}
                 placeholder="e.g. OPC UA, HTTPS"
               />
             </div>
@@ -245,20 +222,14 @@ export default function CommunicationRulesPage({
               <Label>Condition</Label>
               <Input
                 value={form.condition}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, condition: e.target.value }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, condition: e.target.value }))}
                 placeholder="e.g. via DMZ only"
               />
             </div>
           </div>
 
           <div className="flex items-center justify-end gap-3">
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={() => setShowForm(false)}
-            >
+            <Button variant="secondary" type="button" onClick={() => setShowForm(false)}>
               Cancel
             </Button>
             <Button
@@ -289,11 +260,7 @@ export default function CommunicationRulesPage({
           title="No communication rules"
           description="Define rules to control communication between Purdue levels."
           action={
-            <Button
-              variant="primary"
-              icon={Plus}
-              onClick={() => setShowForm(true)}
-            >
+            <Button variant="primary" icon={Plus} onClick={() => setShowForm(true)}>
               New Rule
             </Button>
           }

@@ -21,37 +21,17 @@ const columnClasses: Record<number, string> = {
 /* ──────────────────────────── Component ───────────────────────── */
 
 const FormGroup = React.forwardRef<HTMLDivElement, FormGroupProps>(
-  (
-    {
-      className,
-      title,
-      description,
-      columns = 1,
-      children,
-      ...props
-    },
-    ref,
-  ) => {
+  ({ className, title, description, columns = 1, children, ...props }, ref) => {
     return (
       <div ref={ref} className={cn('space-y-4', className)} {...props}>
         {(title || description) && (
           <div>
-            {title && (
-              <h3 className="text-sm font-medium text-surface-700">
-                {title}
-              </h3>
-            )}
-            {description && (
-              <p className="text-xs text-surface-500 mt-0.5">
-                {description}
-              </p>
-            )}
+            {title && <h3 className="text-sm font-medium text-surface-700">{title}</h3>}
+            {description && <p className="text-xs text-surface-500 mt-0.5">{description}</p>}
           </div>
         )}
 
-        <div className={cn('grid gap-4', columnClasses[columns])}>
-          {children}
-        </div>
+        <div className={cn('grid gap-4', columnClasses[columns])}>{children}</div>
       </div>
     );
   },

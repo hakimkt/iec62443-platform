@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { ChevronRight, MoreHorizontal } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 export interface BreadcrumbItem {
@@ -19,14 +19,10 @@ export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
-  (
-    { className, items, separator, maxItems, ...props },
-    ref,
-  ) => {
+  ({ className, items, separator, maxItems, ...props }, ref) => {
     const [expanded, setExpanded] = React.useState(false);
 
-    const shouldTruncate =
-      maxItems !== undefined && items.length > maxItems && !expanded;
+    const shouldTruncate = maxItems !== undefined && items.length > maxItems && !expanded;
 
     const visibleItems = shouldTruncate
       ? [
@@ -38,9 +34,7 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
 
     const lastIndex = visibleItems.length - 1;
 
-    const defaultSeparator = (
-      <ChevronRight className="h-3.5 w-3.5 text-surface-400" aria-hidden />
-    );
+    const defaultSeparator = <ChevronRight className="h-3.5 w-3.5 text-surface-400" aria-hidden />;
 
     const resolvedSeparator = separator ?? defaultSeparator;
 
@@ -52,14 +46,14 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
         {...props}
       >
         <ol className="flex items-center gap-1.5">
-          {visibleItems.map((item, index) => {
+          {visibleItems.map((rawItem, index) => {
             const isLast = index === lastIndex;
-            const isEllipsis = item === null;
+            const isEllipsis = rawItem === null;
 
-            return (
-              <React.Fragment key={isEllipsis ? 'ellipsis' : item!.label}>
-                <li className="flex items-center gap-1.5">
-                  {isEllipsis ? (
+            if (isEllipsis) {
+              return (
+                <React.Fragment key="ellipsis">
+                  <li className="flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => setExpanded(true)}
@@ -68,32 +62,39 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
                     >
                       <MoreHorizontal className="h-4 w-4" />
                     </button>
-                  ) : isLast || !item!.href ? (
+                  </li>
+                  {index < lastIndex && (
+                    <li role="presentation" aria-hidden className="flex items-center">
+                      {resolvedSeparator}
+                    </li>
+                  )}
+                </React.Fragment>
+              );
+            }
+
+            // At this point we know rawItem is not null (isEllipsis is false)
+            const item: BreadcrumbItem = rawItem as BreadcrumbItem;
+            return (
+              <React.Fragment key={item.label}>
+                <li className="flex items-center gap-1.5">
+                  {isLast || !item.href ? (
                     <span
-                      className={cn(
-                        isLast
-                          ? 'text-surface-900 font-medium'
-                          : 'text-surface-500',
-                      )}
+                      className={cn(isLast ? 'text-surface-900 font-medium' : 'text-surface-500')}
                       aria-current={isLast ? 'page' : undefined}
                     >
-                      {item!.label}
+                      {item.label}
                     </span>
                   ) : (
                     <a
-                      href={item!.href}
+                      href={item.href}
                       className="text-surface-500 hover:text-surface-700 transition-colors"
                     >
-                      {item!.label}
+                      {item.label}
                     </a>
                   )}
                 </li>
-                {!isLast && (
-                  <li
-                    role="presentation"
-                    aria-hidden
-                    className="flex items-center"
-                  >
+                {index < lastIndex && (
+                  <li role="presentation" aria-hidden className="flex items-center">
                     {resolvedSeparator}
                   </li>
                 )}

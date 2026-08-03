@@ -1,15 +1,21 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
-import { Textarea } from '@iec62443/ui/primitives';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@iec62443/ui/primitives';
+import type { AssetCriticality, AssetType } from '@iec62443/shared-types';
+import {
+  Button,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+} from '@iec62443/ui/primitives';
 import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useCreateAsset } from '@/hooks/useAssets';
-import type { AssetType, AssetCriticality } from '@iec62443/shared-types';
 
 const typeOptions: { value: AssetType; label: string }[] = [
   { value: 'plc', label: 'PLC' },
@@ -101,39 +107,69 @@ export default function NewAssetPage() {
           <h3 className="text-sm font-medium text-surface-700">General Information</h3>
           <div className="space-y-1">
             <Label>Name *</Label>
-            <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required />
+            <Input
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              required
+            />
           </div>
           <div className="space-y-1">
             <Label>Description</Label>
-            <Textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} />
+            <Textarea
+              value={form.description}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              rows={3}
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>Type *</Label>
               <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
                 <SelectContent>
-                  {typeOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                  {typeOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
               <Label>Criticality</Label>
-              <Select value={form.criticality} onValueChange={(v) => setForm((f) => ({ ...f, criticality: v }))}>
-                <SelectTrigger><SelectValue placeholder="Select criticality" /></SelectTrigger>
+              <Select
+                value={form.criticality}
+                onValueChange={(v) => setForm((f) => ({ ...f, criticality: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select criticality" />
+                </SelectTrigger>
                 <SelectContent>
-                  {criticalityOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                  {criticalityOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div className="space-y-1">
             <Label>Purdue Level</Label>
-            <Select value={form.purdueLevel} onValueChange={(v) => setForm((f) => ({ ...f, purdueLevel: v }))}>
-              <SelectTrigger><SelectValue placeholder="Select Purdue level" /></SelectTrigger>
+            <Select
+              value={form.purdueLevel}
+              onValueChange={(v) => setForm((f) => ({ ...f, purdueLevel: v }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Purdue level" />
+              </SelectTrigger>
               <SelectContent>
                 {['0', '1', '2', '3', '4', '5'].map((l) => (
-                  <SelectItem key={l} value={l}>Level {l}</SelectItem>
+                  <SelectItem key={l} value={l}>
+                    Level {l}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -145,35 +181,61 @@ export default function NewAssetPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>Vendor</Label>
-              <Input value={form.vendor} onChange={(e) => setForm((f) => ({ ...f, vendor: e.target.value }))} />
+              <Input
+                value={form.vendor}
+                onChange={(e) => setForm((f) => ({ ...f, vendor: e.target.value }))}
+              />
             </div>
             <div className="space-y-1">
               <Label>Model</Label>
-              <Input value={form.model} onChange={(e) => setForm((f) => ({ ...f, model: e.target.value }))} />
+              <Input
+                value={form.model}
+                onChange={(e) => setForm((f) => ({ ...f, model: e.target.value }))}
+              />
             </div>
             <div className="space-y-1">
               <Label>Firmware Version</Label>
-              <Input value={form.firmwareVersion} onChange={(e) => setForm((f) => ({ ...f, firmwareVersion: e.target.value }))} />
+              <Input
+                value={form.firmwareVersion}
+                onChange={(e) => setForm((f) => ({ ...f, firmwareVersion: e.target.value }))}
+              />
             </div>
             <div className="space-y-1">
               <Label>Serial Number</Label>
-              <Input value={form.serialNumber} onChange={(e) => setForm((f) => ({ ...f, serialNumber: e.target.value }))} />
+              <Input
+                value={form.serialNumber}
+                onChange={(e) => setForm((f) => ({ ...f, serialNumber: e.target.value }))}
+              />
             </div>
             <div className="space-y-1">
               <Label>IP Address</Label>
-              <Input value={form.ipAddress} onChange={(e) => setForm((f) => ({ ...f, ipAddress: e.target.value }))} placeholder="e.g. 192.168.1.10" />
+              <Input
+                value={form.ipAddress}
+                onChange={(e) => setForm((f) => ({ ...f, ipAddress: e.target.value }))}
+                placeholder="e.g. 192.168.1.10"
+              />
             </div>
             <div className="space-y-1">
               <Label>MAC Address</Label>
-              <Input value={form.macAddress} onChange={(e) => setForm((f) => ({ ...f, macAddress: e.target.value }))} placeholder="e.g. AA:BB:CC:DD:EE:FF" />
+              <Input
+                value={form.macAddress}
+                onChange={(e) => setForm((f) => ({ ...f, macAddress: e.target.value }))}
+                placeholder="e.g. AA:BB:CC:DD:EE:FF"
+              />
             </div>
             <div className="space-y-1">
               <Label>Network Segment</Label>
-              <Input value={form.networkSegment} onChange={(e) => setForm((f) => ({ ...f, networkSegment: e.target.value }))} />
+              <Input
+                value={form.networkSegment}
+                onChange={(e) => setForm((f) => ({ ...f, networkSegment: e.target.value }))}
+              />
             </div>
             <div className="space-y-1">
               <Label>Location</Label>
-              <Input value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} />
+              <Input
+                value={form.location}
+                onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+              />
             </div>
           </div>
         </div>
@@ -182,7 +244,12 @@ export default function NewAssetPage() {
           <Button variant="secondary" type="button" onClick={() => router.push('/assets')}>
             Cancel
           </Button>
-          <Button variant="primary" type="submit" disabled={!form.name || !form.type} loading={createAsset.isPending}>
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={!form.name || !form.type}
+            loading={createAsset.isPending}
+          >
             Create Asset
           </Button>
         </div>

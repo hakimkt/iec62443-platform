@@ -1,12 +1,7 @@
 // ── Platform Schema ──────────────────────────────────────────────────────
 export { tenants } from './schema/platform/tenants.js';
 export { users } from './schema/platform/users.js';
-export {
-  roles,
-  userRoles,
-  tenantMemberships,
-  apiKeys,
-} from './schema/platform/roles.js';
+export { roles, userRoles, tenantMemberships, apiKeys } from './schema/platform/roles.js';
 export { auditEvents } from './schema/platform/audit-events.js';
 export { authTokens } from './schema/platform/auth-tokens.js';
 
@@ -20,21 +15,10 @@ export {
 } from './schema/tenant/assessment.js';
 
 // ── Tenant Schema — Risk ─────────────────────────────────────────────────
-export {
-  registers,
-  entries,
-  treatments,
-  acceptances,
-  matrixConfig,
-} from './schema/tenant/risk.js';
+export { registers, entries, treatments, acceptances, matrixConfig } from './schema/tenant/risk.js';
 
 // ── Tenant Schema — Zone & Conduit ───────────────────────────────────────
-export {
-  zones,
-  conduits,
-  memberships,
-  segmentationRules,
-} from './schema/tenant/zone.js';
+export { zones, conduits, memberships, segmentationRules } from './schema/tenant/zone.js';
 
 // ── Tenant Schema — Purdue Model ─────────────────────────────────────────
 export {
@@ -53,11 +37,7 @@ export {
 } from './schema/tenant/csms.js';
 
 // ── Tenant Schema — Findings ─────────────────────────────────────────────
-export {
-  findings,
-  statusHistory,
-  comments as findingComments,
-} from './schema/tenant/finding.js';
+export { findings, statusHistory, comments as findingComments } from './schema/tenant/finding.js';
 
 // ── Tenant Schema — Evidence ─────────────────────────────────────────────
 export {
@@ -75,16 +55,10 @@ export {
 } from './schema/tenant/remediation.js';
 
 // ── Tenant Schema — Asset ────────────────────────────────────────────────
-export {
-  assets,
-  relationships as assetRelationships,
-  importJobs,
-} from './schema/tenant/asset.js';
+export { assets, relationships as assetRelationships, importJobs } from './schema/tenant/asset.js';
 
 // ── Tenant Schema — Reports ──────────────────────────────────────────────
-export {
-  reports,
-} from './schema/tenant/report.js';
+export { reports } from './schema/tenant/report.js';
 
 // ── Tenant Schema — Client & Project ─────────────────────────────────────
 export { clients } from './schema/tenant/client.js';

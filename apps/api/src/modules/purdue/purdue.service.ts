@@ -1,15 +1,13 @@
-import { eq, and, desc, sql, count, ilike } from 'drizzle-orm';
 import crypto from 'node:crypto';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import {
-  purdueModels,
-  purdueLevels,
   assetMappings,
-  communicationRules,
   auditEvents,
+  communicationRules,
+  purdueLevels,
+  purdueModels,
 } from '@iec62443/database';
+import { and, count, desc, eq, ilike, sql } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -93,10 +91,7 @@ export interface ComplianceResult {
 // Audit hash chain helper
 // ---------------------------------------------------------------------------
 
-async function computeEventHash(
-  data: string,
-  previousHash: string | null,
-): Promise<string> {
+async function computeEventHash(data: string, previousHash: string | null): Promise<string> {
   const input = `${previousHash ?? ''}|${data}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
@@ -117,7 +112,9 @@ export class PurdueService {
   async listModels(filters: PurdueModelFilters) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const page = filters.page ?? 1;
@@ -155,14 +152,12 @@ export class PurdueService {
   async getModel(id: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
-      const [model] = await tx
-        .select()
-        .from(purdueModels)
-        .where(eq(purdueModels.id, id))
-        .limit(1);
+      const [model] = await tx.select().from(purdueModels).where(eq(purdueModels.id, id)).limit(1);
 
       if (!model) {
         throw Object.assign(new Error('Purdue model not found'), {
@@ -178,7 +173,9 @@ export class PurdueService {
   async createModel(data: CreatePurdueModelInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const [newModel] = await tx
@@ -214,7 +211,9 @@ export class PurdueService {
   async updateModel(id: string, data: UpdatePurdueModelInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getModelWithTx(tx, id);
@@ -254,7 +253,9 @@ export class PurdueService {
   async deleteModel(id: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getModelWithTx(tx, id);
@@ -281,7 +282,9 @@ export class PurdueService {
   async listLevels(modelId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getModelWithTx(tx, modelId);
@@ -297,7 +300,9 @@ export class PurdueService {
   async createLevel(modelId: string, data: CreateLevelInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getModelWithTx(tx, modelId);
@@ -337,7 +342,9 @@ export class PurdueService {
   async updateLevel(levelId: string, data: UpdateLevelInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const updateData: Record<string, unknown> = {};
@@ -376,7 +383,9 @@ export class PurdueService {
   async deleteLevel(levelId: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const [level] = await tx
@@ -394,9 +403,11 @@ export class PurdueService {
 
       // Delete related mappings and rules
       await tx.delete(assetMappings).where(eq(assetMappings.levelId, levelId));
-      await tx.delete(communicationRules).where(
-        sql`${communicationRules.sourceLevelId} = ${levelId} OR ${communicationRules.targetLevelId} = ${levelId}`,
-      );
+      await tx
+        .delete(communicationRules)
+        .where(
+          sql`${communicationRules.sourceLevelId} = ${levelId} OR ${communicationRules.targetLevelId} = ${levelId}`,
+        );
       await tx.delete(purdueLevels).where(eq(purdueLevels.id, levelId));
 
       await this.createAuditEvent(tx, {
@@ -415,7 +426,9 @@ export class PurdueService {
   async listMappings(modelId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getModelWithTx(tx, modelId);
@@ -431,7 +444,9 @@ export class PurdueService {
   async addMapping(modelId: string, data: AssetMappingInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getModelWithTx(tx, modelId);
@@ -469,19 +484,16 @@ export class PurdueService {
   async removeMapping(modelId: string, assetId: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getModelWithTx(tx, modelId);
 
       await tx
         .delete(assetMappings)
-        .where(
-          and(
-            eq(assetMappings.modelId, modelId),
-            eq(assetMappings.assetId, assetId),
-          ),
-        );
+        .where(and(eq(assetMappings.modelId, modelId), eq(assetMappings.assetId, assetId)));
 
       await this.createAuditEvent(tx, {
         userId,
@@ -499,7 +511,9 @@ export class PurdueService {
   async listRules(modelId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getModelWithTx(tx, modelId);
@@ -515,7 +529,9 @@ export class PurdueService {
   async createRule(modelId: string, data: CommunicationRuleInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getModelWithTx(tx, modelId);
@@ -545,7 +561,11 @@ export class PurdueService {
         entityType: 'purdue_model',
         entityId: modelId,
         action: 'update',
-        details: { ruleId: newRule.id, sourceLevelId: data.sourceLevelId, targetLevelId: data.targetLevelId },
+        details: {
+          ruleId: newRule.id,
+          sourceLevelId: data.sourceLevelId,
+          targetLevelId: data.targetLevelId,
+        },
       });
 
       return newRule;
@@ -555,7 +575,9 @@ export class PurdueService {
   async updateRule(ruleId: string, data: Partial<CommunicationRuleInput>, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const updateData: Record<string, unknown> = {};
@@ -594,7 +616,9 @@ export class PurdueService {
   async deleteRule(ruleId: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const [rule] = await tx
@@ -610,9 +634,7 @@ export class PurdueService {
         });
       }
 
-      await tx
-        .delete(communicationRules)
-        .where(eq(communicationRules.id, ruleId));
+      await tx.delete(communicationRules).where(eq(communicationRules.id, ruleId));
 
       await this.createAuditEvent(tx, {
         userId,
@@ -630,23 +652,25 @@ export class PurdueService {
   async getCompliance(modelId: string): Promise<ComplianceResult> {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       await this.getModelWithTx(tx, modelId);
 
       // Fetch all communication rules and asset mappings for this model
       const rules = await tx
-          .select()
-          .from(communicationRules)
-          .where(eq(communicationRules.modelId, modelId));
+        .select()
+        .from(communicationRules)
+        .where(eq(communicationRules.modelId, modelId));
       const mappings = await tx
-          .select()
-          .from(assetMappings)
-          .where(eq(assetMappings.modelId, modelId));
+        .select()
+        .from(assetMappings)
+        .where(eq(assetMappings.modelId, modelId));
 
       // Build a lookup: "sourceLevelId:targetLevelId" → rule for denied rules
-      const deniedRules = new Map<string, typeof rules[number]>();
+      const deniedRules = new Map<string, (typeof rules)[number]>();
       for (const rule of rules) {
         if (!rule.isAllowed) {
           deniedRules.set(`${rule.sourceLevelId}:${rule.targetLevelId}`, rule);
@@ -714,11 +738,7 @@ export class PurdueService {
   // ── Private helpers ──────────────────────────────────────────────────
 
   private async getModelWithTx(db: DbOrTx, id: string) {
-    const [model] = await db
-      .select()
-      .from(purdueModels)
-      .where(eq(purdueModels.id, id))
-      .limit(1);
+    const [model] = await db.select().from(purdueModels).where(eq(purdueModels.id, id)).limit(1);
 
     if (!model) {
       throw Object.assign(new Error('Purdue model not found'), {
@@ -730,16 +750,19 @@ export class PurdueService {
     return model;
   }
 
-  private async createAuditEvent(db: DbOrTx, params: {
-    userId: string;
-    eventType: string;
-    entityType: string;
-    entityId: string;
-    action: 'create' | 'update' | 'delete' | 'read';
-    details: Record<string, unknown>;
-    ipAddress?: string | null;
-    userAgent?: string | null;
-  }): Promise<void> {
+  private async createAuditEvent(
+    db: DbOrTx,
+    params: {
+      userId: string;
+      eventType: string;
+      entityType: string;
+      entityId: string;
+      action: 'create' | 'update' | 'delete' | 'read';
+      details: Record<string, unknown>;
+      ipAddress?: string | null;
+      userAgent?: string | null;
+    },
+  ): Promise<void> {
     try {
       const [lastEvent] = await db
         .select({ eventHash: auditEvents.eventHash })

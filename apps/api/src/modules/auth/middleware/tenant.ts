@@ -1,9 +1,8 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import fp from 'fastify-plugin';
-
-import { eq, and } from 'drizzle-orm';
-import { tenants, tenantMemberships } from '@iec62443/database';
 import type { TokenPayload } from '@iec62443/auth';
+import { tenantMemberships, tenants } from '@iec62443/database';
+import { and, eq } from 'drizzle-orm';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import fp from 'fastify-plugin';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,10 +24,7 @@ export interface TenantMiddlewareOptions {
   publicRoutes?: string[];
 }
 
-async function tenantMiddleware(
-  app: FastifyInstance,
-  options: TenantMiddlewareOptions,
-) {
+async function tenantMiddleware(app: FastifyInstance, options: TenantMiddlewareOptions) {
   const { publicRoutes = [] } = options;
 
   app.addHook('onRequest', async (request: FastifyRequest, reply: FastifyReply) => {

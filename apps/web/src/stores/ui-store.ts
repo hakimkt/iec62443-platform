@@ -36,8 +36,7 @@ export const useUIStore = create<UIState>()(
       setSidebarCollapsed: (value) => set({ sidebarCollapsed: value }),
       openContextPanel: (type, id) =>
         set({ contextPanelOpen: true, contextPanelEntity: { type, id } }),
-      closeContextPanel: () =>
-        set({ contextPanelOpen: false, contextPanelEntity: null }),
+      closeContextPanel: () => set({ contextPanelOpen: false, contextPanelEntity: null }),
       setCommandPaletteOpen: (value) => set({ commandPaletteOpen: value }),
       setTheme: (theme) => set({ theme }),
     }),

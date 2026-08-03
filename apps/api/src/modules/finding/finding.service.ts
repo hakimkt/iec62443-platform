@@ -1,15 +1,13 @@
-import { eq, and, desc, sql, count, ilike } from 'drizzle-orm';
 import crypto from 'node:crypto';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import {
+  auditEvents,
+  engagements,
+  findingComments,
   findings,
   statusHistory,
-  findingComments,
-  engagements,
-  auditEvents,
 } from '@iec62443/database';
+import { and, count, desc, eq, ilike, sql } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -94,15 +92,11 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
   risk_accepted: [],
 };
 
-
 // ---------------------------------------------------------------------------
 // Audit hash chain helper
 // ---------------------------------------------------------------------------
 
-async function computeEventHash(
-  data: string,
-  previousHash: string | null,
-): Promise<string> {
+async function computeEventHash(data: string, previousHash: string | null): Promise<string> {
   const input = `${previousHash ?? ''}|${data}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
@@ -123,7 +117,9 @@ export class FindingService {
   async listFindings(filters: FindingFilters) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const page = filters.page ?? 1;
@@ -151,10 +147,7 @@ export class FindingService {
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       // Count total
-      const [countResult] = await tx
-        .select({ total: count() })
-        .from(findings)
-        .where(whereClause);
+      const [countResult] = await tx.select({ total: count() }).from(findings).where(whereClause);
 
       const total = countResult?.total ?? 0;
       const totalPages = Math.ceil(total / perPage);
@@ -215,14 +208,12 @@ export class FindingService {
   async getFinding(id: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
-      const [finding] = await tx
-        .select()
-        .from(findings)
-        .where(eq(findings.id, id))
-        .limit(1);
+      const [finding] = await tx.select().from(findings).where(eq(findings.id, id)).limit(1);
 
       if (!finding) {
         throw Object.assign(new Error('Finding not found'), {
@@ -238,7 +229,9 @@ export class FindingService {
   async createFinding(data: CreateFindingInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Validate engagement exists if provided
@@ -311,7 +304,9 @@ export class FindingService {
   async updateFinding(id: string, data: UpdateFindingInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const finding = await this.getFindingTx(tx, id);
@@ -391,20 +386,19 @@ export class FindingService {
   async deleteFinding(id: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const finding = await this.getFindingTx(tx, id);
 
       // Only allow if status is 'draft' or 'false_positive'
       if (finding.status !== 'draft' && finding.status !== 'false_positive') {
-        throw Object.assign(
-          new Error('Only draft or false_positive findings can be deleted'),
-          {
-            statusCode: 409,
-            code: 'FINDING_NOT_DELETABLE',
-          },
-        );
+        throw Object.assign(new Error('Only draft or false_positive findings can be deleted'), {
+          statusCode: 409,
+          code: 'FINDING_NOT_DELETABLE',
+        });
       }
 
       // Soft delete by setting status to 'closed'
@@ -439,7 +433,9 @@ export class FindingService {
   async transitionFinding(id: string, data: TransitionFindingInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const finding = await this.getFindingTx(tx, id);
@@ -510,7 +506,9 @@ export class FindingService {
   async getStatusHistory(findingId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Verify finding exists
@@ -529,7 +527,9 @@ export class FindingService {
   async getComments(findingId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Verify finding exists
@@ -546,7 +546,9 @@ export class FindingService {
   async addComment(findingId: string, data: CreateCommentInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Verify finding exists
@@ -588,7 +590,9 @@ export class FindingService {
   async linkEvidence(findingId: string, evidenceId: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const finding = await this.getFindingTx(tx, findingId);
@@ -629,7 +633,9 @@ export class FindingService {
   async getEvidence(findingId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Verify finding exists
@@ -645,11 +651,7 @@ export class FindingService {
   // ── Private helpers ──────────────────────────────────────────────────
 
   private async getFindingTx(db: DbOrTx, id: string) {
-    const [finding] = await db
-      .select()
-      .from(findings)
-      .where(eq(findings.id, id))
-      .limit(1);
+    const [finding] = await db.select().from(findings).where(eq(findings.id, id)).limit(1);
 
     if (!finding) {
       throw Object.assign(new Error('Finding not found'), {
@@ -661,16 +663,19 @@ export class FindingService {
     return finding;
   }
 
-  private async createAuditEvent(db: DbOrTx, params: {
-    userId: string;
-    eventType: string;
-    entityType: string;
-    entityId: string;
-    action: 'create' | 'update' | 'delete' | 'read';
-    details: Record<string, unknown>;
-    ipAddress?: string | null;
-    userAgent?: string | null;
-  }): Promise<void> {
+  private async createAuditEvent(
+    db: DbOrTx,
+    params: {
+      userId: string;
+      eventType: string;
+      entityType: string;
+      entityId: string;
+      action: 'create' | 'update' | 'delete' | 'read';
+      details: Record<string, unknown>;
+      ipAddress?: string | null;
+      userAgent?: string | null;
+    },
+  ): Promise<void> {
     try {
       // Get the last audit event hash for chaining (tenant-scoped)
       const [lastEvent] = await db

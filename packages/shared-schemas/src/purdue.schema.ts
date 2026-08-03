@@ -12,7 +12,10 @@ export const createLevelSchema = z.object({
   levelNumber: z.number().min(0).max(5.5),
   name: z.string().min(1).max(200),
   description: z.string().max(5000).optional(),
-  color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .optional(),
   sortOrder: z.number().int().min(0).default(0),
 });
 

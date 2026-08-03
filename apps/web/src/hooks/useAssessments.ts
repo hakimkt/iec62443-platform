@@ -1,15 +1,14 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getApiClient } from '@/lib/api';
-import { queryKeys } from '@/lib/query-client';
-
 import type {
   AssessmentEngagement,
-  AssessmentTemplate,
+  AssessmentProgress,
   AssessmentQuestion,
   AssessmentResponse,
   AssessmentScorecard,
-  AssessmentProgress,
+  AssessmentTemplate,
 } from '@iec62443/shared-types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { getApiClient } from '@/lib/api';
+import { queryKeys } from '@/lib/query-client';
 
 interface EngagementListParams {
   page?: number;
@@ -132,9 +131,7 @@ export function useAssessment(id: string | null) {
   return useQuery({
     queryKey: queryKeys.assessments.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<AssessmentEngagement>>(
-        `/assessments/${id}`,
-      );
+      const result = await client.get<SingleResponse<AssessmentEngagement>>(`/assessments/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -157,10 +154,7 @@ export function useCreateAssessment() {
       startDate?: string;
       targetDate?: string;
     }) => {
-      const result = await client.post<SingleResponse<AssessmentEngagement>>(
-        '/assessments',
-        data,
-      );
+      const result = await client.post<SingleResponse<AssessmentEngagement>>('/assessments', data);
       return result.data;
     },
     onSuccess: () => {
@@ -174,13 +168,7 @@ export function useUpdateAssessment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      ...data
-    }: {
-      id: string;
-      [key: string]: unknown;
-    }) => {
+    mutationFn: async ({ id, ...data }: { id: string; [key: string]: unknown }) => {
       const result = await client.patch<SingleResponse<AssessmentEngagement>>(
         `/assessments/${id}`,
         data,
@@ -216,9 +204,9 @@ export function useAssessmentQuestions(engagementId: string | null) {
   return useQuery({
     queryKey: queryKeys.assessments.questions(engagementId ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<(AssessmentQuestion & { response?: AssessmentResponse })[]>>(
-        `/assessments/${engagementId}/questions`,
-      );
+      const result = await client.get<
+        SingleResponse<(AssessmentQuestion & { response?: AssessmentResponse })[]>
+      >(`/assessments/${engagementId}/questions`);
       return result.data;
     },
     enabled: !!engagementId,

@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   boolean,
   check,
@@ -9,7 +10,6 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
 import { engagements } from './assessment.js';
 
 // ── Findings ─────────────────────────────────────────────────────────────
@@ -31,21 +31,15 @@ export const findings = pgTable(
     riskIds: uuid('risk_ids').array().default([]),
     assignedTo: uuid('assigned_to'),
     dueDate: timestamp('due_date', { withTimezone: true }),
-    discoveredAt: timestamp('discovered_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    discoveredAt: timestamp('discovered_at', { withTimezone: true }).notNull().defaultNow(),
     closedAt: timestamp('closed_at', { withTimezone: true }),
     closedBy: uuid('closed_by'),
     resolutionNote: text('resolution_note'),
     source: varchar('source', { length: 50 }).default('manual'),
     externalRef: varchar('external_ref', { length: 255 }),
     metadata: jsonb('metadata').default({}),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     check(
@@ -56,10 +50,7 @@ export const findings = pgTable(
       'findings_status_check',
       sql`${table.status} IN ('draft', 'open', 'acknowledged', 'remediation_planned', 'in_progress', 'verification', 'verified', 'closed', 'false_positive', 'risk_accepted')`,
     ),
-    index('idx_findings_engagement_status').on(
-      table.engagementId,
-      table.status,
-    ),
+    index('idx_findings_engagement_status').on(table.engagementId, table.status),
     index('idx_findings_severity_status').on(table.severity, table.status),
   ],
 );
@@ -75,9 +66,7 @@ export const statusHistory = pgTable('status_history', {
   toStatus: varchar('to_status', { length: 30 }).notNull(),
   changedBy: uuid('changed_by').notNull(),
   reason: text('reason'),
-  changedAt: timestamp('changed_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  changedAt: timestamp('changed_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // ── Comments ─────────────────────────────────────────────────────────────
@@ -90,10 +79,6 @@ export const comments = pgTable('comments', {
   authorId: uuid('author_id').notNull(),
   body: text('body').notNull(),
   isInternal: boolean('is_internal').notNull().default(false),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

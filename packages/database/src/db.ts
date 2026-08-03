@@ -1,6 +1,5 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
-
 import * as platformSchema from './schema/platform/index.js';
 import * as tenantSchema from './schema/tenant/index.js';
 

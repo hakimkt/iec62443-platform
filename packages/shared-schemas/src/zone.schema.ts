@@ -12,7 +12,14 @@ export const zoneTypeSchema = z.enum([
   'custom',
 ]);
 
-export const conduitTypeSchema = z.enum(['hardwired', 'network', 'wireless', 'removable_media', 'human', 'other']);
+export const conduitTypeSchema = z.enum([
+  'hardwired',
+  'network',
+  'wireless',
+  'removable_media',
+  'human',
+  'other',
+]);
 
 export const createZoneSchema = z.object({
   name: z.string().min(1).max(255),
@@ -28,7 +35,10 @@ export const createZoneSchema = z.object({
   diagramY: z.number().optional(),
   diagramWidth: z.number().positive().optional(),
   diagramHeight: z.number().positive().optional(),
-  color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .optional(),
   metadata: z.record(z.unknown()).default({}),
 });
 
@@ -50,7 +60,9 @@ export const createConduitSchema = z.object({
   metadata: z.record(z.unknown()).default({}),
 });
 
-export const updateConduitSchema = createConduitSchema.partial().omit({ sourceZoneId: true, targetZoneId: true });
+export const updateConduitSchema = createConduitSchema
+  .partial()
+  .omit({ sourceZoneId: true, targetZoneId: true });
 
 export const zoneMembershipSchema = z.object({
   assetId: uuidSchema,

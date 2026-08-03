@@ -1,0 +1,4 @@
+DATABASE_URL='postgresql://iec62443:iec62443_dev@localhost:5432/iec62443_platform' JWT_SECRET='dev-jwt-secret-change-in-production' NODE_OPTIONS="--trace-warnings --trace-uncaught" pnpm --filter api dev
+
+
+NODE_OPTIONS="--trace-warnings --trace-uncaught" pnpm --filter web dev

@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { RemediationService } from './remediation.service.js';
 
 // ---------------------------------------------------------------------------
@@ -27,7 +28,7 @@ function createMockDb() {
   }
 
   return {
-    db: createChain() as import('drizzle-orm/node-postgres').NodePgDatabase,
+    db: createChain() as unknown as NodePgDatabase,
     enqueue: (...values: unknown[]) => resolvedQueue.push(...values),
   };
 }
@@ -107,10 +108,10 @@ describe('RemediationService', () => {
       };
 
       mock.enqueue(
-        [newPlan],  // insert().returning()
-        [],         // audit: select last hash
-        undefined,  // audit: insert values
-        [newPlan],  // getPlan() → select().from().where().limit()
+        [newPlan], // insert().returning()
+        [], // audit: select last hash
+        undefined, // audit: insert values
+        [newPlan], // getPlan() → select().from().where().limit()
       );
 
       const result = await service.createPlan({ name: 'New Plan' }, USER_ID);
@@ -121,9 +122,7 @@ describe('RemediationService', () => {
     it('should throw 500 when insert fails', async () => {
       mock.enqueue([]); // insert().returning() → []
 
-      await expect(
-        service.createPlan({ name: 'Fail Plan' }, USER_ID),
-      ).rejects.toMatchObject({
+      await expect(service.createPlan({ name: 'Fail Plan' }, USER_ID)).rejects.toMatchObject({
         statusCode: 500,
         code: 'PLAN_CREATE_FAILED',
       });
@@ -152,10 +151,10 @@ describe('RemediationService', () => {
       };
 
       mock.enqueue(
-        [existingPlan],                                                   // getPlan() existence check
-        undefined,                                                        // update().set().where()
-        [],                                                               // audit: select last hash
-        undefined,                                                        // audit: insert values
+        [existingPlan], // getPlan() existence check
+        undefined, // update().set().where()
+        [], // audit: select last hash
+        undefined, // audit: insert values
         [{ ...existingPlan, status: 'completed', completedAt: new Date() }], // getPlan() return
       );
 
@@ -222,10 +221,10 @@ describe('RemediationService', () => {
       };
 
       mock.enqueue(
-        [existingAction],    // getAction() existence check
-        [newVerification],   // insert().returning()
-        [],                  // audit: select last hash
-        undefined,           // audit: insert values
+        [existingAction], // getAction() existence check
+        [newVerification], // insert().returning()
+        [], // audit: select last hash
+        undefined, // audit: insert values
       );
 
       const result = await service.verifyAction(

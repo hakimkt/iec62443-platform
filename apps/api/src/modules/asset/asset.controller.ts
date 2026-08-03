@@ -1,13 +1,11 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-
 import {
-  createAssetSchema,
-  updateAssetSchema,
   assetRelationshipSchema,
+  createAssetSchema,
   paginationSchema,
+  updateAssetSchema,
   uuidSchema,
 } from '@iec62443/shared-schemas';
-
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { AssetService } from './asset.service.js';
 
 // ---------------------------------------------------------------------------
@@ -101,9 +99,7 @@ export class AssetController {
 
     try {
       const result = await this.assetService.listAssets(filters);
-      return reply.status(200).send(
-        paginatedResponse(result.data, result.pagination, request.id),
-      );
+      return reply.status(200).send(paginatedResponse(result.data, result.pagination, request.id));
     } catch (error: unknown) {
       return this.handleError(error, request, reply);
     }
@@ -118,16 +114,16 @@ export class AssetController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -145,9 +141,9 @@ export class AssetController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Asset ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Asset ID is required', request.id));
     }
 
     try {
@@ -165,9 +161,9 @@ export class AssetController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Asset ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Asset ID is required', request.id));
     }
 
     const parsed = updateAssetSchema.safeParse(request.body);
@@ -176,16 +172,16 @@ export class AssetController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -203,16 +199,16 @@ export class AssetController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Asset ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Asset ID is required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -241,9 +237,9 @@ export class AssetController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Asset ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Asset ID is required', request.id));
     }
 
     try {
@@ -261,9 +257,9 @@ export class AssetController {
     const id = params['id'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Asset ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Asset ID is required', request.id));
     }
 
     const parsed = assetRelationshipSchema.safeParse(request.body);
@@ -272,16 +268,16 @@ export class AssetController {
         field: issue.path.join('.'),
         message: issue.message,
       }));
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Invalid request body', request.id, details));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -300,22 +296,22 @@ export class AssetController {
     const relId = params['relId'];
 
     if (!id) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Asset ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Asset ID is required', request.id));
     }
 
     if (!relId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Relationship ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Relationship ID is required', request.id));
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -333,26 +329,33 @@ export class AssetController {
     const totalRecords = body?.['totalRecords'] as number | undefined;
 
     if (totalRecords === undefined || totalRecords === null) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'totalRecords is required', request.id, [
-          { field: 'totalRecords', message: 'totalRecords is required' },
-        ]),
-      );
+      return reply
+        .status(400)
+        .send(
+          errorResponse('VALIDATION_ERROR', 'totalRecords is required', request.id, [
+            { field: 'totalRecords', message: 'totalRecords is required' },
+          ]),
+        );
     }
 
     if (typeof totalRecords !== 'number' || totalRecords < 0 || !Number.isInteger(totalRecords)) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'totalRecords must be a non-negative integer', request.id, [
-          { field: 'totalRecords', message: 'totalRecords must be a non-negative integer' },
-        ]),
-      );
+      return reply
+        .status(400)
+        .send(
+          errorResponse(
+            'VALIDATION_ERROR',
+            'totalRecords must be a non-negative integer',
+            request.id,
+            [{ field: 'totalRecords', message: 'totalRecords must be a non-negative integer' }],
+          ),
+        );
     }
 
     const userId = this.getUserId(request);
     if (!userId) {
-      return reply.status(401).send(
-        errorResponse('UNAUTHORIZED', 'Authentication required', request.id),
-      );
+      return reply
+        .status(401)
+        .send(errorResponse('UNAUTHORIZED', 'Authentication required', request.id));
     }
 
     try {
@@ -370,18 +373,20 @@ export class AssetController {
     const jobId = params['jobId'];
 
     if (!jobId) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Job ID is required', request.id),
-      );
+      return reply
+        .status(400)
+        .send(errorResponse('VALIDATION_ERROR', 'Job ID is required', request.id));
     }
 
     const uuidParsed = uuidSchema.safeParse(jobId);
     if (!uuidParsed.success) {
-      return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Job ID must be a valid UUID', request.id, [
-          { field: 'jobId', message: 'Job ID must be a valid UUID' },
-        ]),
-      );
+      return reply
+        .status(400)
+        .send(
+          errorResponse('VALIDATION_ERROR', 'Job ID must be a valid UUID', request.id, [
+            { field: 'jobId', message: 'Job ID must be a valid UUID' },
+          ]),
+        );
     }
 
     try {
@@ -426,12 +431,16 @@ export class AssetController {
       request.log.warn(error);
     }
 
-    return reply.status(statusCode).send(
-      errorResponse(
-        code,
-        statusCode >= 500 ? 'An unexpected error occurred.' : (err.message ?? 'An error occurred'),
-        request.id,
-      ),
-    );
+    return reply
+      .status(statusCode)
+      .send(
+        errorResponse(
+          code,
+          statusCode >= 500
+            ? 'An unexpected error occurred.'
+            : (err.message ?? 'An error occurred'),
+          request.id,
+        ),
+      );
   }
 }

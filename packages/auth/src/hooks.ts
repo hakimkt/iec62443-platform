@@ -1,5 +1,10 @@
-import { hasAllPermissions, hasAnyPermission, hasPermission, resolvePermissions } from './permissions.js';
 import type { TokenPayload } from './jwt.js';
+import {
+  hasAllPermissions,
+  hasAnyPermission,
+  hasPermission,
+  resolvePermissions,
+} from './permissions.js';
 
 export { hasAllPermissions, hasAnyPermission, hasPermission, resolvePermissions };
 
@@ -20,19 +25,11 @@ export function createAuthContext(payload: TokenPayload): AuthContext {
   };
 }
 
-export function canAccessResource(
-  context: AuthContext,
-  resource: string,
-  action: string,
-): boolean {
+export function canAccessResource(context: AuthContext, resource: string, action: string): boolean {
   return hasPermission(context.user, `${resource}:${action}`);
 }
 
-export function requirePermission(
-  context: AuthContext,
-  resource: string,
-  action: string,
-): void {
+export function requirePermission(context: AuthContext, resource: string, action: string): void {
   if (!canAccessResource(context, resource, action)) {
     throw new PermissionDeniedError(resource, action);
   }

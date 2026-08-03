@@ -13,32 +13,17 @@ type UUID = string & { readonly __brand: unique symbol };
 
 /** Standard risk categories used in IEC 62443 risk analysis. */
 export type RiskCategory =
-  | 'safety'
-  | 'operational'
-  | 'environmental'
-  | 'financial'
-  | 'reputational'
-  | 'regulatory';
+  'safety' | 'operational' | 'environmental' | 'financial' | 'reputational' | 'regulatory';
 
 /** Overall risk level derived from the risk matrix. */
 export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
 
 /** Risk treatment strategy. */
-export type RiskTreatmentStrategy =
-  | 'mitigate'
-  | 'transfer'
-  | 'accept'
-  | 'avoid'
-  | 'pending';
+export type RiskTreatmentStrategy = 'mitigate' | 'transfer' | 'accept' | 'avoid' | 'pending';
 
 /** Risk entry status. */
 export type RiskEntryStatus =
-  | 'identified'
-  | 'analyzed'
-  | 'treated'
-  | 'monitored'
-  | 'closed'
-  | 'accepted';
+  'identified' | 'analyzed' | 'treated' | 'monitored' | 'closed' | 'accepted';
 
 // ---------------------------------------------------------------------------
 // Risk Register
@@ -112,11 +97,7 @@ export interface RiskEntry {
 // ---------------------------------------------------------------------------
 
 /** Status of a risk treatment action. */
-export type RiskTreatmentStatus =
-  | 'planned'
-  | 'in_progress'
-  | 'completed'
-  | 'cancelled';
+export type RiskTreatmentStatus = 'planned' | 'in_progress' | 'completed' | 'cancelled';
 
 /**
  * A specific treatment action applied to a risk entry to reduce its

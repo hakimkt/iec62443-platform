@@ -1,18 +1,11 @@
 'use client';
 
+import type { CSMSFrameworkStatus } from '@iec62443/shared-types';
 import { cn } from '@iec62443/ui';
-import {
-  Shield,
-  Plus,
-  Loader2,
-  Search,
-  Layers,
-} from 'lucide-react';
+import { Layers, Loader2, Plus, Search, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-
 import { useCSMSFrameworks } from '@/hooks/useCSMS';
-import type { CSMSFrameworkStatus } from '@iec62443/shared-types';
 
 const STATUS_CONFIG: Record<CSMSFrameworkStatus, { label: string; color: string }> = {
   draft: { label: 'Draft', color: 'bg-surface-100 text-surface-600' },
@@ -39,9 +32,7 @@ export default function CSMSPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-surface-900">
-            CSMS Management
-          </h1>
+          <h1 className="text-2xl font-semibold text-surface-900">CSMS Management</h1>
           <p className="mt-1 text-sm text-surface-500">
             Cybersecurity Management System framework and compliance
           </p>
@@ -63,13 +54,19 @@ export default function CSMSPage() {
             type="text"
             placeholder="Search frameworks..."
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className="w-full rounded-md border border-surface-200 bg-surface-0 py-2 pl-10 pr-4 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
           className="rounded-md border border-surface-200 bg-surface-0 px-3 py-2 text-sm text-surface-700 focus:border-brand-500 focus:outline-none"
         >
           <option value="">All Statuses</option>
@@ -103,13 +100,16 @@ export default function CSMSPage() {
                       <Shield className="h-5 w-5 text-surface-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-surface-900">
-                        {framework.name}
-                      </p>
+                      <p className="text-sm font-medium text-surface-900">{framework.name}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', statusConfig.color)}>
+                    <span
+                      className={cn(
+                        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                        statusConfig.color,
+                      )}
+                    >
                       {statusConfig.label}
                     </span>
                   </div>
@@ -117,8 +117,7 @@ export default function CSMSPage() {
 
                 <div className="mt-3 flex items-center gap-6 text-xs text-surface-500">
                   <span className="flex items-center gap-1">
-                    <Layers className="h-3 w-3" />
-                    v{framework.version}
+                    <Layers className="h-3 w-3" />v{framework.version}
                   </span>
                 </div>
               </Link>

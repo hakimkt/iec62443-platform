@@ -1,10 +1,5 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-
-import {
-  generateReportSchema,
-  paginationSchema,
-} from '@iec62443/shared-schemas';
-
+import { generateReportSchema, paginationSchema } from '@iec62443/shared-schemas';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ReportService } from './report.service.js';
 
 // ---------------------------------------------------------------------------
@@ -68,7 +63,10 @@ export class ReportController {
     const parsed = paginationSchema.safeParse(request.query);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid query parameters', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid query parameters',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
@@ -88,9 +86,9 @@ export class ReportController {
       return reply.send(paginatedResponse(result.items, result.pagination, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(
-        errorResponse('INTERNAL_ERROR', 'Failed to list reports', requestId),
-      );
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to list reports', requestId));
     }
   }
 
@@ -101,16 +99,14 @@ export class ReportController {
     try {
       const report = await this.reportService.getReport(id);
       if (!report) {
-        return reply.status(404).send(
-          errorResponse('NOT_FOUND', 'Report not found', requestId),
-        );
+        return reply.status(404).send(errorResponse('NOT_FOUND', 'Report not found', requestId));
       }
       return reply.send(successResponse(report, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(
-        errorResponse('INTERNAL_ERROR', 'Failed to retrieve report', requestId),
-      );
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve report', requestId));
     }
   }
 
@@ -120,13 +116,17 @@ export class ReportController {
     const parsed = generateReportSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const report = await this.reportService.createReport(
@@ -152,30 +152,29 @@ export class ReportController {
       return reply.status(201).send(successResponse(report, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(
-        errorResponse('INTERNAL_ERROR', 'Failed to create report', requestId),
-      );
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to create report', requestId));
     }
   }
 
   async deleteReport(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const deleted = await this.reportService.deleteReport(id, userId);
       if (!deleted) {
-        return reply.status(404).send(
-          errorResponse('NOT_FOUND', 'Report not found', requestId),
-        );
+        return reply.status(404).send(errorResponse('NOT_FOUND', 'Report not found', requestId));
       }
       return reply.status(204).send();
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(
-        errorResponse('INTERNAL_ERROR', 'Failed to delete report', requestId),
-      );
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to delete report', requestId));
     }
   }
 
@@ -187,9 +186,9 @@ export class ReportController {
       return reply.send(successResponse(templates, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(
-        errorResponse('INTERNAL_ERROR', 'Failed to retrieve templates', requestId),
-      );
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve templates', requestId));
     }
   }
 
@@ -200,14 +199,12 @@ export class ReportController {
     try {
       const report = await this.reportService.getReport(id);
       if (!report) {
-        return reply.status(404).send(
-          errorResponse('NOT_FOUND', 'Report not found', requestId),
-        );
+        return reply.status(404).send(errorResponse('NOT_FOUND', 'Report not found', requestId));
       }
       if (report.status !== 'completed' || !report.fileUrl) {
-        return reply.status(404).send(
-          errorResponse('NOT_READY', 'Report file is not available yet', requestId),
-        );
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_READY', 'Report file is not available yet', requestId));
       }
 
       // Return a simple text report as a downloadable file
@@ -224,12 +221,16 @@ export class ReportController {
         'Configuration:',
         `  Scope: ${report.config.scope}`,
         report.config.scopeId ? `  Scope ID: ${report.config.scopeId}` : '',
-        report.config.dateRange ? `  Date Range: ${report.config.dateRange.from} — ${report.config.dateRange.to}` : '',
+        report.config.dateRange
+          ? `  Date Range: ${report.config.dateRange.from} — ${report.config.dateRange.to}`
+          : '',
         `  Sections: ${report.config.includeSections?.join(', ') || 'All'}`,
         `  Format: ${report.config.format ?? 'pdf'}`,
         '',
         '— End of Report —',
-      ].filter(Boolean).join('\n');
+      ]
+        .filter(Boolean)
+        .join('\n');
 
       return reply
         .header('Content-Type', 'text/plain')
@@ -237,9 +238,9 @@ export class ReportController {
         .send(content);
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(
-        errorResponse('INTERNAL_ERROR', 'Failed to download report', requestId),
-      );
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to download report', requestId));
     }
   }
 }

@@ -1,13 +1,5 @@
-import {
-  check,
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-  varchar,
-} from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
+import { check, jsonb, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 
 // ── Clients ──────────────────────────────────────────────────────────────
 
@@ -25,17 +17,10 @@ export const clients = pgTable(
     address: text('address'),
     status: varchar('status', { length: 20 }).notNull().default('active'),
     metadata: jsonb('metadata').default({}),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    check(
-      'clients_status_check',
-      sql`${table.status} IN ('active', 'inactive', 'archived')`,
-    ),
+    check('clients_status_check', sql`${table.status} IN ('active', 'inactive', 'archived')`),
   ],
 );

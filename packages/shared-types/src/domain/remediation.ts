@@ -12,11 +12,7 @@ type UUID = string & { readonly __brand: unique symbol };
 // ---------------------------------------------------------------------------
 
 /** Lifecycle status of a remediation plan. */
-export type RemediationPlanStatus =
-  | 'planned'
-  | 'in_progress'
-  | 'completed'
-  | 'cancelled';
+export type RemediationPlanStatus = 'planned' | 'in_progress' | 'completed' | 'cancelled';
 
 /**
  * A coordinated remediation plan addressing one or more findings and/or
@@ -49,11 +45,7 @@ export interface RemediationPlan {
 
 /** Lifecycle status of a remediation action. */
 export type RemediationActionStatus =
-  | 'planned'
-  | 'in_progress'
-  | 'completed'
-  | 'cancelled'
-  | 'overdue';
+  'planned' | 'in_progress' | 'completed' | 'cancelled' | 'overdue';
 
 /**
  * A single actionable task within a remediation plan, typically

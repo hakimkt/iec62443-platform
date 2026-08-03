@@ -1,15 +1,5 @@
-import {
-  check,
-  date,
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-  varchar,
-} from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-
+import { check, date, jsonb, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { clients } from './client.js';
 
 // ── Projects ─────────────────────────────────────────────────────────────
@@ -28,12 +18,8 @@ export const projects = pgTable(
     targetDate: date('target_date'),
     completedAt: timestamp('completed_at', { withTimezone: true }),
     metadata: jsonb('metadata').default({}),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     check(

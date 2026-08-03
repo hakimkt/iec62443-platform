@@ -1,6 +1,6 @@
-import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { X } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Width variants ─────────────────── */
@@ -21,8 +21,7 @@ const contextPanelWidthVariants = cva('', {
 /* ───────────────────────────── Props ──────────────────────────── */
 
 export interface ContextPanelProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof contextPanelWidthVariants> {
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof contextPanelWidthVariants> {
   open: boolean;
   onClose: () => void;
   title?: string;
@@ -63,9 +62,7 @@ const ContextPanel = React.forwardRef<HTMLDivElement, ContextPanelProps>(
         <div
           className={cn(
             'fixed inset-0 z-50 bg-black/50 transition-opacity duration-200',
-            open
-              ? 'opacity-100 pointer-events-auto'
-              : 'opacity-0 pointer-events-none',
+            open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
           )}
           aria-hidden="true"
           onClick={onClose}
@@ -87,13 +84,7 @@ const ContextPanel = React.forwardRef<HTMLDivElement, ContextPanelProps>(
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-surface-200">
-            {title ? (
-              <h2 className="text-lg font-semibold text-surface-900">
-                {title}
-              </h2>
-            ) : (
-              <span />
-            )}
+            {title ? <h2 className="text-lg font-semibold text-surface-900">{title}</h2> : <span />}
             <button
               type="button"
               onClick={onClose}

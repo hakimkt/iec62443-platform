@@ -1,6 +1,6 @@
-import * as React from 'react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { Check, ChevronRight, Circle } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
@@ -149,11 +149,7 @@ const DropdownMenuLabel = React.forwardRef<
 >(({ className, inset, ...props }, ref) => (
   <DropdownMenuPrimitive.Label
     ref={ref}
-    className={cn(
-      'px-2 py-1.5 text-xs font-medium text-surface-500',
-      inset && 'pl-8',
-      className,
-    )}
+    className={cn('px-2 py-1.5 text-xs font-medium text-surface-500', inset && 'pl-8', className)}
     {...props}
   />
 ));
@@ -175,10 +171,7 @@ DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName;
 
 /* ─── Shortcut ────────────────────────────────────────────────────── */
 
-function DropdownMenuShortcut({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLSpanElement>) {
+function DropdownMenuShortcut({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
       className={cn('ml-auto text-xs tracking-widest text-surface-400', className)}

@@ -64,12 +64,7 @@ export interface Zone {
 
 /** Classification of conduit communication types. */
 export type ConduitType =
-  | 'hardwired'
-  | 'network'
-  | 'wireless'
-  | 'removable_media'
-  | 'human'
-  | 'other';
+  'hardwired' | 'network' | 'wireless' | 'removable_media' | 'human' | 'other';
 
 /**
  * A communication path between two zones, defining the allowed data

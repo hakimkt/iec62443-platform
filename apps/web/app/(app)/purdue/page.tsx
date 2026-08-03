@@ -1,22 +1,22 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import type { PurdueModel } from '@iec62443/shared-types';
 import {
-  PageHeader,
-  MetricCard,
-  SearchInput,
-  FilterBar,
   DataTable,
   EmptyState,
+  FilterBar,
+  MetricCard,
+  PageHeader,
+  SearchInput,
   StatusBadge,
+  type Column,
 } from '@iec62443/ui/components';
-import type { Column } from '@iec62443/ui/components';
 import { Button } from '@iec62443/ui/primitives';
-import { Plus, Network } from 'lucide-react';
+import { Network, Plus } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { usePurdueModels } from '@/hooks/usePurdue';
-import type { PurdueModel } from '@iec62443/shared-types';
 
 export default function PurdueModelsPage() {
   const router = useRouter();
@@ -60,9 +60,7 @@ export default function PurdueModelsPage() {
         <div>
           <p className="text-sm font-medium text-surface-900">{row.name}</p>
           {row.description && (
-            <p className="mt-0.5 text-xs text-surface-500 line-clamp-1">
-              {row.description}
-            </p>
+            <p className="mt-0.5 text-xs text-surface-500 line-clamp-1">{row.description}</p>
           )}
         </div>
       ),
@@ -71,9 +69,7 @@ export default function PurdueModelsPage() {
       key: 'description',
       header: 'Description',
       render: (_value: unknown, row: PurdueModel) => (
-        <span className="text-sm text-surface-600">
-          {row.description || '—'}
-        </span>
+        <span className="text-sm text-surface-600">{row.description || '—'}</span>
       ),
     },
     {
@@ -117,11 +113,7 @@ export default function PurdueModelsPage() {
       {/* Metrics row */}
       {pagination && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <MetricCard
-            label="Total Models"
-            value={pagination.total}
-            color="brand"
-          />
+          <MetricCard label="Total Models" value={pagination.total} color="brand" />
         </div>
       )}
 

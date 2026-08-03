@@ -1,16 +1,7 @@
-import { eq, and, desc, count, ilike, sql } from 'drizzle-orm';
 import crypto from 'node:crypto';
-
+import { apiKeys, auditEvents, roles, tenantMemberships, tenants, users } from '@iec62443/database';
+import { and, count, desc, eq, ilike, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
-import {
-  users,
-  roles,
-  tenantMemberships,
-  apiKeys,
-  auditEvents,
-  tenants,
-} from '@iec62443/database';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -46,10 +37,7 @@ export interface Pagination {
 // Audit hash chain helper
 // ---------------------------------------------------------------------------
 
-async function computeEventHash(
-  data: string,
-  previousHash: string | null,
-): Promise<string> {
+async function computeEventHash(data: string, previousHash: string | null): Promise<string> {
   const input = `${previousHash ?? ''}|${data}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
@@ -88,30 +76,30 @@ export class AdminService {
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     const items = await this.db
-        .select({
-          id: tenantMemberships.id,
-          tenantId: tenantMemberships.tenantId,
-          userId: tenantMemberships.userId,
-          role: tenantMemberships.role,
-          status: tenantMemberships.status,
-          invitedBy: tenantMemberships.invitedBy,
-          joinedAt: tenantMemberships.joinedAt,
-          createdAt: tenantMemberships.createdAt,
-          email: users.email,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          avatarUrl: users.avatarUrl,
-        })
-        .from(tenantMemberships)
-        .innerJoin(users, eq(tenantMemberships.userId, users.id))
-        .where(whereClause)
-        .orderBy(desc(tenantMemberships.createdAt))
-        .limit(perPage)
-        .offset(offset);
+      .select({
+        id: tenantMemberships.id,
+        tenantId: tenantMemberships.tenantId,
+        userId: tenantMemberships.userId,
+        role: tenantMemberships.role,
+        status: tenantMemberships.status,
+        invitedBy: tenantMemberships.invitedBy,
+        joinedAt: tenantMemberships.joinedAt,
+        createdAt: tenantMemberships.createdAt,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        avatarUrl: users.avatarUrl,
+      })
+      .from(tenantMemberships)
+      .innerJoin(users, eq(tenantMemberships.userId, users.id))
+      .where(whereClause)
+      .orderBy(desc(tenantMemberships.createdAt))
+      .limit(perPage)
+      .offset(offset);
     const totalResult = await this.db
-        .select({ count: count() })
-        .from(tenantMemberships)
-        .where(whereClause);
+      .select({ count: count() })
+      .from(tenantMemberships)
+      .where(whereClause);
 
     const total = totalResult[0]?.count ?? 0;
 
@@ -172,10 +160,9 @@ export class AdminService {
     const [existingMembership] = await this.db
       .select()
       .from(tenantMemberships)
-      .where(and(
-        eq(tenantMemberships.tenantId, this.tenantId),
-        eq(tenantMemberships.userId, userId),
-      ))
+      .where(
+        and(eq(tenantMemberships.tenantId, this.tenantId), eq(tenantMemberships.userId, userId)),
+      )
       .limit(1);
 
     if (existingMembership) {
@@ -228,10 +215,9 @@ export class AdminService {
     const [membership] = await this.db
       .select()
       .from(tenantMemberships)
-      .where(and(
-        eq(tenantMemberships.tenantId, this.tenantId),
-        eq(tenantMemberships.userId, userId),
-      ))
+      .where(
+        and(eq(tenantMemberships.tenantId, this.tenantId), eq(tenantMemberships.userId, userId)),
+      )
       .limit(1);
 
     if (!membership) {
@@ -244,10 +230,9 @@ export class AdminService {
     await this.db
       .update(tenantMemberships)
       .set({ role })
-      .where(and(
-        eq(tenantMemberships.tenantId, this.tenantId),
-        eq(tenantMemberships.userId, userId),
-      ));
+      .where(
+        and(eq(tenantMemberships.tenantId, this.tenantId), eq(tenantMemberships.userId, userId)),
+      );
 
     await this.createAuditEvent({
       userId: updatedBy,
@@ -262,10 +247,9 @@ export class AdminService {
   async removeMember(userId: string, removedBy: string) {
     await this.db
       .delete(tenantMemberships)
-      .where(and(
-        eq(tenantMemberships.tenantId, this.tenantId),
-        eq(tenantMemberships.userId, userId),
-      ));
+      .where(
+        and(eq(tenantMemberships.tenantId, this.tenantId), eq(tenantMemberships.userId, userId)),
+      );
 
     await this.createAuditEvent({
       userId: removedBy,
@@ -297,7 +281,10 @@ export class AdminService {
     }));
   }
 
-  async createRole(data: { name: string; description?: string; permissions: string[] }, userId: string) {
+  async createRole(
+    data: { name: string; description?: string; permissions: string[] },
+    userId: string,
+  ) {
     const [newRole] = await this.db
       .insert(roles)
       .values({
@@ -336,7 +323,11 @@ export class AdminService {
     };
   }
 
-  async updateRole(id: string, data: { name?: string; description?: string; permissions?: string[] }, userId: string) {
+  async updateRole(
+    id: string,
+    data: { name?: string; description?: string; permissions?: string[] },
+    userId: string,
+  ) {
     const updateData: Record<string, unknown> = {};
     if (data.name !== undefined) updateData['name'] = data.name;
     if (data.description !== undefined) updateData['description'] = data.description;
@@ -393,7 +384,10 @@ export class AdminService {
     }));
   }
 
-  async createApiKey(data: { name: string; scopes?: string[]; expiresAt?: string }, userId: string) {
+  async createApiKey(
+    data: { name: string; scopes?: string[]; expiresAt?: string },
+    userId: string,
+  ) {
     const rawKey = `iec62443_${crypto.randomBytes(32).toString('hex')}`;
     const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
     const keyPrefix = rawKey.slice(0, 8);
@@ -463,13 +457,28 @@ export class AdminService {
     const conditions = [eq(auditEvents.tenantId, this.tenantId)];
 
     if (filters.eventTypes && filters.eventTypes.length > 0) {
-      conditions.push(sql`${auditEvents.eventType} IN (${sql.join(filters.eventTypes.map((t) => sql`${t}`), sql`, `)})`);
+      conditions.push(
+        sql`${auditEvents.eventType} IN (${sql.join(
+          filters.eventTypes.map((t) => sql`${t}`),
+          sql`, `,
+        )})`,
+      );
     }
     if (filters.entityTypes && filters.entityTypes.length > 0) {
-      conditions.push(sql`${auditEvents.entityType} IN (${sql.join(filters.entityTypes.map((t) => sql`${t}`), sql`, `)})`);
+      conditions.push(
+        sql`${auditEvents.entityType} IN (${sql.join(
+          filters.entityTypes.map((t) => sql`${t}`),
+          sql`, `,
+        )})`,
+      );
     }
     if (filters.userIds && filters.userIds.length > 0) {
-      conditions.push(sql`${auditEvents.userId} IN (${sql.join(filters.userIds.map((t) => sql`${t}`), sql`, `)})`);
+      conditions.push(
+        sql`${auditEvents.userId} IN (${sql.join(
+          filters.userIds.map((t) => sql`${t}`),
+          sql`, `,
+        )})`,
+      );
     }
     if (filters.dateFrom) {
       conditions.push(sql`${auditEvents.createdAt} >= ${filters.dateFrom}`);
@@ -481,16 +490,16 @@ export class AdminService {
     const whereClause = and(...conditions);
 
     const items = await this.db
-        .select()
-        .from(auditEvents)
-        .where(whereClause)
-        .orderBy(desc(auditEvents.id))
-        .limit(perPage)
-        .offset(offset);
+      .select()
+      .from(auditEvents)
+      .where(whereClause)
+      .orderBy(desc(auditEvents.id))
+      .limit(perPage)
+      .offset(offset);
     const totalResult = await this.db
-        .select({ count: count() })
-        .from(auditEvents)
-        .where(whereClause);
+      .select({ count: count() })
+      .from(auditEvents)
+      .where(whereClause);
 
     const total = totalResult[0]?.count ?? 0;
 
@@ -544,15 +553,15 @@ export class AdminService {
     };
   }
 
-  async updateTenantSettings(data: { name?: string; settings?: Record<string, unknown> }, userId: string) {
+  async updateTenantSettings(
+    data: { name?: string; settings?: Record<string, unknown> },
+    userId: string,
+  ) {
     const updateData: Record<string, unknown> = { updatedAt: new Date() };
     if (data.name !== undefined) updateData['name'] = data.name;
     if (data.settings !== undefined) updateData['settings'] = data.settings;
 
-    await this.db
-      .update(tenants)
-      .set(updateData)
-      .where(eq(tenants.id, this.tenantId));
+    await this.db.update(tenants).set(updateData).where(eq(tenants.id, this.tenantId));
 
     await this.createAuditEvent({
       userId,

@@ -1,25 +1,22 @@
-import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Slider variants ────────────────── */
 
-const sliderVariants = cva(
-  'relative flex w-full touch-none select-none items-center',
-  {
-    variants: {
-      size: {
-        sm: 'h-4',
-        md: 'h-5',
-        lg: 'h-6',
-      },
-    },
-    defaultVariants: {
-      size: 'md',
+const sliderVariants = cva('relative flex w-full touch-none select-none items-center', {
+  variants: {
+    size: {
+      sm: 'h-4',
+      md: 'h-5',
+      lg: 'h-6',
     },
   },
-);
+  defaultVariants: {
+    size: 'md',
+  },
+});
 
 const sliderTrackVariants = cva(
   'relative grow overflow-hidden rounded-full bg-surface-200 dark:bg-surface-700',
@@ -67,7 +64,8 @@ interface SliderMark {
 /* ───────────────────────────── Slider component ───────────────── */
 
 interface SliderProps
-  extends Omit<React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>, 'onValueCommit'>,
+  extends
+    Omit<React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>, 'onValueCommit'>,
     VariantProps<typeof sliderVariants> {
   /** Tick marks to render below the track */
   marks?: SliderMark[];
@@ -77,92 +75,88 @@ interface SliderProps
   onValueCommit?: (value: number[]) => void;
 }
 
-const Slider = React.forwardRef<
-  React.ComponentRef<typeof SliderPrimitive.Root>,
-  SliderProps
->(({ className, size, marks, showTooltip, onValueCommit, min, max, value, defaultValue, ...props }, ref) => {
-  const [hoveredThumb, setHoveredThumb] = React.useState<number | null>(null);
-  const resolvedMin = min ?? 0;
-  const resolvedMax = max ?? 100;
+const Slider = React.forwardRef<React.ComponentRef<typeof SliderPrimitive.Root>, SliderProps>(
+  (
+    { className, size, marks, showTooltip, onValueCommit, min, max, value, defaultValue, ...props },
+    ref,
+  ) => {
+    const [hoveredThumb, setHoveredThumb] = React.useState<number | null>(null);
+    const resolvedMin = min ?? 0;
+    const resolvedMax = max ?? 100;
 
-  const thumbValues = value ?? defaultValue ?? [resolvedMin];
+    const thumbValues = value ?? defaultValue ?? [resolvedMin];
 
-  const handleValueCommit = React.useCallback(
-    (committedValue: number[]) => {
-      setHoveredThumb(null);
-      onValueCommit?.(committedValue);
-    },
-    [onValueCommit],
-  );
+    const handleValueCommit = React.useCallback(
+      (committedValue: number[]) => {
+        setHoveredThumb(null);
+        onValueCommit?.(committedValue);
+      },
+      [onValueCommit],
+    );
 
-  return (
-    <div className="w-full">
-      <SliderPrimitive.Root
-        ref={ref}
-        className={cn(sliderVariants({ size }), className)}
-        min={resolvedMin}
-        max={resolvedMax}
-        value={value}
-        defaultValue={defaultValue}
-        onValueCommit={handleValueCommit}
-        {...props}
-      >
-        <SliderPrimitive.Track className={cn(sliderTrackVariants({ size }))}>
-          <SliderPrimitive.Range className={cn(sliderRangeVariants())} />
-        </SliderPrimitive.Track>
+    return (
+      <div className="w-full">
+        <SliderPrimitive.Root
+          ref={ref}
+          className={cn(sliderVariants({ size }), className)}
+          min={resolvedMin}
+          max={resolvedMax}
+          value={value}
+          defaultValue={defaultValue}
+          onValueCommit={handleValueCommit}
+          {...props}
+        >
+          <SliderPrimitive.Track className={cn(sliderTrackVariants({ size }))}>
+            <SliderPrimitive.Range className={cn(sliderRangeVariants())} />
+          </SliderPrimitive.Track>
 
-        {thumbValues.map((_val: number, index: number) => (
-          <SliderPrimitive.Thumb
-            key={index}
-            className={cn(sliderThumbVariants({ size }))}
-            onPointerEnter={() => setHoveredThumb(index)}
-            onPointerLeave={() => setHoveredThumb(null)}
-          >
-            {showTooltip && hoveredThumb === index && (
-              <span
-                className="absolute -top-8 left-1/2 -translate-x-1/2 rounded bg-surface-900 px-1.5 py-0.5 text-xs text-white dark:bg-surface-100 dark:text-surface-900"
-                role="status"
-              >
-                {(Array.isArray(value)
-                  ? value[index]
-                  : Array.isArray(defaultValue)
-                    ? defaultValue[index]
-                    : _val) ?? _val}
-              </span>
-            )}
-          </SliderPrimitive.Thumb>
-        ))}
-      </SliderPrimitive.Root>
+          {thumbValues.map((_val: number, index: number) => (
+            <SliderPrimitive.Thumb
+              key={index}
+              className={cn(sliderThumbVariants({ size }))}
+              onPointerEnter={() => setHoveredThumb(index)}
+              onPointerLeave={() => setHoveredThumb(null)}
+            >
+              {showTooltip && hoveredThumb === index && (
+                <span
+                  className="absolute -top-8 left-1/2 -translate-x-1/2 rounded bg-surface-900 px-1.5 py-0.5 text-xs text-white dark:bg-surface-100 dark:text-surface-900"
+                  role="status"
+                >
+                  {(Array.isArray(value)
+                    ? value[index]
+                    : Array.isArray(defaultValue)
+                      ? defaultValue[index]
+                      : _val) ?? _val}
+                </span>
+              )}
+            </SliderPrimitive.Thumb>
+          ))}
+        </SliderPrimitive.Root>
 
-      {marks && marks.length > 0 && (
-        <div className="relative mt-2 h-4 w-full">
-          {marks.map((mark) => {
-            const pct = ((mark.value - resolvedMin) / (resolvedMax - resolvedMin)) * 100;
-            return (
-              <span
-                key={mark.value}
-                className="absolute -translate-x-1/2 text-xs text-surface-500"
-                style={{ left: `${pct}%` }}
-              >
-                {mark.label ?? mark.value}
-              </span>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-});
+        {marks && marks.length > 0 && (
+          <div className="relative mt-2 h-4 w-full">
+            {marks.map((mark) => {
+              const pct = ((mark.value - resolvedMin) / (resolvedMax - resolvedMin)) * 100;
+              return (
+                <span
+                  key={mark.value}
+                  className="absolute -translate-x-1/2 text-xs text-surface-500"
+                  style={{ left: `${pct}%` }}
+                >
+                  {mark.label ?? mark.value}
+                </span>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  },
+);
 Slider.displayName = 'Slider';
 
 /* ────────────────────────── Exports ───────────────────────────── */
 
-export {
-  Slider,
-  sliderVariants,
-  sliderTrackVariants,
-  sliderRangeVariants,
-  sliderThumbVariants,
-};
+export { Slider, sliderVariants, sliderTrackVariants, sliderRangeVariants, sliderThumbVariants };
 
 export type { SliderProps, SliderMark };

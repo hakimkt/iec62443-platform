@@ -152,12 +152,12 @@ The sidebar uses a **two-level navigation** pattern with collapsible section gro
 
 **Sidebar Behavior:**
 
-| Breakpoint | State | Width |
-|---|---|---|
-| ≥ 1440px | Expanded (labels visible) | 256px |
-| 1024–1439px | Collapsed (icons only) | 64px |
-| < 1024px | Hidden (slide-out drawer) | 280px overlay |
-| User toggle | Manual expand/collapse | Overrides breakpoint |
+| Breakpoint  | State                     | Width                |
+| ----------- | ------------------------- | -------------------- |
+| ≥ 1440px    | Expanded (labels visible) | 256px                |
+| 1024–1439px | Collapsed (icons only)    | 64px                 |
+| < 1024px    | Hidden (slide-out drawer) | 280px overlay        |
+| User toggle | Manual expand/collapse    | Overrides breakpoint |
 
 ### 2.2 Secondary Navigation — Top Bar
 
@@ -178,14 +178,14 @@ The sidebar uses a **two-level navigation** pattern with collapsible section gro
 
 **Top Bar Components:**
 
-| Element | Position | Behavior |
-|---|---|---|
-| **Breadcrumb** | Left | Max 3 levels, truncate middle with `...` |
-| **Context Actions** | Left (after breadcrumb) | Page-specific primary actions |
-| **Notifications** | Right | Bell icon with unread count badge |
-| **Help** | Right | Opens help drawer (documentation search) |
-| **Sync Status** | Right | Online/Offline indicator with sync queue count |
-| **User Menu** | Right | Avatar → dropdown (Profile, Settings, Switch Tenant, Sign Out) |
+| Element             | Position                | Behavior                                                       |
+| ------------------- | ----------------------- | -------------------------------------------------------------- |
+| **Breadcrumb**      | Left                    | Max 3 levels, truncate middle with `...`                       |
+| **Context Actions** | Left (after breadcrumb) | Page-specific primary actions                                  |
+| **Notifications**   | Right                   | Bell icon with unread count badge                              |
+| **Help**            | Right                   | Opens help drawer (documentation search)                       |
+| **Sync Status**     | Right                   | Online/Offline indicator with sync queue count                 |
+| **User Menu**       | Right                   | Avatar → dropdown (Profile, Settings, Switch Tenant, Sign Out) |
 
 ### 2.3 Tertiary Navigation — Page-Level Tabs
 
@@ -209,15 +209,15 @@ For complex modules with sub-views, use **horizontal tab bars** within the page 
 
 **Tabs Per Module:**
 
-| Module | Tabs |
-|---|---|
-| Assessment Detail | Summary, Questions, Scorecard, Findings, Export |
-| Risk Detail | Overview, Treatments, Acceptances, History |
-| Finding Detail | Details, Evidence, Comments, History, Remediation |
-| Zone Detail | Properties, Assets, Conduits, Segmentation Rules |
-| Asset Detail | Overview, Network Info, Zone Assignment, Findings, History |
-| Remediation Plan | Overview, Actions, Budget, Verification |
-| CSMS Framework | Overview, Elements, Policies, Gap Analysis, Improvements |
+| Module            | Tabs                                                       |
+| ----------------- | ---------------------------------------------------------- |
+| Assessment Detail | Summary, Questions, Scorecard, Findings, Export            |
+| Risk Detail       | Overview, Treatments, Acceptances, History                 |
+| Finding Detail    | Details, Evidence, Comments, History, Remediation          |
+| Zone Detail       | Properties, Assets, Conduits, Segmentation Rules           |
+| Asset Detail      | Overview, Network Info, Zone Assignment, Findings, History |
+| Remediation Plan  | Overview, Actions, Budget, Verification                    |
+| CSMS Framework    | Overview, Elements, Policies, Gap Analysis, Improvements   |
 
 ---
 
@@ -277,13 +277,13 @@ Panel close: ESC key, click outside, close button
 
 ## 5. URL Pattern Conventions
 
-| Pattern | Example | Description |
-|---|---|---|
-| `/app/{module}` | `/app/findings` | Module index (list view) |
-| `/app/{module}/:id` | `/app/findings/abc-123` | Entity detail |
-| `/app/{module}/new` | `/app/assessments/new` | Create form (wizard) |
-| `/app/{module}/:id/{sub}` | `/app/assessments/abc-123/questions` | Sub-view tab |
-| `/app/{module}/{action}` | `/app/assets/import` | Module-level action |
+| Pattern                   | Example                              | Description              |
+| ------------------------- | ------------------------------------ | ------------------------ |
+| `/app/{module}`           | `/app/findings`                      | Module index (list view) |
+| `/app/{module}/:id`       | `/app/findings/abc-123`              | Entity detail            |
+| `/app/{module}/new`       | `/app/assessments/new`               | Create form (wizard)     |
+| `/app/{module}/:id/{sub}` | `/app/assessments/abc-123/questions` | Sub-view tab             |
+| `/app/{module}/{action}`  | `/app/assets/import`                 | Module-level action      |
 
 **Query Parameters for List Views:**
 
@@ -297,21 +297,21 @@ Panel close: ESC key, click outside, close button
 
 ## 6. Role-Based Navigation Visibility
 
-| Nav Item | Owner | Admin | Proj Mgr | Lead Assessor | Assessor | Quality Mgr | Risk Mgr | Viewer |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Dashboard | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Assessments | ✓ | ✓ | ✓ | ✓ | ✓(RO) | ✓(RO) | ✓(RO) | ✓(RO) |
-| Requirements | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Assets | ✓ | ✓ | ✓ | ✓ | ✓(RO) | — | ✓(RO) | ✓(RO) |
-| Purdue Model | ✓ | ✓ | ✓ | ✓ | ✓(RO) | — | — | ✓(RO) |
-| Zones & Conduits | ✓ | ✓ | ✓ | ✓ | ✓(RO) | — | — | ✓(RO) |
-| Findings | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓(RO) | ✓(RO) |
-| Risk Register | ✓ | ✓ | ✓ | ✓(RO) | ✓(RO) | ✓ | ✓ | ✓(RO) |
-| Evidence | ✓ | ✓ | ✓ | ✓ | ✓ | ✓(RO) | — | — |
-| Remediation | ✓ | ✓ | ✓ | ✓(RO) | ✓(RO) | ✓ | ✓(RO) | ✓(RO) |
-| CSMS | ✓ | ✓ | ✓ | ✓(RO) | ✓(RO) | ✓ | — | ✓(RO) |
-| Reports | ✓ | ✓ | ✓ | ✓ | ✓(RO) | ✓ | ✓ | ✓ |
-| Administration | ✓ | ✓ | — | — | — | — | — | — |
+| Nav Item         | Owner | Admin | Proj Mgr | Lead Assessor | Assessor | Quality Mgr | Risk Mgr | Viewer |
+| ---------------- | :---: | :---: | :------: | :-----------: | :------: | :---------: | :------: | :----: |
+| Dashboard        |   ✓   |   ✓   |    ✓     |       ✓       |    ✓     |      ✓      |    ✓     |   ✓    |
+| Assessments      |   ✓   |   ✓   |    ✓     |       ✓       |  ✓(RO)   |    ✓(RO)    |  ✓(RO)   | ✓(RO)  |
+| Requirements     |   ✓   |   ✓   |    ✓     |       ✓       |    ✓     |      ✓      |    ✓     |   ✓    |
+| Assets           |   ✓   |   ✓   |    ✓     |       ✓       |  ✓(RO)   |      —      |  ✓(RO)   | ✓(RO)  |
+| Purdue Model     |   ✓   |   ✓   |    ✓     |       ✓       |  ✓(RO)   |      —      |    —     | ✓(RO)  |
+| Zones & Conduits |   ✓   |   ✓   |    ✓     |       ✓       |  ✓(RO)   |      —      |    —     | ✓(RO)  |
+| Findings         |   ✓   |   ✓   |    ✓     |       ✓       |    ✓     |      ✓      |  ✓(RO)   | ✓(RO)  |
+| Risk Register    |   ✓   |   ✓   |    ✓     |     ✓(RO)     |  ✓(RO)   |      ✓      |    ✓     | ✓(RO)  |
+| Evidence         |   ✓   |   ✓   |    ✓     |       ✓       |    ✓     |    ✓(RO)    |    —     |   —    |
+| Remediation      |   ✓   |   ✓   |    ✓     |     ✓(RO)     |  ✓(RO)   |      ✓      |  ✓(RO)   | ✓(RO)  |
+| CSMS             |   ✓   |   ✓   |    ✓     |     ✓(RO)     |  ✓(RO)   |      ✓      |    —     | ✓(RO)  |
+| Reports          |   ✓   |   ✓   |    ✓     |       ✓       |  ✓(RO)   |      ✓      |    ✓     |   ✓    |
+| Administration   |   ✓   |   ✓   |    —     |       —       |    —     |      —      |    —     |   —    |
 
 (RO) = Read-only access; nav item visible but write actions disabled
 
@@ -354,4 +354,4 @@ Results ranked by: relevance + recency + user's recent activity
 
 ---
 
-*Next: [User Flows →](user-flows.md)*
+_Next: [User Flows →](user-flows.md)_

@@ -893,18 +893,18 @@ Click notification → navigate to entity + mark as read
 
 ## 7. Responsive Behavior Summary
 
-| Component | Desktop (≥1280) | Laptop (1024–1279) | Tablet (768–1023) | Mobile (<768) |
-|---|---|---|---|---|
-| DataTable | Full columns | Horizontal scroll | Horizontal scroll | Card list view |
-| ContextPanel | 420px side panel | 360px side panel | Full-width overlay | Full-screen page |
-| CommandPalette | max-w-xl centered | max-w-lg | max-w-md, full-width | Full-screen |
-| Dialog | Centered modal | Centered modal | Centered modal | Full-screen sheet |
-| Dashboard | 4-col grid | 2-col grid | 2-col grid | Single column |
-| Zone Designer | Canvas + properties | Canvas + properties | Canvas only | Canvas only (view) |
-| Sidebar | Expanded (256px) | Collapsed (64px) | Drawer overlay | Drawer overlay |
-| Risk Heat Map | Full 5×5 grid | Full 5×5 grid | 5×5 (smaller cells) | Scrollable list |
-| Radar Chart | 400×400 | 350×350 | 300×300 | 280×280 |
+| Component      | Desktop (≥1280)     | Laptop (1024–1279)  | Tablet (768–1023)    | Mobile (<768)      |
+| -------------- | ------------------- | ------------------- | -------------------- | ------------------ |
+| DataTable      | Full columns        | Horizontal scroll   | Horizontal scroll    | Card list view     |
+| ContextPanel   | 420px side panel    | 360px side panel    | Full-width overlay   | Full-screen page   |
+| CommandPalette | max-w-xl centered   | max-w-lg            | max-w-md, full-width | Full-screen        |
+| Dialog         | Centered modal      | Centered modal      | Centered modal       | Full-screen sheet  |
+| Dashboard      | 4-col grid          | 2-col grid          | 2-col grid           | Single column      |
+| Zone Designer  | Canvas + properties | Canvas + properties | Canvas only          | Canvas only (view) |
+| Sidebar        | Expanded (256px)    | Collapsed (64px)    | Drawer overlay       | Drawer overlay     |
+| Risk Heat Map  | Full 5×5 grid       | Full 5×5 grid       | 5×5 (smaller cells)  | Scrollable list    |
+| Radar Chart    | 400×400             | 350×350             | 300×300              | 280×280            |
 
 ---
 
-*Next: [Dashboard Specifications →](dashboard-specifications.md)*
+_Next: [Dashboard Specifications →](dashboard-specifications.md)_

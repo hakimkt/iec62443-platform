@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { AuthService } from './auth.service.js';
 
 // ---------------------------------------------------------------------------
@@ -24,7 +25,7 @@ function createMockDb() {
   }
 
   return {
-    db: createChain() as import('drizzle-orm/node-postgres').NodePgDatabase,
+    db: createChain() as unknown as NodePgDatabase,
     enqueue: (...values: unknown[]) => resolvedQueue.push(...values),
   };
 }
@@ -135,9 +136,7 @@ describe('AuthService', () => {
 
   describe('refreshTokens', () => {
     it('should throw for invalid refresh token', async () => {
-      await expect(
-        service.refreshTokens('invalid-token'),
-      ).rejects.toThrow();
+      await expect(service.refreshTokens('invalid-token')).rejects.toThrow();
     });
   });
 
@@ -169,7 +168,11 @@ describe('AuthService', () => {
       mock.enqueue([]);
 
       // Should not throw — just return a generic message
-      const result = await service.forgotPassword('nonexistent@example.com', '127.0.0.1', 'test-agent');
+      const result = await service.forgotPassword(
+        'nonexistent@example.com',
+        '127.0.0.1',
+        'test-agent',
+      );
       expect(result).toBeDefined();
     });
   });

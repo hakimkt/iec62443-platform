@@ -1,12 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { Finding, FindingComment, FindingStatusHistory } from '@iec62443/shared-types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiClient } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
-
-import type {
-  Finding,
-  FindingStatusHistory,
-  FindingComment,
-} from '@iec62443/shared-types';
 
 interface FindingListParams {
   page?: number;
@@ -57,10 +52,7 @@ export function useFindings(params: FindingListParams = {}) {
       if (params.search) queryParams['search'] = params.search;
       if (params.sort) queryParams['sort'] = params.sort;
 
-      const result = await client.get<PaginatedResponse<Finding>>(
-        '/findings',
-        queryParams,
-      );
+      const result = await client.get<PaginatedResponse<Finding>>('/findings', queryParams);
       return result;
     },
   });
@@ -72,9 +64,7 @@ export function useFinding(id: string | null) {
   return useQuery({
     queryKey: queryKeys.findings.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<Finding>>(
-        `/findings/${id}`,
-      );
+      const result = await client.get<SingleResponse<Finding>>(`/findings/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -102,10 +92,7 @@ export function useCreateFinding() {
       source?: string;
       externalRef?: string;
     }) => {
-      const result = await client.post<SingleResponse<Finding>>(
-        '/findings',
-        data,
-      );
+      const result = await client.post<SingleResponse<Finding>>('/findings', data);
       return result.data;
     },
     onSuccess: () => {
@@ -119,17 +106,8 @@ export function useUpdateFinding() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      ...data
-    }: {
-      id: string;
-      [key: string]: unknown;
-    }) => {
-      const result = await client.patch<SingleResponse<Finding>>(
-        `/findings/${id}`,
-        data,
-      );
+    mutationFn: async ({ id, ...data }: { id: string; [key: string]: unknown }) => {
+      const result = await client.patch<SingleResponse<Finding>>(`/findings/${id}`, data);
       return result.data;
     },
     onSuccess: (_data, variables) => {
@@ -169,10 +147,10 @@ export function useTransitionFinding() {
       toStatus: string;
       reason?: string;
     }) => {
-      const result = await client.post<SingleResponse<Finding>>(
-        `/findings/${id}/transition`,
-        { toStatus, reason },
-      );
+      const result = await client.post<SingleResponse<Finding>>(`/findings/${id}/transition`, {
+        toStatus,
+        reason,
+      });
       return result.data;
     },
     onSuccess: (_data, variables) => {

@@ -1,16 +1,14 @@
 'use client';
 
-import {
-  FileText,
-  ArrowLeft,
-  Loader2,
-} from 'lucide-react';
+import { ArrowLeft, FileText, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
-import { useReportTemplates, useGenerateReport } from '@/hooks/useReports';
-import type { GenerateReportInput } from '@/hooks/useReports';
+import { useState } from 'react';
+import {
+  useGenerateReport,
+  useReportTemplates,
+  type GenerateReportInput,
+} from '@/hooks/useReports';
 
 export default function GenerateReportPage() {
   const router = useRouter();
@@ -59,9 +57,7 @@ export default function GenerateReportPage() {
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-semibold text-surface-900">
-            Generate Report
-          </h1>
+          <h1 className="text-2xl font-semibold text-surface-900">Generate Report</h1>
           <p className="mt-1 text-sm text-surface-500">
             Select a template and configure your report
           </p>
@@ -71,9 +67,7 @@ export default function GenerateReportPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Template Selection */}
         <div className="rounded-lg border border-surface-200 bg-surface-0 p-6">
-          <h2 className="text-lg font-medium text-surface-900 mb-4">
-            Report Template
-          </h2>
+          <h2 className="text-lg font-medium text-surface-900 mb-4">Report Template</h2>
           {templatesLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
@@ -111,9 +105,7 @@ export default function GenerateReportPage() {
         {/* Configuration */}
         {template && (
           <div className="rounded-lg border border-surface-200 bg-surface-0 p-6">
-            <h2 className="text-lg font-medium text-surface-900 mb-4">
-              Configuration
-            </h2>
+            <h2 className="text-lg font-medium text-surface-900 mb-4">Configuration</h2>
 
             <div className="space-y-4">
               {/* Title */}
@@ -132,9 +124,7 @@ export default function GenerateReportPage() {
 
               {/* Scope */}
               <div>
-                <label className="block text-sm font-medium text-surface-700 mb-1">
-                  Scope
-                </label>
+                <label className="block text-sm font-medium text-surface-700 mb-1">Scope</label>
                 <select
                   value={scope}
                   onChange={(e) => setScope(e.target.value as 'tenant' | 'engagement' | 'register')}

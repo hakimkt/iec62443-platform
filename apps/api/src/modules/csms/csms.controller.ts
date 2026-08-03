@@ -1,15 +1,13 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-
 import {
-  createFrameworkSchema,
-  updateFrameworkSchema,
   createElementSchema,
-  updateElementSchema,
-  createPolicySchema,
-  updatePolicySchema,
+  createFrameworkSchema,
   createImprovementPlanSchema,
+  createPolicySchema,
+  updateElementSchema,
+  updateFrameworkSchema,
+  updatePolicySchema,
 } from '@iec62443/shared-schemas';
-
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { CSMSService } from './csms.service.js';
 
 // ---------------------------------------------------------------------------
@@ -70,7 +68,9 @@ export class CSMSController {
       return reply.send(paginatedResponse(result.items, result.pagination, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to list CSMS frameworks', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to list CSMS frameworks', requestId));
     }
   }
 
@@ -84,10 +84,14 @@ export class CSMSController {
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve framework', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve framework', requestId));
     }
   }
 
@@ -97,13 +101,17 @@ export class CSMSController {
     const parsed = createFrameworkSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const framework = await this.csmsService.createFramework(
@@ -117,7 +125,9 @@ export class CSMSController {
       return reply.status(201).send(successResponse(framework, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to create framework', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to create framework', requestId));
     }
   }
 
@@ -128,35 +138,48 @@ export class CSMSController {
     const parsed = updateFrameworkSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
-      const framework = await this.csmsService.updateFramework(id, {
-        name: parsed.data.name,
-        version: parsed.data.version,
-        status: parsed.data.status,
-      }, userId);
+      const framework = await this.csmsService.updateFramework(
+        id,
+        {
+          name: parsed.data.name,
+          version: parsed.data.version,
+          status: parsed.data.status,
+        },
+        userId,
+      );
       return reply.send(successResponse(framework, requestId));
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to update framework', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to update framework', requestId));
     }
   }
 
   async deleteFramework(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.csmsService.deleteFramework(id, userId);
@@ -164,10 +187,14 @@ export class CSMSController {
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to delete framework', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to delete framework', requestId));
     }
   }
 
@@ -188,7 +215,9 @@ export class CSMSController {
       return reply.send(paginatedResponse(result.items, result.pagination, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to list elements', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to list elements', requestId));
     }
   }
 
@@ -202,10 +231,14 @@ export class CSMSController {
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS element not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS element not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve element', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve element', requestId));
     }
   }
 
@@ -216,33 +249,45 @@ export class CSMSController {
     const parsed = createElementSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
-      const element = await this.csmsService.createElement(frameworkId, {
-        category: parsed.data.category,
-        title: parsed.data.title,
-        description: parsed.data.description,
-        requirementRef: parsed.data.requirementRef,
-        implementationStatus: parsed.data.implementationStatus,
-        maturityScore: parsed.data.maturityScore,
-        ownerId: parsed.data.ownerId as string | undefined,
-        nextReview: parsed.data.nextReview?.toISOString().split('T')[0],
-      }, userId);
+      const element = await this.csmsService.createElement(
+        frameworkId,
+        {
+          category: parsed.data.category,
+          title: parsed.data.title,
+          description: parsed.data.description,
+          requirementRef: parsed.data.requirementRef,
+          implementationStatus: parsed.data.implementationStatus,
+          maturityScore: parsed.data.maturityScore,
+          ownerId: parsed.data.ownerId as string | undefined,
+          nextReview: parsed.data.nextReview?.toISOString().split('T')[0],
+        },
+        userId,
+      );
       return reply.status(201).send(successResponse(element, requestId));
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to create element', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to create element', requestId));
     }
   }
 
@@ -253,13 +298,17 @@ export class CSMSController {
     const parsed = updateElementSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const data = parsed.data as Record<string, unknown>;
@@ -267,28 +316,36 @@ export class CSMSController {
       if (data['category'] !== undefined) updateData['category'] = data['category'];
       if (data['title'] !== undefined) updateData['title'] = data['title'];
       if (data['description'] !== undefined) updateData['description'] = data['description'];
-      if (data['requirementRef'] !== undefined) updateData['requirementRef'] = data['requirementRef'];
-      if (data['implementationStatus'] !== undefined) updateData['implementationStatus'] = data['implementationStatus'];
+      if (data['requirementRef'] !== undefined)
+        updateData['requirementRef'] = data['requirementRef'];
+      if (data['implementationStatus'] !== undefined)
+        updateData['implementationStatus'] = data['implementationStatus'];
       if (data['maturityScore'] !== undefined) updateData['maturityScore'] = data['maturityScore'];
       if (data['ownerId'] !== undefined) updateData['ownerId'] = data['ownerId'];
-      if (data['nextReview'] !== undefined) updateData['nextReview'] = (data['nextReview'] as Date).toISOString().split('T')[0];
+      if (data['nextReview'] !== undefined)
+        updateData['nextReview'] = (data['nextReview'] as Date).toISOString().split('T')[0];
 
       const element = await this.csmsService.updateElement(id, updateData, userId);
       return reply.send(successResponse(element, requestId));
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS element not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS element not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to update element', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to update element', requestId));
     }
   }
 
   async deleteElement(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.csmsService.deleteElement(id, userId);
@@ -296,10 +353,14 @@ export class CSMSController {
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS element not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS element not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to delete element', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to delete element', requestId));
     }
   }
 
@@ -319,7 +380,9 @@ export class CSMSController {
       return reply.send(paginatedResponse(result.items, result.pagination, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to list policies', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to list policies', requestId));
     }
   }
 
@@ -333,10 +396,14 @@ export class CSMSController {
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS policy not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS policy not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve policy', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve policy', requestId));
     }
   }
 
@@ -347,30 +414,42 @@ export class CSMSController {
     const parsed = createPolicySchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
-      const policy = await this.csmsService.createPolicy(frameworkId, {
-        elementId: parsed.data.elementId as string | undefined,
-        title: parsed.data.title,
-        version: parsed.data.version,
-        body: parsed.data.body,
-        reviewCycle: parsed.data.reviewCycle,
-      }, userId);
+      const policy = await this.csmsService.createPolicy(
+        frameworkId,
+        {
+          elementId: parsed.data.elementId as string | undefined,
+          title: parsed.data.title,
+          version: parsed.data.version,
+          body: parsed.data.body,
+          reviewCycle: parsed.data.reviewCycle,
+        },
+        userId,
+      );
       return reply.status(201).send(successResponse(policy, requestId));
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to create policy', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to create policy', requestId));
     }
   }
 
@@ -381,13 +460,17 @@ export class CSMSController {
     const parsed = updatePolicySchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const data = parsed.data as Record<string, unknown>;
@@ -404,17 +487,22 @@ export class CSMSController {
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS policy not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS policy not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to update policy', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to update policy', requestId));
     }
   }
 
   async approvePolicy(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const policy = await this.csmsService.approvePolicy(id, userId);
@@ -422,17 +510,22 @@ export class CSMSController {
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS policy not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS policy not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to approve policy', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to approve policy', requestId));
     }
   }
 
   async deletePolicy(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.csmsService.deletePolicy(id, userId);
@@ -440,10 +533,14 @@ export class CSMSController {
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS policy not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS policy not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to delete policy', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to delete policy', requestId));
     }
   }
 
@@ -459,10 +556,14 @@ export class CSMSController {
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to list improvement plans', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to list improvement plans', requestId));
     }
   }
 
@@ -473,31 +574,43 @@ export class CSMSController {
     const parsed = createImprovementPlanSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
-      const plan = await this.csmsService.createImprovementPlan(frameworkId, {
-        elementId: parsed.data.elementId as string | undefined,
-        title: parsed.data.title,
-        description: parsed.data.description,
-        priority: parsed.data.priority,
-        targetDate: parsed.data.targetDate?.toISOString().split('T')[0],
-        ownerId: parsed.data.ownerId as string | undefined,
-      }, userId);
+      const plan = await this.csmsService.createImprovementPlan(
+        frameworkId,
+        {
+          elementId: parsed.data.elementId as string | undefined,
+          title: parsed.data.title,
+          description: parsed.data.description,
+          priority: parsed.data.priority,
+          targetDate: parsed.data.targetDate?.toISOString().split('T')[0],
+          ownerId: parsed.data.ownerId as string | undefined,
+        },
+        userId,
+      );
       return reply.status(201).send(successResponse(plan, requestId));
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to create improvement plan', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to create improvement plan', requestId));
     }
   }
 
@@ -513,10 +626,14 @@ export class CSMSController {
     } catch (error) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'CSMS framework not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to get gap analysis', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to get gap analysis', requestId));
     }
   }
 }

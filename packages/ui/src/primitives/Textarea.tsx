@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { cn } from '../lib/utils';
 
-export interface TextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   /** Whether the textarea is in an error state */
   error?: boolean;
   /** Error message displayed below the textarea */
@@ -84,11 +83,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         />
         <div className="mt-1 flex justify-between">
           {errorText ? (
-            <p
-              id={`${props.id}-error`}
-              className="text-sm text-red-600"
-              role="alert"
-            >
+            <p id={`${props.id}-error`} className="text-sm text-red-600" role="alert">
               {errorText}
             </p>
           ) : (
@@ -97,10 +92,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           {maxLength !== undefined && (
             <p
               id={`${props.id}-count`}
-              className={cn(
-                'text-xs text-surface-400',
-                isOverLimit && 'text-red-600',
-              )}
+              className={cn('text-xs text-surface-400', isOverLimit && 'text-red-600')}
             >
               {charCount} / {maxLength}
             </p>

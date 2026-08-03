@@ -1,14 +1,12 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import fp from 'fastify-plugin';
-
-import { createDb } from '@iec62443/database';
 import type { JwtConfig } from '@iec62443/auth';
+import { createDb } from '@iec62443/database';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
-import { authRoutes } from './routes.js';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import fp from 'fastify-plugin';
 import { jwtAuthPlugin, type JwtMiddlewareOptions } from './middleware/jwt.js';
-import { tenantPlugin, type TenantMiddlewareOptions } from './middleware/tenant.js';
 import { rbacPlugin } from './middleware/rbac.js';
+import { tenantPlugin, type TenantMiddlewareOptions } from './middleware/tenant.js';
+import { authRoutes } from './routes.js';
 
 // ---------------------------------------------------------------------------
 // Type augmentations for Fastify decorators
@@ -17,14 +15,10 @@ import { rbacPlugin } from './middleware/rbac.js';
 declare module 'fastify' {
   interface FastifyInstance {
     db: NodePgDatabase;
-    authenticate: (
-      request: FastifyRequest,
-      reply: FastifyReply,
-    ) => Promise<void>;
-    requirePermission: (permission: string) => (
-      request: FastifyRequest,
-      reply: FastifyReply,
-    ) => Promise<void>;
+    authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    requirePermission: (
+      permission: string,
+    ) => (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
 }
 
@@ -60,23 +54,20 @@ async function authModule(app: FastifyInstance, options: AuthModuleOptions) {
   // ── Register the authenticate decorator ─────────────────────────────
   // This is used as a preHandler by routes that require authentication
   if (!app.hasDecorator('authenticate')) {
-    app.decorate(
-      'authenticate',
-      async function (request: FastifyRequest, reply: FastifyReply) {
-        if (!request.user) {
-          return reply.status(401).send({
-            error: {
-              code: 'UNAUTHORIZED',
-              message: 'Authentication required.',
-            },
-            meta: {
-              requestId: request.id,
-              timestamp: new Date().toISOString(),
-            },
-          });
-        }
-      },
-    );
+    app.decorate('authenticate', async function (request: FastifyRequest, reply: FastifyReply) {
+      if (!request.user) {
+        return reply.status(401).send({
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'Authentication required.',
+          },
+          meta: {
+            requestId: request.id,
+            timestamp: new Date().toISOString(),
+          },
+        });
+      }
+    });
   }
 
   // ── Public routes that don't require authentication ─────────────────

@@ -1,8 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type {
+  Report,
+  ReportFormat,
+  ReportScope,
+  ReportTemplate,
+  ReportType,
+} from '@iec62443/shared-types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiClient } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
-
-import type { Report, ReportTemplate, ReportType, ReportFormat, ReportScope } from '@iec62443/shared-types';
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -28,9 +33,7 @@ export function useReportTemplates() {
   return useQuery({
     queryKey: [...queryKeys.reports.all, 'templates'] as const,
     queryFn: async () => {
-      const result = await client.get<SingleResponse<ReportTemplate[]>>(
-        '/reports/templates',
-      );
+      const result = await client.get<SingleResponse<ReportTemplate[]>>('/reports/templates');
       return result.data;
     },
   });
@@ -38,7 +41,9 @@ export function useReportTemplates() {
 
 // ── List Reports ──────────────────────────────────────────────────────
 
-export function useReports(params: { page?: number; perPage?: number; type?: string; status?: string; search?: string } = {}) {
+export function useReports(
+  params: { page?: number; perPage?: number; type?: string; status?: string; search?: string } = {},
+) {
   const client = getApiClient();
 
   return useQuery({
@@ -51,10 +56,7 @@ export function useReports(params: { page?: number; perPage?: number; type?: str
       if (params.status) queryParams['status'] = params.status;
       if (params.search) queryParams['search'] = params.search;
 
-      const result = await client.get<PaginatedResponse<Report>>(
-        '/reports',
-        queryParams,
-      );
+      const result = await client.get<PaginatedResponse<Report>>('/reports', queryParams);
       return result;
     },
   });
@@ -68,9 +70,7 @@ export function useReport(id: string | null) {
   return useQuery({
     queryKey: queryKeys.reports.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<Report>>(
-        `/reports/${id}`,
-      );
+      const result = await client.get<SingleResponse<Report>>(`/reports/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -97,10 +97,7 @@ export function useGenerateReport() {
 
   return useMutation({
     mutationFn: async (data: GenerateReportInput) => {
-      const result = await client.post<SingleResponse<Report>>(
-        '/reports',
-        data,
-      );
+      const result = await client.post<SingleResponse<Report>>('/reports', data);
       return result.data;
     },
     onSuccess: () => {

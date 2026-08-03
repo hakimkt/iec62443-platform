@@ -1,11 +1,11 @@
 'use client';
 
 import {
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
   Radar,
   RadarChart as RechartsRadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
@@ -31,22 +31,9 @@ export function RadarChart({
     <ResponsiveContainer width="100%" height={height}>
       <RechartsRadarChart data={data} cx="50%" cy="50%" outerRadius="70%">
         <PolarGrid stroke="#e2e8f0" />
-        <PolarAngleAxis
-          dataKey={nameKey}
-          tick={{ fontSize: 12, fill: '#64748b' }}
-        />
-        <PolarRadiusAxis
-          angle={90}
-          domain={[0, 100]}
-          tick={{ fontSize: 10, fill: '#94a3b8' }}
-        />
-        <Radar
-          name={dataKey}
-          dataKey={dataKey}
-          stroke={stroke}
-          fill={fill}
-          strokeWidth={2}
-        />
+        <PolarAngleAxis dataKey={nameKey} tick={{ fontSize: 12, fill: '#64748b' }} />
+        <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+        <Radar name={dataKey} dataKey={dataKey} stroke={stroke} fill={fill} strokeWidth={2} />
         <Tooltip
           contentStyle={{
             backgroundColor: '#fff',

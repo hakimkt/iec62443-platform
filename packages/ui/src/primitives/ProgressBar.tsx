@@ -1,6 +1,6 @@
-import * as React from 'react';
 import * as ProgressPrimitive from '@radix-ui/react-progress';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Color variants ─────────────────── */
@@ -35,7 +35,8 @@ const progressBarVariants = cva(
 /* ───────────────────────────── ProgressBar component ──────────── */
 
 interface ProgressBarProps
-  extends Omit<React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>, 'color'>,
+  extends
+    Omit<React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>, 'color'>,
     VariantProps<typeof progressBarVariants> {
   /** Progress bar color variant */
   color?: ProgressBarColor;

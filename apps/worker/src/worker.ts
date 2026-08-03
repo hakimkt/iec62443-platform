@@ -1,14 +1,13 @@
 import { Queue, Worker } from 'bullmq';
 import { pino } from 'pino';
-
-import { processReportGeneration } from './jobs/report-generation.js';
-import type { ReportJobData } from './jobs/report-generation.js';
+import { processReportGeneration, type ReportJobData } from './jobs/report-generation.js';
 
 const logger = pino({
   level: process.env['LOG_LEVEL'] ?? 'info',
-  transport: process.env['NODE_ENV'] === 'development'
-    ? { target: 'pino-pretty', options: { colorize: true } }
-    : undefined,
+  transport:
+    process.env['NODE_ENV'] === 'development'
+      ? { target: 'pino-pretty', options: { colorize: true } }
+      : undefined,
 });
 
 const REDIS_URL = process.env['REDIS_URL'] ?? 'redis://localhost:6379';
@@ -31,14 +30,10 @@ const importQueue = new Queue('bulk-import', { connection });
 const emailQueue = new Queue('email-notification', { connection });
 const riskRecalcQueue = new Queue('risk-recalculation', { connection });
 
-const reportWorker = new Worker<ReportJobData>(
-  'report-generation',
-  processReportGeneration,
-  {
-    connection,
-    concurrency: 2,
-  },
-);
+const reportWorker = new Worker<ReportJobData>('report-generation', processReportGeneration, {
+  connection,
+  concurrency: 2,
+});
 
 const importWorker = new Worker(
   'bulk-import',
@@ -72,7 +67,10 @@ const riskRecalcWorker = new Worker(
     logger.info({ jobId: job.id, result }, 'Job completed');
   });
   worker.on('failed', (job, err) => {
-    logger.error({ jobId: job?.id, error: err.message, attemptsMade: job?.attemptsMade }, 'Job failed');
+    logger.error(
+      { jobId: job?.id, error: err.message, attemptsMade: job?.attemptsMade },
+      'Job failed',
+    );
   });
 });
 

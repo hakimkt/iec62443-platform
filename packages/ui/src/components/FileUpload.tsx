@@ -1,11 +1,10 @@
-import * as React from 'react';
 import { UploadCloud } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Props ──────────────────────────── */
 
-export interface FileUploadProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface FileUploadProps extends React.HTMLAttributes<HTMLDivElement> {
   onFilesSelected: (files: File[]) => void;
   accept?: string;
   multiple?: boolean;
@@ -27,15 +26,7 @@ function formatBytes(bytes: number): string {
 
 const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
   (
-    {
-      className,
-      onFilesSelected,
-      accept,
-      multiple = false,
-      maxSize,
-      disabled = false,
-      ...props
-    },
+    { className, onFilesSelected, accept, multiple = false, maxSize, disabled = false, ...props },
     ref,
   ) => {
     const inputRef = React.useRef<HTMLInputElement>(null);
@@ -69,13 +60,10 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
       [disabled],
     );
 
-    const handleDragOver = React.useCallback(
-      (e: React.DragEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-      },
-      [],
-    );
+    const handleDragOver = React.useCallback((e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, []);
 
     const processFiles = React.useCallback(
       (fileList: FileList | null) => {
@@ -143,9 +131,7 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
         tabIndex={disabled ? -1 : 0}
         className={cn(
           'border-2 border-dashed rounded-lg p-8 text-center transition-colors',
-          isDragActive
-            ? 'border-brand-500 bg-brand-50'
-            : 'border-surface-300',
+          isDragActive ? 'border-brand-500 bg-brand-50' : 'border-surface-300',
           disabled
             ? 'opacity-50 cursor-not-allowed'
             : 'cursor-pointer hover:border-brand-400 hover:bg-surface-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
@@ -172,12 +158,8 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
           )}
           aria-hidden
         />
-        <p className="text-sm text-surface-700">
-          Drop files here or click to browse
-        </p>
-        {subtext && (
-          <p className="text-xs text-surface-400 mt-1">{subtext}</p>
-        )}
+        <p className="text-sm text-surface-700">Drop files here or click to browse</p>
+        {subtext && <p className="text-xs text-surface-400 mt-1">{subtext}</p>}
 
         <input
           ref={inputRef}

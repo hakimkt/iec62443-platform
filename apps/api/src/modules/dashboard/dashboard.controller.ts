@@ -1,5 +1,4 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { DashboardService } from './dashboard.service.js';
 
 // ---------------------------------------------------------------------------
@@ -50,9 +49,9 @@ export class DashboardController {
       return reply.send(successResponse(summary, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(
-        errorResponse('INTERNAL_ERROR', 'Failed to retrieve dashboard summary', requestId),
-      );
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve dashboard summary', requestId));
     }
   }
 
@@ -65,9 +64,9 @@ export class DashboardController {
       return reply.send(successResponse(heatMap, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(
-        errorResponse('INTERNAL_ERROR', 'Failed to retrieve risk heat map', requestId),
-      );
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve risk heat map', requestId));
     }
   }
 
@@ -79,9 +78,9 @@ export class DashboardController {
       return reply.send(successResponse(progress, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(
-        errorResponse('INTERNAL_ERROR', 'Failed to retrieve assessment progress', requestId),
-      );
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve assessment progress', requestId));
     }
   }
 
@@ -93,9 +92,9 @@ export class DashboardController {
       return reply.send(successResponse(findings, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(
-        errorResponse('INTERNAL_ERROR', 'Failed to retrieve recent findings', requestId),
-      );
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve recent findings', requestId));
     }
   }
 
@@ -107,9 +106,9 @@ export class DashboardController {
       return reply.send(successResponse(status, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(
-        errorResponse('INTERNAL_ERROR', 'Failed to retrieve remediation status', requestId),
-      );
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve remediation status', requestId));
     }
   }
 }

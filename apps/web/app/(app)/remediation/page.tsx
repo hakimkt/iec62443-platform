@@ -1,22 +1,21 @@
 'use client';
 
+import type { RemediationPlanStatus } from '@iec62443/shared-types';
 import { cn } from '@iec62443/ui';
 import {
-  Wrench,
-  Plus,
-  Trash2,
-  Loader2,
-  Search,
-  Calendar,
-  DollarSign,
   AlertTriangle,
+  Calendar,
   ClipboardCheck,
+  DollarSign,
+  Loader2,
+  Plus,
+  Search,
+  Trash2,
+  Wrench,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-
-import { useRemediationPlans, useDeletePlan } from '@/hooks/useRemediation';
-import type { RemediationPlanStatus } from '@iec62443/shared-types';
+import { useDeletePlan, useRemediationPlans } from '@/hooks/useRemediation';
 
 const STATUS_CONFIG: Record<RemediationPlanStatus, { label: string; color: string }> = {
   planned: { label: 'Planned', color: 'bg-surface-100 text-surface-600' },
@@ -52,9 +51,7 @@ export default function RemediationPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-surface-900">
-            Remediation
-          </h1>
+          <h1 className="text-2xl font-semibold text-surface-900">Remediation</h1>
           <p className="mt-1 text-sm text-surface-500">
             Track and manage remediation plans and actions
           </p>
@@ -76,13 +73,19 @@ export default function RemediationPage() {
             type="text"
             placeholder="Search plans..."
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className="w-full rounded-md border border-surface-200 bg-surface-0 py-2 pl-10 pr-4 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
           className="rounded-md border border-surface-200 bg-surface-0 px-3 py-2 text-sm text-surface-700 focus:border-brand-500 focus:outline-none"
         >
           <option value="">All Statuses</option>
@@ -117,9 +120,7 @@ export default function RemediationPage() {
                       <Wrench className="h-5 w-5 text-surface-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-surface-900">
-                        {plan.name}
-                      </p>
+                      <p className="text-sm font-medium text-surface-900">{plan.name}</p>
                       {plan.description && (
                         <p className="mt-0.5 text-xs text-surface-500 line-clamp-1">
                           {plan.description}
@@ -128,11 +129,19 @@ export default function RemediationPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', statusConfig.color)}>
+                    <span
+                      className={cn(
+                        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                        statusConfig.color,
+                      )}
+                    >
                       {statusConfig.label}
                     </span>
                     <button
-                      onClick={(e) => { e.preventDefault(); handleDelete(plan.id); }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleDelete(plan.id);
+                      }}
                       className="rounded-md p-2 text-surface-400 hover:bg-red-50 hover:text-red-600"
                       title="Delete"
                     >

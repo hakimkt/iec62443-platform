@@ -1,15 +1,7 @@
 import crypto from 'node:crypto';
-import { eq, and, desc, count, ilike, sql } from 'drizzle-orm';
-
+import { auditEvents, conduits, memberships, segmentationRules, zones } from '@iec62443/database';
+import { and, count, desc, eq, ilike, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
-import {
-  zones,
-  conduits,
-  memberships,
-  segmentationRules,
-  auditEvents,
-} from '@iec62443/database';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -128,10 +120,7 @@ export interface TopologyUpdateInput {
 // Audit hash chain helper
 // ---------------------------------------------------------------------------
 
-async function computeEventHash(
-  data: string,
-  previousHash: string | null,
-): Promise<string> {
+async function computeEventHash(data: string, previousHash: string | null): Promise<string> {
   const input = `${previousHash ?? ''}|${data}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
@@ -152,10 +141,14 @@ export class ZoneService {
   }
 
   /** Set search_path inside a transaction for tenant-scoped queries. */
-  private async withTenantSchema<T>(fn: (tx: Parameters<Parameters<typeof this.db.transaction>[0]>[0]) => Promise<T>): Promise<T> {
+  private async withTenantSchema<T>(
+    fn: (tx: Parameters<Parameters<typeof this.db.transaction>[0]>[0]) => Promise<T>,
+  ): Promise<T> {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
       return fn(tx);
     });
@@ -197,10 +190,7 @@ export class ZoneService {
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const [countResult] = await tx
-        .select({ total: count() })
-        .from(zones)
-        .where(whereClause);
+      const [countResult] = await tx.select({ total: count() }).from(zones).where(whereClause);
 
       const total = countResult?.total ?? 0;
       const totalPages = Math.ceil(total / perPage);
@@ -219,11 +209,7 @@ export class ZoneService {
 
   async getZone(id: string) {
     return this.withTenantSchema(async (tx) => {
-      const [zone] = await tx
-        .select()
-        .from(zones)
-        .where(eq(zones.id, id))
-        .limit(1);
+      const [zone] = await tx.select().from(zones).where(eq(zones.id, id)).limit(1);
 
       if (!zone) {
         throw Object.assign(new Error('Zone not found'), {
@@ -291,16 +277,14 @@ export class ZoneService {
       if (data.facilityId !== undefined) updateData['facilityId'] = data.facilityId;
       if (data.diagramX !== undefined) updateData['diagramX'] = data.diagramX?.toString() ?? null;
       if (data.diagramY !== undefined) updateData['diagramY'] = data.diagramY?.toString() ?? null;
-      if (data.diagramWidth !== undefined) updateData['diagramWidth'] = data.diagramWidth?.toString() ?? null;
-      if (data.diagramHeight !== undefined) updateData['diagramHeight'] = data.diagramHeight?.toString() ?? null;
+      if (data.diagramWidth !== undefined)
+        updateData['diagramWidth'] = data.diagramWidth?.toString() ?? null;
+      if (data.diagramHeight !== undefined)
+        updateData['diagramHeight'] = data.diagramHeight?.toString() ?? null;
       if (data.color !== undefined) updateData['color'] = data.color;
       if (data.metadata !== undefined) updateData['metadata'] = data.metadata;
 
-      const [updated] = await tx
-        .update(zones)
-        .set(updateData)
-        .where(eq(zones.id, id))
-        .returning();
+      const [updated] = await tx.update(zones).set(updateData).where(eq(zones.id, id)).returning();
 
       if (!updated) {
         throw Object.assign(new Error('Failed to update zone'), {
@@ -371,10 +355,7 @@ export class ZoneService {
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const [countResult] = await tx
-        .select({ total: count() })
-        .from(conduits)
-        .where(whereClause);
+      const [countResult] = await tx.select({ total: count() }).from(conduits).where(whereClause);
 
       const total = countResult?.total ?? 0;
       const totalPages = Math.ceil(total / perPage);
@@ -393,11 +374,7 @@ export class ZoneService {
 
   async getConduit(id: string) {
     return this.withTenantSchema(async (tx) => {
-      const [conduit] = await tx
-        .select()
-        .from(conduits)
-        .where(eq(conduits.id, id))
-        .limit(1);
+      const [conduit] = await tx.select().from(conduits).where(eq(conduits.id, id)).limit(1);
 
       if (!conduit) {
         throw Object.assign(new Error('Conduit not found'), {
@@ -442,7 +419,11 @@ export class ZoneService {
         entityType: 'conduit',
         entityId: newConduit.id,
         action: 'create',
-        details: { name: data.name, sourceZoneId: data.sourceZoneId, targetZoneId: data.targetZoneId },
+        details: {
+          name: data.name,
+          sourceZoneId: data.sourceZoneId,
+          targetZoneId: data.targetZoneId,
+        },
       });
 
       return newConduit;
@@ -639,9 +620,7 @@ export class ZoneService {
         });
       }
 
-      await tx
-        .delete(segmentationRules)
-        .where(eq(segmentationRules.id, ruleId));
+      await tx.delete(segmentationRules).where(eq(segmentationRules.id, ruleId));
 
       await this.createAuditEvent(tx, {
         userId,
@@ -658,15 +637,9 @@ export class ZoneService {
 
   async getTopology() {
     return this.withTenantSchema(async (tx) => {
-      const allZones = await tx
-        .select()
-        .from(zones)
-        .orderBy(desc(zones.createdAt));
+      const allZones = await tx.select().from(zones).orderBy(desc(zones.createdAt));
 
-      const allConduits = await tx
-        .select()
-        .from(conduits)
-        .orderBy(desc(conduits.createdAt));
+      const allConduits = await tx.select().from(conduits).orderBy(desc(conduits.createdAt));
 
       const allMemberships = await tx
         .select()
@@ -681,15 +654,16 @@ export class ZoneService {
     return this.withTenantSchema(async (tx) => {
       for (const zoneUpdate of data.zones) {
         const updateData: Record<string, unknown> = { updatedAt: new Date() };
-        if (zoneUpdate.diagramX !== undefined) updateData['diagramX'] = zoneUpdate.diagramX.toString();
-        if (zoneUpdate.diagramY !== undefined) updateData['diagramY'] = zoneUpdate.diagramY.toString();
-        if (zoneUpdate.diagramWidth !== undefined) updateData['diagramWidth'] = zoneUpdate.diagramWidth.toString();
-        if (zoneUpdate.diagramHeight !== undefined) updateData['diagramHeight'] = zoneUpdate.diagramHeight.toString();
+        if (zoneUpdate.diagramX !== undefined)
+          updateData['diagramX'] = zoneUpdate.diagramX.toString();
+        if (zoneUpdate.diagramY !== undefined)
+          updateData['diagramY'] = zoneUpdate.diagramY.toString();
+        if (zoneUpdate.diagramWidth !== undefined)
+          updateData['diagramWidth'] = zoneUpdate.diagramWidth.toString();
+        if (zoneUpdate.diagramHeight !== undefined)
+          updateData['diagramHeight'] = zoneUpdate.diagramHeight.toString();
 
-        await tx
-          .update(zones)
-          .set(updateData)
-          .where(eq(zones.id, zoneUpdate.id));
+        await tx.update(zones).set(updateData).where(eq(zones.id, zoneUpdate.id));
       }
 
       return this.getTopology();

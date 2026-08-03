@@ -1,34 +1,34 @@
 'use client';
 
-import { use, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button } from '@iec62443/ui/primitives';
-import { Badge } from '@iec62443/ui/primitives';
-import { Separator } from '@iec62443/ui/primitives';
-import { ProgressBar } from '@iec62443/ui/primitives';
-import {
-  ArrowLeft,
-  Trash2,
-  ClipboardCheck,
-  BarChart3,
-  ListChecks,
-  CheckCircle2,
-  AlertTriangle,
-  Shield,
-  TrendingUp,
-  FileText,
-} from 'lucide-react';
+import type { AssessmentScorecard, AssessmentStatus } from '@iec62443/shared-types';
 import { cn } from '@iec62443/ui';
+import { Badge, Button, ProgressBar, Separator } from '@iec62443/ui/primitives';
+import {
+  AlertTriangle,
+  ArrowLeft,
+  BarChart3,
+  CheckCircle2,
+  ClipboardCheck,
+  FileText,
+  ListChecks,
+  Shield,
+  Trash2,
+  TrendingUp,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { use, useState } from 'react';
 import {
   useAssessment,
   useAssessmentProgress,
   useAssessmentScorecard,
   useDeleteAssessment,
 } from '@/hooks/useAssessments';
-import type { AssessmentStatus, AssessmentScorecard } from '@iec62443/shared-types';
 
-const statusBadgeVariant: Record<AssessmentStatus, 'draft' | 'in_progress' | 'review' | 'completed' | 'archived'> = {
+const statusBadgeVariant: Record<
+  AssessmentStatus,
+  'draft' | 'in_progress' | 'review' | 'completed' | 'archived'
+> = {
   draft: 'draft',
   in_progress: 'in_progress',
   review: 'review',
@@ -56,7 +56,9 @@ function ScorecardTable({ scorecard }: { scorecard: AssessmentScorecard[] }) {
       <div className="py-8 text-center">
         <BarChart3 className="mx-auto h-10 w-10 text-surface-300" />
         <p className="mt-2 text-sm text-surface-500">No scorecard data available yet.</p>
-        <p className="text-xs text-surface-400">Answer assessment questions to generate scorecard results.</p>
+        <p className="text-xs text-surface-400">
+          Answer assessment questions to generate scorecard results.
+        </p>
       </div>
     );
   }
@@ -84,18 +86,31 @@ function ScorecardTable({ scorecard }: { scorecard: AssessmentScorecard[] }) {
         </div>
         <div className="rounded-lg border border-surface-200 bg-surface-0 p-4">
           <p className="text-xs font-medium text-surface-500">Target SL</p>
-          <p className="mt-1 text-2xl font-semibold text-surface-900">{SL_LABELS[overallTargetSl]}</p>
+          <p className="mt-1 text-2xl font-semibold text-surface-900">
+            {SL_LABELS[overallTargetSl]}
+          </p>
         </div>
         <div className="rounded-lg border border-surface-200 bg-surface-0 p-4">
           <p className="text-xs font-medium text-surface-500">SL Gap</p>
-          <p className={cn('mt-1 text-2xl font-semibold', overallGap > 0 ? 'text-amber-600' : 'text-green-600')}>
-            {overallGap > 0 ? `${overallGap} level${overallGap > 1 ? 's' : ''} below target` : 'Target met'}
+          <p
+            className={cn(
+              'mt-1 text-2xl font-semibold',
+              overallGap > 0 ? 'text-amber-600' : 'text-green-600',
+            )}
+          >
+            {overallGap > 0
+              ? `${overallGap} level${overallGap > 1 ? 's' : ''} below target`
+              : 'Target met'}
           </p>
         </div>
         <div className="rounded-lg border border-surface-200 bg-surface-0 p-4">
           <p className="text-xs font-medium text-surface-500">Compliance</p>
-          <p className="mt-1 text-2xl font-semibold text-surface-900">{Math.round(overallCompliance)}%</p>
-          <p className="mt-1 text-xs text-surface-400">{totalAnswered} / {totalQuestions} questions</p>
+          <p className="mt-1 text-2xl font-semibold text-surface-900">
+            {Math.round(overallCompliance)}%
+          </p>
+          <p className="mt-1 text-xs text-surface-400">
+            {totalAnswered} / {totalQuestions} questions
+          </p>
         </div>
       </div>
 
@@ -120,10 +135,16 @@ function ScorecardTable({ scorecard }: { scorecard: AssessmentScorecard[] }) {
                 <tr key={row.id} className="border-b border-surface-100 last:border-0">
                   <td className="px-4 py-3 font-medium text-surface-900">{row.category}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className={cn(
-                      'inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium',
-                      row.currentSl >= 3 ? 'bg-green-100 text-green-700' : row.currentSl >= 2 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700',
-                    )}>
+                    <span
+                      className={cn(
+                        'inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium',
+                        row.currentSl >= 3
+                          ? 'bg-green-100 text-green-700'
+                          : row.currentSl >= 2
+                            ? 'bg-amber-100 text-amber-700'
+                            : 'bg-red-100 text-red-700',
+                      )}
+                    >
                       SL {row.currentSl}
                     </span>
                   </td>
@@ -136,10 +157,16 @@ function ScorecardTable({ scorecard }: { scorecard: AssessmentScorecard[] }) {
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <span className={cn(
-                      'font-medium',
-                      row.compliancePct >= 80 ? 'text-green-600' : row.compliancePct >= 50 ? 'text-amber-600' : 'text-red-600',
-                    )}>
+                    <span
+                      className={cn(
+                        'font-medium',
+                        row.compliancePct >= 80
+                          ? 'text-green-600'
+                          : row.compliancePct >= 50
+                            ? 'text-amber-600'
+                            : 'text-red-600',
+                      )}
+                    >
                       {row.compliancePct}%
                     </span>
                   </td>
@@ -154,8 +181,9 @@ function ScorecardTable({ scorecard }: { scorecard: AssessmentScorecard[] }) {
       </div>
 
       <p className="text-xs text-surface-400">
-        SL-A is calculated using the IEC 62443 minimum-bar (weakest-link) model: the lowest-scoring requirement
-        in each section caps the Security Level for that section. The overall SL-A is the minimum across all sections.
+        SL-A is calculated using the IEC 62443 minimum-bar (weakest-link) model: the lowest-scoring
+        requirement in each section caps the Security Level for that section. The overall SL-A is
+        the minimum across all sections.
       </p>
     </div>
   );
@@ -177,14 +205,18 @@ function CompletedAssessmentView({
   const totalAnswered = scorecard.reduce((sum, s) => sum + s.answeredCount, 0);
   const totalQuestions = scorecard.reduce((sum, s) => sum + s.totalQuestions, 0);
   const overallSl = scorecard.length > 0 ? Math.min(...scorecard.map((s) => s.currentSl)) : 0;
-  const overallTargetSl = scorecard.length > 0 ? Math.max(...scorecard.map((s) => s.targetSl)) : assessment.targetSl ?? 0;
+  const overallTargetSl =
+    scorecard.length > 0
+      ? Math.max(...scorecard.map((s) => s.targetSl))
+      : (assessment.targetSl ?? 0);
   const overallGap = Math.max(0, overallTargetSl - overallSl);
   const overallCompliance =
     totalQuestions > 0
       ? scorecard.reduce((sum, s) => sum + s.compliancePct * s.totalQuestions, 0) / totalQuestions
       : 0;
   const sectionsWithGaps = scorecard.filter((s) => s.currentSl < s.targetSl);
-  const completionPct = progress?.completionPct ?? (totalQuestions > 0 ? (totalAnswered / totalQuestions) * 100 : 0);
+  const completionPct =
+    progress?.completionPct ?? (totalQuestions > 0 ? (totalAnswered / totalQuestions) * 100 : 0);
 
   return (
     <div className="space-y-6">
@@ -195,7 +227,15 @@ function CompletedAssessmentView({
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-green-900">Assessment Completed</h2>
             <p className="mt-1 text-sm text-green-700">
-              This assessment was completed on {assessment.completedAt ? new Date(assessment.completedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}.
+              This assessment was completed on{' '}
+              {assessment.completedAt
+                ? new Date(assessment.completedAt).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })
+                : 'N/A'}
+              .
               {overallGap === 0
                 ? ' All sections meet their target Security Level.'
                 : ` ${sectionsWithGaps.length} section${sectionsWithGaps.length !== 1 ? 's' : ''} below target SL.`}
@@ -235,7 +275,12 @@ function CompletedAssessmentView({
             )}
             <p className="text-xs font-medium text-surface-500">SL Gap</p>
           </div>
-          <p className={cn('mt-1 text-2xl font-semibold', overallGap > 0 ? 'text-amber-600' : 'text-green-600')}>
+          <p
+            className={cn(
+              'mt-1 text-2xl font-semibold',
+              overallGap > 0 ? 'text-amber-600' : 'text-green-600',
+            )}
+          >
             {overallGap > 0 ? `${overallGap} level${overallGap > 1 ? 's' : ''}` : 'Met'}
           </p>
         </div>
@@ -244,8 +289,12 @@ function CompletedAssessmentView({
             <BarChart3 className="h-4 w-4 text-surface-400" />
             <p className="text-xs font-medium text-surface-500">Compliance</p>
           </div>
-          <p className="mt-1 text-2xl font-semibold text-surface-900">{Math.round(overallCompliance)}%</p>
-          <p className="mt-1 text-xs text-surface-400">{totalAnswered} / {totalQuestions} questions</p>
+          <p className="mt-1 text-2xl font-semibold text-surface-900">
+            {Math.round(overallCompliance)}%
+          </p>
+          <p className="mt-1 text-xs text-surface-400">
+            {totalAnswered} / {totalQuestions} questions
+          </p>
         </div>
       </div>
 
@@ -258,7 +307,10 @@ function CompletedAssessmentView({
           </h3>
           <div className="mt-3 space-y-2">
             {sectionsWithGaps.map((s) => (
-              <div key={s.id} className="flex items-center justify-between rounded-md bg-white/60 px-3 py-2">
+              <div
+                key={s.id}
+                className="flex items-center justify-between rounded-md bg-white/60 px-3 py-2"
+              >
                 <span className="text-sm text-amber-900">{s.category}</span>
                 <span className="text-sm font-medium text-amber-700">
                   SL {s.currentSl} → SL {s.targetSl} (gap: +{s.targetSl - s.currentSl})
@@ -294,13 +346,17 @@ function CompletedAssessmentView({
             <Separator />
             <div className="flex justify-between">
               <dt className="text-sm text-surface-500">Status</dt>
-              <dd className="text-sm text-surface-900 capitalize">{assessment.status.replace('_', ' ')}</dd>
+              <dd className="text-sm text-surface-900 capitalize">
+                {assessment.status.replace('_', ' ')}
+              </dd>
             </div>
             <Separator />
             <div className="flex justify-between">
               <dt className="text-sm text-surface-500">Completed</dt>
               <dd className="text-sm text-surface-900">
-                {assessment.completedAt ? new Date(assessment.completedAt).toLocaleDateString() : '—'}
+                {assessment.completedAt
+                  ? new Date(assessment.completedAt).toLocaleDateString()
+                  : '—'}
               </dd>
             </div>
             <Separator />
@@ -457,11 +513,11 @@ export default function AssessmentDetailPage({ params }: { params: Promise<{ id:
       {/* Tabs */}
       <div className="border-b border-surface-200">
         <nav className="flex gap-6" role="tablist" aria-label="Assessment sections">
-          {([
+          {[
             { key: 'summary' as TabKey, label: 'Summary', icon: ClipboardCheck },
             { key: 'questions' as TabKey, label: 'Questions', icon: ListChecks },
             { key: 'scorecard' as TabKey, label: 'Scorecard', icon: BarChart3 },
-          ]).map((tab) => (
+          ].map((tab) => (
             <button
               key={tab.key}
               role="tab"
@@ -525,7 +581,9 @@ export default function AssessmentDetailPage({ params }: { params: Promise<{ id:
                 <Separator />
                 <div className="flex justify-between">
                   <dt className="text-sm text-surface-500">Created</dt>
-                  <dd className="text-sm text-surface-900">{new Date(assessment.createdAt).toLocaleDateString()}</dd>
+                  <dd className="text-sm text-surface-900">
+                    {new Date(assessment.createdAt).toLocaleDateString()}
+                  </dd>
                 </div>
               </dl>
             </div>
@@ -538,9 +596,7 @@ export default function AssessmentDetailPage({ params }: { params: Promise<{ id:
           </div>
         )}
 
-        {activeTab === 'scorecard' && (
-          <ScorecardTable scorecard={scorecard ?? []} />
-        )}
+        {activeTab === 'scorecard' && <ScorecardTable scorecard={scorecard ?? []} />}
       </div>
     </div>
   );

@@ -1,14 +1,7 @@
-import { eq, and, desc, sql, count, ilike } from 'drizzle-orm';
 import crypto from 'node:crypto';
-
+import { assetRelationships, assets, auditEvents, importJobs } from '@iec62443/database';
+import { and, count, desc, eq, ilike, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
-import {
-  assets,
-  assetRelationships,
-  importJobs,
-  auditEvents,
-} from '@iec62443/database';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -96,10 +89,7 @@ export interface AssetStats {
 // Audit hash chain helper
 // ---------------------------------------------------------------------------
 
-async function computeEventHash(
-  data: string,
-  previousHash: string | null,
-): Promise<string> {
+async function computeEventHash(data: string, previousHash: string | null): Promise<string> {
   const input = `${previousHash ?? ''}|${data}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
@@ -120,7 +110,9 @@ export class AssetService {
   async listAssets(filters: AssetFilters) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const page = filters.page ?? 1;
@@ -156,10 +148,7 @@ export class AssetService {
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       // Count total
-      const [countResult] = await tx
-        .select({ total: count() })
-        .from(assets)
-        .where(whereClause);
+      const [countResult] = await tx.select({ total: count() }).from(assets).where(whereClause);
 
       const total = countResult?.total ?? 0;
       const totalPages = Math.ceil(total / perPage);
@@ -226,14 +215,12 @@ export class AssetService {
   async getAsset(id: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
-      const [asset] = await tx
-        .select()
-        .from(assets)
-        .where(eq(assets.id, id))
-        .limit(1);
+      const [asset] = await tx.select().from(assets).where(eq(assets.id, id)).limit(1);
 
       if (!asset) {
         throw Object.assign(new Error('Asset not found'), {
@@ -249,7 +236,9 @@ export class AssetService {
   async createAsset(data: CreateAssetInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const insertData = {
@@ -274,10 +263,7 @@ export class AssetService {
         metadata: data.metadata ?? {},
       };
 
-      const [newAsset] = await tx
-        .insert(assets)
-        .values(insertData)
-        .returning();
+      const [newAsset] = await tx.insert(assets).values(insertData).returning();
 
       if (!newAsset) {
         throw Object.assign(new Error('Failed to create asset'), {
@@ -303,7 +289,9 @@ export class AssetService {
   async updateAsset(id: string, data: UpdateAssetInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Verify asset exists
@@ -327,7 +315,8 @@ export class AssetService {
       if (data.purdueLevel !== undefined) updateData['purdueLevel'] = data.purdueLevel;
       if (data.zoneId !== undefined) updateData['zoneId'] = data.zoneId;
       if (data.location !== undefined) updateData['location'] = data.location;
-      if (data.operationalStatus !== undefined) updateData['operationalStatus'] = data.operationalStatus;
+      if (data.operationalStatus !== undefined)
+        updateData['operationalStatus'] = data.operationalStatus;
       if (data.metadata !== undefined) updateData['metadata'] = data.metadata;
 
       // Date fields — pass Date objects directly for Drizzle timestamp columns
@@ -371,7 +360,9 @@ export class AssetService {
   async deleteAsset(id: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const asset = await this.getAssetTx(tx, id);
@@ -399,7 +390,9 @@ export class AssetService {
   async getAssetStats(): Promise<AssetStats> {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Count by type
@@ -435,9 +428,7 @@ export class AssetService {
       }
 
       // Total count
-      const [totalResult] = await tx
-        .select({ total: count() })
-        .from(assets);
+      const [totalResult] = await tx.select({ total: count() }).from(assets);
 
       return {
         byType,
@@ -452,7 +443,9 @@ export class AssetService {
   async getRelationships(assetId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Verify asset exists
@@ -468,14 +461,12 @@ export class AssetService {
     });
   }
 
-  async createRelationship(
-    assetId: string,
-    data: CreateRelationshipInput,
-    userId: string,
-  ) {
+  async createRelationship(assetId: string, data: CreateRelationshipInput, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Verify source asset exists
@@ -497,13 +488,10 @@ export class AssetService {
 
       // Prevent self-referential assetRelationships
       if (assetId === data.targetAssetId) {
-        throw Object.assign(
-          new Error('Cannot create a relationship between an asset and itself'),
-          {
-            statusCode: 400,
-            code: 'SELF_REFERENTIAL_RELATIONSHIP',
-          },
-        );
+        throw Object.assign(new Error('Cannot create a relationship between an asset and itself'), {
+          statusCode: 400,
+          code: 'SELF_REFERENTIAL_RELATIONSHIP',
+        });
       }
 
       const [newRelationship] = await tx
@@ -545,7 +533,9 @@ export class AssetService {
   async deleteRelationship(assetId: string, relId: string, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       // Verify asset exists
@@ -570,9 +560,7 @@ export class AssetService {
         });
       }
 
-      await tx
-        .delete(assetRelationships)
-        .where(eq(assetRelationships.id, relId));
+      await tx.delete(assetRelationships).where(eq(assetRelationships.id, relId));
 
       // Audit
       await this.createAuditEvent(tx, {
@@ -591,13 +579,12 @@ export class AssetService {
 
   // ── Asset Import ─────────────────────────────────────────────────────
 
-  async importAssets(
-    totalRecords: number,
-    userId: string,
-  ) {
+  async importAssets(totalRecords: number, userId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
       const [job] = await tx
@@ -636,14 +623,12 @@ export class AssetService {
   async getImportJobStatus(jobId: string) {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
-      const [job] = await tx
-        .select()
-        .from(importJobs)
-        .where(eq(importJobs.id, jobId))
-        .limit(1);
+      const [job] = await tx.select().from(importJobs).where(eq(importJobs.id, jobId)).limit(1);
 
       if (!job) {
         throw Object.assign(new Error('Import job not found'), {
@@ -661,24 +646,19 @@ export class AssetService {
   async exportAssets() {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
 
-      return tx
-        .select()
-        .from(assets)
-        .orderBy(assets.name);
+      return tx.select().from(assets).orderBy(assets.name);
     });
   }
 
   // ── Private helpers ──────────────────────────────────────────────────
 
   private async getAssetTx(db: DbOrTx, id: string) {
-    const [asset] = await db
-      .select()
-      .from(assets)
-      .where(eq(assets.id, id))
-      .limit(1);
+    const [asset] = await db.select().from(assets).where(eq(assets.id, id)).limit(1);
 
     if (!asset) {
       throw Object.assign(new Error('Asset not found'), {
@@ -690,16 +670,19 @@ export class AssetService {
     return asset;
   }
 
-  private async createAuditEvent(db: DbOrTx, params: {
-    userId: string;
-    eventType: string;
-    entityType: string;
-    entityId: string;
-    action: 'create' | 'update' | 'delete' | 'read';
-    details: Record<string, unknown>;
-    ipAddress?: string | null;
-    userAgent?: string | null;
-  }): Promise<void> {
+  private async createAuditEvent(
+    db: DbOrTx,
+    params: {
+      userId: string;
+      eventType: string;
+      entityType: string;
+      entityId: string;
+      action: 'create' | 'update' | 'delete' | 'read';
+      details: Record<string, unknown>;
+      ipAddress?: string | null;
+      userAgent?: string | null;
+    },
+  ): Promise<void> {
     try {
       // Get the last audit event hash for chaining (tenant-scoped)
       const [lastEvent] = await db

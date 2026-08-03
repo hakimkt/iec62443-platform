@@ -1,13 +1,11 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-
 import {
-  createPlanSchema,
-  updatePlanSchema,
   createActionSchema,
+  createPlanSchema,
   updateActionSchema,
+  updatePlanSchema,
   verifyActionSchema,
 } from '@iec62443/shared-schemas';
-
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { RemediationService } from './remediation.service.js';
 
 // ---------------------------------------------------------------------------
@@ -68,9 +66,9 @@ export class RemediationController {
       return reply.send(paginatedResponse(result.items, result.pagination, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(
-        errorResponse('INTERNAL_ERROR', 'Failed to list remediation plans', requestId),
-      );
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to list remediation plans', requestId));
     }
   }
 
@@ -84,10 +82,14 @@ export class RemediationController {
     } catch (error) {
       const err = error as { statusCode?: number; code?: string };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'Remediation plan not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'Remediation plan not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve plan', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve plan', requestId));
     }
   }
 
@@ -97,13 +99,17 @@ export class RemediationController {
     const parsed = createPlanSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const plan = await this.remediationService.createPlan(
@@ -122,7 +128,9 @@ export class RemediationController {
       return reply.status(201).send(successResponse(plan, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to create remediation plan', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to create remediation plan', requestId));
     }
   }
 
@@ -133,13 +141,17 @@ export class RemediationController {
     const parsed = updatePlanSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const data = parsed.data as Record<string, unknown>;
@@ -149,26 +161,34 @@ export class RemediationController {
       if (data['findingIds'] !== undefined) updateData['findingIds'] = data['findingIds'];
       if (data['riskIds'] !== undefined) updateData['riskIds'] = data['riskIds'];
       if (data['ownerId'] !== undefined) updateData['ownerId'] = data['ownerId'];
-      if (data['budgetEstimate'] !== undefined) updateData['budgetEstimate'] = data['budgetEstimate'];
-      if (data['startDate'] !== undefined) updateData['startDate'] = (data['startDate'] as Date).toISOString().split('T')[0];
-      if (data['targetDate'] !== undefined) updateData['targetDate'] = (data['targetDate'] as Date).toISOString().split('T')[0];
+      if (data['budgetEstimate'] !== undefined)
+        updateData['budgetEstimate'] = data['budgetEstimate'];
+      if (data['startDate'] !== undefined)
+        updateData['startDate'] = (data['startDate'] as Date).toISOString().split('T')[0];
+      if (data['targetDate'] !== undefined)
+        updateData['targetDate'] = (data['targetDate'] as Date).toISOString().split('T')[0];
 
       const plan = await this.remediationService.updatePlan(id, updateData, userId);
       return reply.send(successResponse(plan, requestId));
     } catch (error) {
       const err = error as { statusCode?: number; code?: string };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'Remediation plan not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'Remediation plan not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to update plan', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to update plan', requestId));
     }
   }
 
   async deletePlan(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.remediationService.deletePlan(id, userId);
@@ -176,10 +196,14 @@ export class RemediationController {
     } catch (error) {
       const err = error as { statusCode?: number; code?: string };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'Remediation plan not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'Remediation plan not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to delete plan', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to delete plan', requestId));
     }
   }
 
@@ -200,7 +224,9 @@ export class RemediationController {
       return reply.send(paginatedResponse(result.items, result.pagination, requestId));
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to list actions', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to list actions', requestId));
     }
   }
 
@@ -214,10 +240,14 @@ export class RemediationController {
     } catch (error) {
       const err = error as { statusCode?: number; code?: string };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'Remediation action not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'Remediation action not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve action', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to retrieve action', requestId));
     }
   }
 
@@ -228,13 +258,17 @@ export class RemediationController {
     const parsed = createActionSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const action = await this.remediationService.createAction(
@@ -256,10 +290,14 @@ export class RemediationController {
     } catch (error) {
       const err = error as { statusCode?: number; code?: string };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'Remediation plan not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'Remediation plan not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to create action', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to create action', requestId));
     }
   }
 
@@ -270,13 +308,17 @@ export class RemediationController {
     const parsed = updateActionSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const data = parsed.data as Record<string, unknown>;
@@ -286,8 +328,10 @@ export class RemediationController {
       if (data['findingId'] !== undefined) updateData['findingId'] = data['findingId'];
       if (data['riskId'] !== undefined) updateData['riskId'] = data['riskId'];
       if (data['assigneeId'] !== undefined) updateData['assigneeId'] = data['assigneeId'];
-      if (data['startDate'] !== undefined) updateData['startDate'] = (data['startDate'] as Date).toISOString().split('T')[0];
-      if (data['dueDate'] !== undefined) updateData['dueDate'] = (data['dueDate'] as Date).toISOString().split('T')[0];
+      if (data['startDate'] !== undefined)
+        updateData['startDate'] = (data['startDate'] as Date).toISOString().split('T')[0];
+      if (data['dueDate'] !== undefined)
+        updateData['dueDate'] = (data['dueDate'] as Date).toISOString().split('T')[0];
       if (data['costEstimate'] !== undefined) updateData['costEstimate'] = data['costEstimate'];
       if (data['milestone'] !== undefined) updateData['milestone'] = data['milestone'];
 
@@ -296,17 +340,22 @@ export class RemediationController {
     } catch (error) {
       const err = error as { statusCode?: number; code?: string };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'Remediation action not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'Remediation action not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to update action', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to update action', requestId));
     }
   }
 
   async deleteAction(request: FastifyRequest, reply: FastifyReply) {
     const requestId = request.id as string;
     const { id } = request.params as { id: string };
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       await this.remediationService.deleteAction(id, userId);
@@ -314,10 +363,14 @@ export class RemediationController {
     } catch (error) {
       const err = error as { statusCode?: number; code?: string };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'Remediation action not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'Remediation action not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to delete action', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to delete action', requestId));
     }
   }
 
@@ -333,10 +386,14 @@ export class RemediationController {
     } catch (error) {
       const err = error as { statusCode?: number; code?: string };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'Remediation action not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'Remediation action not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to list verifications', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to list verifications', requestId));
     }
   }
 
@@ -347,19 +404,28 @@ export class RemediationController {
     const parsed = verifyActionSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.status(400).send(
-        errorResponse('VALIDATION_ERROR', 'Invalid request body', requestId,
+        errorResponse(
+          'VALIDATION_ERROR',
+          'Invalid request body',
+          requestId,
           parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    const userId = (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
+    const userId =
+      (request.user as { sub: string } | undefined)?.sub ?? '00000000-0000-0000-0000-000000000000';
 
     try {
       const verification = await this.remediationService.verifyAction(
         actionId,
         {
-          result: parsed.data.result === 'passed' ? 'pass' : parsed.data.result === 'failed' ? 'fail' : 'partial',
+          result:
+            parsed.data.result === 'passed'
+              ? 'pass'
+              : parsed.data.result === 'failed'
+                ? 'fail'
+                : 'partial',
           notes: parsed.data.notes,
         },
         userId,
@@ -368,10 +434,14 @@ export class RemediationController {
     } catch (error) {
       const err = error as { statusCode?: number; code?: string };
       if (err.statusCode === 404) {
-        return reply.status(404).send(errorResponse('NOT_FOUND', 'Remediation action not found', requestId));
+        return reply
+          .status(404)
+          .send(errorResponse('NOT_FOUND', 'Remediation action not found', requestId));
       }
       request.log.error(error);
-      return reply.status(500).send(errorResponse('INTERNAL_ERROR', 'Failed to verify action', requestId));
+      return reply
+        .status(500)
+        .send(errorResponse('INTERNAL_ERROR', 'Failed to verify action', requestId));
     }
   }
 }

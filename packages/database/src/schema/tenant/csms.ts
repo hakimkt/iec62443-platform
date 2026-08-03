@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   check,
   date,
@@ -9,7 +10,6 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
 
 // ── Frameworks ───────────────────────────────────────────────────────────
 
@@ -19,12 +19,8 @@ export const frameworks = pgTable('frameworks', {
   organizationId: uuid('organization_id'),
   version: varchar('version', { length: 20 }).notNull().default('1.0'),
   status: varchar('status', { length: 30 }).notNull().default('draft'),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // ── Elements ─────────────────────────────────────────────────────────────
@@ -45,12 +41,8 @@ export const elements = pgTable(
     ownerId: uuid('owner_id'),
     lastReviewed: timestamp('last_reviewed', { withTimezone: true }),
     nextReview: date('next_review'),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     check(
@@ -61,10 +53,7 @@ export const elements = pgTable(
       'elements_implementation_status_check',
       sql`${table.implementationStatus} IN ('implemented', 'partial', 'planned', 'not_started', 'na')`,
     ),
-    check(
-      'elements_maturity_score_check',
-      sql`${table.maturityScore} BETWEEN 0 AND 4`,
-    ),
+    check('elements_maturity_score_check', sql`${table.maturityScore} BETWEEN 0 AND 4`),
   ],
 );
 
@@ -85,12 +74,8 @@ export const policies = pgTable(
     approvedBy: uuid('approved_by'),
     approvedAt: timestamp('approved_at', { withTimezone: true }),
     reviewCycle: integer('review_cycle').default(365),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     check(
@@ -116,12 +101,8 @@ export const improvementPlans = pgTable(
     targetDate: date('target_date'),
     status: varchar('status', { length: 30 }).notNull().default('planned'),
     ownerId: uuid('owner_id'),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     check(

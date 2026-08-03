@@ -75,51 +75,52 @@ As a platform that manages OT cybersecurity assessments, the platform itself mus
 
 ### 3.1 Password Policy
 
-| Requirement | Value |
-|---|---|
-| Minimum length | 14 characters |
-| Complexity | At least 1 uppercase, 1 lowercase, 1 digit, 1 special |
-| Breach check | Checked against Have I Been Pwned API (k-anonymity) |
-| History | Cannot reuse last 12 passwords |
-| Expiry | Configurable per tenant (default: 90 days) |
-| Hashing | Argon2id (memory: 64MB, iterations: 3, parallelism: 4) |
+| Requirement    | Value                                                  |
+| -------------- | ------------------------------------------------------ |
+| Minimum length | 14 characters                                          |
+| Complexity     | At least 1 uppercase, 1 lowercase, 1 digit, 1 special  |
+| Breach check   | Checked against Have I Been Pwned API (k-anonymity)    |
+| History        | Cannot reuse last 12 passwords                         |
+| Expiry         | Configurable per tenant (default: 90 days)             |
+| Hashing        | Argon2id (memory: 64MB, iterations: 3, parallelism: 4) |
 
 ### 3.2 Multi-Factor Authentication
 
-| Method | Priority | Notes |
-|---|---|---|
-| **WebAuthn/FIDO2** | Preferred | Hardware keys (YubiKey) or platform authenticators |
-| **TOTP** | Standard | RFC 6238, 30-second window, 6-digit code |
-| **Email OTP** | Backup | 8-character code, 10-minute expiry, rate-limited |
-| **SMS** | Not supported | Vulnerable to SIM-swapping; not offered |
+| Method             | Priority      | Notes                                              |
+| ------------------ | ------------- | -------------------------------------------------- |
+| **WebAuthn/FIDO2** | Preferred     | Hardware keys (YubiKey) or platform authenticators |
+| **TOTP**           | Standard      | RFC 6238, 30-second window, 6-digit code           |
+| **Email OTP**      | Backup        | 8-character code, 10-minute expiry, rate-limited   |
+| **SMS**            | Not supported | Vulnerable to SIM-swapping; not offered            |
 
 **MFA Enforcement:**
+
 - Required for: Tenant Owners, Tenant Admins, Platform Admins
 - Optional (recommended) for: all other roles
 - Configurable per-tenant policy (mandatory for all users)
 
 ### 3.3 Session Management
 
-| Parameter | Value |
-|---|---|
-| Access token TTL | 15 minutes |
-| Refresh token TTL | 7 days |
-| Refresh token rotation | Every use (old token invalidated) |
-| Refresh token family | Detected if stolen token reused (revoke all) |
-| Session binding | IP address + User-Agent fingerprint |
-| Concurrent sessions | Configurable (default: 5 per user) |
-| Idle timeout | 30 minutes (configurable per tenant) |
-| Absolute timeout | 12 hours (configurable per tenant) |
+| Parameter              | Value                                        |
+| ---------------------- | -------------------------------------------- |
+| Access token TTL       | 15 minutes                                   |
+| Refresh token TTL      | 7 days                                       |
+| Refresh token rotation | Every use (old token invalidated)            |
+| Refresh token family   | Detected if stolen token reused (revoke all) |
+| Session binding        | IP address + User-Agent fingerprint          |
+| Concurrent sessions    | Configurable (default: 5 per user)           |
+| Idle timeout           | 30 minutes (configurable per tenant)         |
+| Absolute timeout       | 12 hours (configurable per tenant)           |
 
 ### 3.4 SSO Integration
 
-| Provider | Protocol | Notes |
-|---|---|---|
-| Azure AD (Entra ID) | OIDC + SAML 2.0 | Enterprise standard |
-| Okta | OIDC | SaaS identity |
-| Keycloak | OIDC + SAML 2.0 | Self-hosted / on-prem |
-| Google Workspace | OIDC | Optional |
-| Generic SAML 2.0 IdP | SAML 2.0 | Custom enterprise IdPs |
+| Provider             | Protocol        | Notes                  |
+| -------------------- | --------------- | ---------------------- |
+| Azure AD (Entra ID)  | OIDC + SAML 2.0 | Enterprise standard    |
+| Okta                 | OIDC            | SaaS identity          |
+| Keycloak             | OIDC + SAML 2.0 | Self-hosted / on-prem  |
+| Google Workspace     | OIDC            | Optional               |
+| Generic SAML 2.0 IdP | SAML 2.0        | Custom enterprise IdPs |
 
 ---
 
@@ -153,12 +154,12 @@ As a platform that manages OT cybersecurity assessments, the platform itself mus
 
 ### 4.2 Data Classification
 
-| Classification | Examples | Encryption | Access |
-|---|---|---|---|
-| **Confidential** | Evidence files, assessment data, risk registers | AES-256 + tenant DEK | RBAC + project scope |
-| **Restricted** | PII (email, name), MFA secrets, API keys | AES-256 + column-level encryption | Tenant Admin only for PII export |
-| **Internal** | User preferences, UI settings | AES-256 (database-level) | Authenticated user |
-| **Public** | Platform name, documentation | None | Unauthenticated |
+| Classification   | Examples                                        | Encryption                        | Access                           |
+| ---------------- | ----------------------------------------------- | --------------------------------- | -------------------------------- |
+| **Confidential** | Evidence files, assessment data, risk registers | AES-256 + tenant DEK              | RBAC + project scope             |
+| **Restricted**   | PII (email, name), MFA secrets, API keys        | AES-256 + column-level encryption | Tenant Admin only for PII export |
+| **Internal**     | User preferences, UI settings                   | AES-256 (database-level)          | Authenticated user               |
+| **Public**       | Platform name, documentation                    | None                              | Unauthenticated                  |
 
 ### 4.3 PII Protection
 
@@ -178,13 +179,13 @@ Protection measures:
 
 ### 4.4 Key Management
 
-| Key Type | Storage | Rotation | Access |
-|---|---|---|---|
-| Root encryption key | AWS KMS (HSM-backed) | Annual | Platform security team |
-| Tenant data encryption keys | AWS KMS (wrapped by root key) | Annual + on-demand | Application service |
-| JWT signing keys | AWS KMS | 90 days (auto-rotated) | Auth service only |
-| Evidence file encryption | S3 SSE-KMS | Per-tenant key | Evidence service |
-| API key hashing | Application (Argon2id) | N/A (hashed, not encrypted) | Auth middleware |
+| Key Type                    | Storage                       | Rotation                    | Access                 |
+| --------------------------- | ----------------------------- | --------------------------- | ---------------------- |
+| Root encryption key         | AWS KMS (HSM-backed)          | Annual                      | Platform security team |
+| Tenant data encryption keys | AWS KMS (wrapped by root key) | Annual + on-demand          | Application service    |
+| JWT signing keys            | AWS KMS                       | 90 days (auto-rotated)      | Auth service only      |
+| Evidence file encryption    | S3 SSE-KMS                    | Per-tenant key              | Evidence service       |
+| API key hashing             | Application (Argon2id)        | N/A (hashed, not encrypted) | Auth middleware        |
 
 ---
 
@@ -242,14 +243,14 @@ Cache-Control: no-store (for authenticated responses)
 
 ### 5.4 File Upload Security
 
-| Control | Value |
-|---|---|
-| Max file size | 100 MB (evidence), 50 MB (imports) |
-| Allowed types | Whitelist: PDF, DOCX, XLSX, PNG, JPG, CSV, JSON, TXT, PCAP, XML |
-| Virus scanning | ClamAV scan on upload (quarantine if positive) |
-| Filename sanitization | Strip path separators, limit length, UUID storage key |
-| Storage | S3 with server-side encryption, pre-signed URLs for download |
-| Download | Pre-signed URLs (15-min expiry), no direct S3 access |
+| Control               | Value                                                           |
+| --------------------- | --------------------------------------------------------------- |
+| Max file size         | 100 MB (evidence), 50 MB (imports)                              |
+| Allowed types         | Whitelist: PDF, DOCX, XLSX, PNG, JPG, CSV, JSON, TXT, PCAP, XML |
+| Virus scanning        | ClamAV scan on upload (quarantine if positive)                  |
+| Filename sanitization | Strip path separators, limit length, UUID storage key           |
+| Storage               | S3 with server-side encryption, pre-signed URLs for download    |
+| Download              | Pre-signed URLs (15-min expiry), no direct S3 access            |
 
 ---
 
@@ -292,7 +293,7 @@ Verification:
   • Compare stored hashes with computed hashes
   • Any mismatch = tamper detected
   • Alert security team + mark chain as broken
-  
+
 Periodic verification:
   • Automated daily chain verification (background job)
   • On-demand verification via admin API
@@ -302,6 +303,7 @@ Periodic verification:
 ### 6.3 Audit Events Tracked
 
 **Authentication:**
+
 - Login success/failure
 - Token refresh
 - MFA enrollment/verification/challenge
@@ -310,6 +312,7 @@ Periodic verification:
 - Session termination
 
 **Data Operations:**
+
 - Create/Read/Update/Delete on all domain entities
 - Bulk operations
 - Data export
@@ -317,6 +320,7 @@ Periodic verification:
 - File integrity verification
 
 **Administrative:**
+
 - Role assignment/revocation
 - User invitation/removal
 - Tenant configuration changes
@@ -326,17 +330,17 @@ Periodic verification:
 
 ### 6.4 Compliance Mappings
 
-| Requirement | Standard | Implementation |
-|---|---|---|
-| Access control | ISO 27001 A.9 | RBAC + MFA + session management |
-| Encryption | ISO 27001 A.10 | AES-256 at rest, TLS 1.3 in transit |
-| Audit logging | ISO 27001 A.12.4 | Hash-chained immutable audit log |
-| Vulnerability management | ISO 27001 A.12.6 | Dependency scanning, SAST, DAST |
-| Network security | ISO 27001 A.13 | VPC, WAF, IDS/IPS, security groups |
-| Data protection | GDPR Art. 32 | Encryption, access control, pseudonymization |
-| Right to erasure | GDPR Art. 17 | User data deletion (audit trail pseudonymized) |
-| Incident response | SOC 2 CC7.3 | Alerting, runbooks, post-incident review |
-| Change management | SOC 2 CC8.1 | Git-based workflow, code review, CI/CD gates |
+| Requirement              | Standard         | Implementation                                 |
+| ------------------------ | ---------------- | ---------------------------------------------- |
+| Access control           | ISO 27001 A.9    | RBAC + MFA + session management                |
+| Encryption               | ISO 27001 A.10   | AES-256 at rest, TLS 1.3 in transit            |
+| Audit logging            | ISO 27001 A.12.4 | Hash-chained immutable audit log               |
+| Vulnerability management | ISO 27001 A.12.6 | Dependency scanning, SAST, DAST                |
+| Network security         | ISO 27001 A.13   | VPC, WAF, IDS/IPS, security groups             |
+| Data protection          | GDPR Art. 32     | Encryption, access control, pseudonymization   |
+| Right to erasure         | GDPR Art. 17     | User data deletion (audit trail pseudonymized) |
+| Incident response        | SOC 2 CC7.3      | Alerting, runbooks, post-incident review       |
+| Change management        | SOC 2 CC8.1      | Git-based workflow, code review, CI/CD gates   |
 
 ---
 
@@ -361,13 +365,13 @@ Periodic verification:
 
 ### 7.2 Dependency Security
 
-| Control | Implementation |
-|---|---|
-| Dependency scanning | Snyk / Dependabot — on every PR and nightly |
-| License compliance | FOSSA / license-checker — block copyleft licenses |
-| Container scanning | Trivy — base image + layer scanning |
-| SBOM generation | CycloneDX format, generated on every release |
-| Patch SLA | Critical: 24h, High: 7 days, Medium: 30 days, Low: 90 days |
+| Control             | Implementation                                             |
+| ------------------- | ---------------------------------------------------------- |
+| Dependency scanning | Snyk / Dependabot — on every PR and nightly                |
+| License compliance  | FOSSA / license-checker — block copyleft licenses          |
+| Container scanning  | Trivy — base image + layer scanning                        |
+| SBOM generation     | CycloneDX format, generated on every release               |
+| Patch SLA           | Critical: 24h, High: 7 days, Medium: 30 days, Low: 90 days |
 
 ---
 
@@ -375,12 +379,12 @@ Periodic verification:
 
 ### 8.1 Severity Classification
 
-| Severity | Definition | Response Time | Example |
-|---|---|---|---|
-| **P1 — Critical** | Active breach, data exfiltration, service down | 15 minutes | Ransomware, credential compromise |
-| **P2 — High** | Vulnerability exploitable, partial service impact | 1 hour | Unpatched RCE, auth bypass |
-| **P3 — Medium** | Potential risk, no active exploitation | 4 hours | Information disclosure, misconfiguration |
-| **P4 — Low** | Minor issue, cosmetic or defense-in-depth gap | 1 business day | Missing security header, verbose errors |
+| Severity          | Definition                                        | Response Time  | Example                                  |
+| ----------------- | ------------------------------------------------- | -------------- | ---------------------------------------- |
+| **P1 — Critical** | Active breach, data exfiltration, service down    | 15 minutes     | Ransomware, credential compromise        |
+| **P2 — High**     | Vulnerability exploitable, partial service impact | 1 hour         | Unpatched RCE, auth bypass               |
+| **P3 — Medium**   | Potential risk, no active exploitation            | 4 hours        | Information disclosure, misconfiguration |
+| **P4 — Low**      | Minor issue, cosmetic or defense-in-depth gap     | 1 business day | Missing security header, verbose errors  |
 
 ### 8.2 Response Process
 
@@ -392,7 +396,7 @@ Periodic verification:
   monitoring,   severity,      systems, revoke    actor, patch
   report, or    notify         compromised        vulnerability
   disclosure    stakeholders   credentials
-  
+
                                                     │
                                     ┌───────────────┘
                                     ▼
@@ -407,23 +411,23 @@ Periodic verification:
 
 ### 8.3 Data Breach Notification
 
-| Regulation | Notification Deadline | Authority |
-|---|---|---|
-| GDPR | 72 hours | Supervisory Authority |
-| SOC 2 | Per policy | Affected customers |
-| State laws (US) | Varies by state | State AG + affected individuals |
+| Regulation      | Notification Deadline | Authority                       |
+| --------------- | --------------------- | ------------------------------- |
+| GDPR            | 72 hours              | Supervisory Authority           |
+| SOC 2           | Per policy            | Affected customers              |
+| State laws (US) | Varies by state       | State AG + affected individuals |
 
 ---
 
 ## 9. Penetration Testing
 
-| Scope | Frequency | Provider |
-|---|---|---|
-| External API | Annual + after major releases | Third-party firm |
-| Internal application | Annual | Third-party firm |
-| Infrastructure | Semi-annual | Third-party firm + automated scanning |
-| Social engineering | Annual | Third-party firm |
-| Red team exercise | Annual (Enterprise) | Third-party firm |
+| Scope                | Frequency                     | Provider                              |
+| -------------------- | ----------------------------- | ------------------------------------- |
+| External API         | Annual + after major releases | Third-party firm                      |
+| Internal application | Annual                        | Third-party firm                      |
+| Infrastructure       | Semi-annual                   | Third-party firm + automated scanning |
+| Social engineering   | Annual                        | Third-party firm                      |
+| Red team exercise    | Annual (Enterprise)           | Third-party firm                      |
 
 Results shared with Enterprise customers under NDA.
 
@@ -431,18 +435,19 @@ Results shared with Enterprise customers under NDA.
 
 ## 10. Data Residency & Sovereignty
 
-| Deployment | Data Location | Compliance |
-|---|---|---|
-| EU cloud | eu-west-1 (Ireland) | GDPR, EU data residency |
-| US cloud | us-east-1 (Virginia) | SOC 2, FedRAMP (future) |
-| APAC cloud | ap-southeast-1 (Singapore) | PDPA, local regulations |
-| On-premises | Customer-controlled | Full data sovereignty |
+| Deployment  | Data Location              | Compliance              |
+| ----------- | -------------------------- | ----------------------- |
+| EU cloud    | eu-west-1 (Ireland)        | GDPR, EU data residency |
+| US cloud    | us-east-1 (Virginia)       | SOC 2, FedRAMP (future) |
+| APAC cloud  | ap-southeast-1 (Singapore) | PDPA, local regulations |
+| On-premises | Customer-controlled        | Full data sovereignty   |
 
 Cross-region data transfer:
+
 - Only with explicit tenant consent
 - Encrypted in transit (TLS 1.3) + at rest
 - Standard Contractual Clauses (SCCs) for international transfers
 
 ---
 
-*Next: [Technology Stack →](tech-stack.md)*
+_Next: [Technology Stack →](tech-stack.md)_

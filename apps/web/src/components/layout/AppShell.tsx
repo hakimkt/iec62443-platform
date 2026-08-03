@@ -1,10 +1,10 @@
 'use client';
 
-import { useUIStore } from '@/stores/ui-store';
-import { useAuth } from '@/providers/auth-provider';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { filterNavByPermissions, navSections } from '@/config/nav';
+import { useAuth } from '@/providers/auth-provider';
+import { useUIStore } from '@/stores/ui-store';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -30,11 +30,7 @@ export function AppShell({ children }: AppShellProps) {
     'admin:read',
   ]);
 
-  const filteredSections = filterNavByPermissions(
-    navSections,
-    permissions,
-    isAdmin,
-  );
+  const filteredSections = filterNavByPermissions(navSections, permissions, isAdmin);
 
   return (
     <div className="flex h-screen overflow-hidden bg-surface-50">
@@ -49,9 +45,7 @@ export function AppShell({ children }: AppShellProps) {
         <TopBar />
 
         <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-[1440px] p-6">
-            {children}
-          </div>
+          <div className="mx-auto max-w-[1440px] p-6">{children}</div>
         </main>
       </div>
 

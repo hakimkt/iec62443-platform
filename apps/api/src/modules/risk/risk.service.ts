@@ -1,16 +1,14 @@
-import { eq, and, desc, count, ilike, sql } from 'drizzle-orm';
 import crypto from 'node:crypto';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import {
-  registers,
-  entries,
-  treatments,
   acceptances,
-  matrixConfig,
   auditEvents,
+  entries,
+  matrixConfig,
+  registers,
+  treatments,
 } from '@iec62443/database';
+import { and, count, desc, eq, ilike, sql } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -120,10 +118,7 @@ export interface RiskStats {
 // Audit hash chain helper
 // ---------------------------------------------------------------------------
 
-async function computeEventHash(
-  data: string,
-  previousHash: string | null,
-): Promise<string> {
+async function computeEventHash(data: string, previousHash: string | null): Promise<string> {
   const input = `${previousHash ?? ''}|${data}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
@@ -144,10 +139,14 @@ export class RiskService {
   }
 
   /** Set search_path inside a transaction for tenant-scoped queries. */
-  private async withTenantSchema<T>(fn: (tx: Parameters<Parameters<typeof this.db.transaction>[0]>[0]) => Promise<T>): Promise<T> {
+  private async withTenantSchema<T>(
+    fn: (tx: Parameters<Parameters<typeof this.db.transaction>[0]>[0]) => Promise<T>,
+  ): Promise<T> {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
       return fn(tx);
     });
@@ -155,7 +154,12 @@ export class RiskService {
 
   // ── Registers CRUD ──────────────────────────────────────────────────
 
-  async listRegisters(filters: { page?: number; perPage?: number; search?: string; status?: string }) {
+  async listRegisters(filters: {
+    page?: number;
+    perPage?: number;
+    search?: string;
+    status?: string;
+  }) {
     return this.withTenantSchema(async (tx) => {
       const page = filters.page ?? 1;
       const perPage = filters.perPage ?? 25;
@@ -173,10 +177,7 @@ export class RiskService {
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const [countResult] = await tx
-        .select({ total: count() })
-        .from(registers)
-        .where(whereClause);
+      const [countResult] = await tx.select({ total: count() }).from(registers).where(whereClause);
 
       const total = countResult?.total ?? 0;
       const totalPages = Math.ceil(total / perPage);
@@ -195,11 +196,7 @@ export class RiskService {
 
   async getRegister(id: string) {
     return this.withTenantSchema(async (tx) => {
-      const [register] = await tx
-        .select()
-        .from(registers)
-        .where(eq(registers.id, id))
-        .limit(1);
+      const [register] = await tx.select().from(registers).where(eq(registers.id, id)).limit(1);
 
       if (!register) {
         throw Object.assign(new Error('Risk register not found'), {
@@ -247,11 +244,7 @@ export class RiskService {
 
   async updateRegister(id: string, data: UpdateRegisterInput, userId: string) {
     return this.withTenantSchema(async (tx) => {
-      const [existing] = await tx
-        .select()
-        .from(registers)
-        .where(eq(registers.id, id))
-        .limit(1);
+      const [existing] = await tx.select().from(registers).where(eq(registers.id, id)).limit(1);
 
       if (!existing) {
         throw Object.assign(new Error('Risk register not found'), {
@@ -295,11 +288,7 @@ export class RiskService {
 
   async deleteRegister(id: string, userId: string) {
     return this.withTenantSchema(async (tx) => {
-      const [existing] = await tx
-        .select()
-        .from(registers)
-        .where(eq(registers.id, id))
-        .limit(1);
+      const [existing] = await tx.select().from(registers).where(eq(registers.id, id)).limit(1);
 
       if (!existing) {
         throw Object.assign(new Error('Risk register not found'), {
@@ -360,10 +349,7 @@ export class RiskService {
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const [countResult] = await tx
-        .select({ total: count() })
-        .from(entries)
-        .where(whereClause);
+      const [countResult] = await tx.select({ total: count() }).from(entries).where(whereClause);
 
       const total = countResult?.total ?? 0;
       const totalPages = Math.ceil(total / perPage);
@@ -405,11 +391,7 @@ export class RiskService {
 
   async getRisk(id: string) {
     return this.withTenantSchema(async (tx) => {
-      const [risk] = await tx
-        .select()
-        .from(entries)
-        .where(eq(entries.id, id))
-        .limit(1);
+      const [risk] = await tx.select().from(entries).where(eq(entries.id, id)).limit(1);
 
       if (!risk) {
         throw Object.assign(new Error('Risk entry not found'), {
@@ -469,11 +451,7 @@ export class RiskService {
 
   async updateRisk(id: string, data: UpdateRiskInput, userId: string) {
     return this.withTenantSchema(async (tx) => {
-      const [existing] = await tx
-        .select()
-        .from(entries)
-        .where(eq(entries.id, id))
-        .limit(1);
+      const [existing] = await tx.select().from(entries).where(eq(entries.id, id)).limit(1);
 
       if (!existing) {
         throw Object.assign(new Error('Risk entry not found'), {
@@ -493,7 +471,8 @@ export class RiskService {
       if (data.likelihood !== undefined) updateData['likelihood'] = data.likelihood;
       if (data.impact !== undefined) updateData['impact'] = data.impact;
       if (data.treatment !== undefined) updateData['treatment'] = data.treatment;
-      if (data.residualLikelihood !== undefined) updateData['residualLikelihood'] = data.residualLikelihood;
+      if (data.residualLikelihood !== undefined)
+        updateData['residualLikelihood'] = data.residualLikelihood;
       if (data.residualImpact !== undefined) updateData['residualImpact'] = data.residualImpact;
       if (data.riskOwnerId !== undefined) updateData['riskOwnerId'] = data.riskOwnerId;
       if (data.iecRequirement !== undefined) updateData['iecRequirement'] = data.iecRequirement;
@@ -528,11 +507,7 @@ export class RiskService {
 
   async deleteRisk(id: string, userId: string) {
     return this.withTenantSchema(async (tx) => {
-      const [existing] = await tx
-        .select()
-        .from(entries)
-        .where(eq(entries.id, id))
-        .limit(1);
+      const [existing] = await tx.select().from(entries).where(eq(entries.id, id)).limit(1);
 
       if (!existing) {
         throw Object.assign(new Error('Risk entry not found'), {
@@ -558,9 +533,7 @@ export class RiskService {
 
   async getRiskStats(registerId?: string): Promise<RiskStats> {
     return this.withTenantSchema(async (tx) => {
-      const whereClause = registerId
-        ? eq(entries.registerId, registerId)
-        : undefined;
+      const whereClause = registerId ? eq(entries.registerId, registerId) : undefined;
 
       const categoryRows = await tx
         .select({ category: entries.category, count: count() })
@@ -601,10 +574,7 @@ export class RiskService {
         }
       }
 
-      const [totalResult] = await tx
-        .select({ total: count() })
-        .from(entries)
-        .where(whereClause);
+      const [totalResult] = await tx.select({ total: count() }).from(entries).where(whereClause);
 
       return {
         byCategory,
@@ -631,8 +601,9 @@ export class RiskService {
         .groupBy(entries.likelihood, entries.impact, entries.riskLevel);
 
       return rows
-        .filter((r): r is typeof r & { likelihood: number; impact: number; riskLevel: string } =>
-          r.likelihood !== null && r.impact !== null && r.riskLevel !== null,
+        .filter(
+          (r): r is typeof r & { likelihood: number; impact: number; riskLevel: string } =>
+            r.likelihood !== null && r.impact !== null && r.riskLevel !== null,
         )
         .map((r) => ({
           likelihood: r.likelihood,
@@ -678,12 +649,16 @@ export class RiskService {
     });
   }
 
-  async updateMatrixConfig(registerId: string, data: {
-    likelihoodLabels?: string[];
-    impactLabels?: string[];
-    thresholds?: Record<string, unknown>;
-    colorScheme?: Record<string, string>;
-  }, userId: string) {
+  async updateMatrixConfig(
+    registerId: string,
+    data: {
+      likelihoodLabels?: string[];
+      impactLabels?: string[];
+      thresholds?: Record<string, unknown>;
+      colorScheme?: Record<string, string>;
+    },
+    userId: string,
+  ) {
     return this.withTenantSchema(async (tx) => {
       const [existing] = await tx
         .select()
@@ -695,7 +670,8 @@ export class RiskService {
 
       if (existing) {
         const updateData: Record<string, unknown> = {};
-        if (data.likelihoodLabels !== undefined) updateData['likelihoodLabels'] = data.likelihoodLabels;
+        if (data.likelihoodLabels !== undefined)
+          updateData['likelihoodLabels'] = data.likelihoodLabels;
         if (data.impactLabels !== undefined) updateData['impactLabels'] = data.impactLabels;
         if (data.thresholds !== undefined) updateData['thresholds'] = data.thresholds;
         if (data.colorScheme !== undefined) updateData['colorScheme'] = data.colorScheme;
@@ -710,8 +686,20 @@ export class RiskService {
           .insert(matrixConfig)
           .values({
             registerId,
-            likelihoodLabels: data.likelihoodLabels ?? ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'],
-            impactLabels: data.impactLabels ?? ['Negligible', 'Minor', 'Moderate', 'Major', 'Catastrophic'],
+            likelihoodLabels: data.likelihoodLabels ?? [
+              'Rare',
+              'Unlikely',
+              'Possible',
+              'Likely',
+              'Almost Certain',
+            ],
+            impactLabels: data.impactLabels ?? [
+              'Negligible',
+              'Minor',
+              'Moderate',
+              'Major',
+              'Catastrophic',
+            ],
             thresholds: data.thresholds ?? {
               low: { max: 4 },
               medium: { min: 5, max: 9 },
@@ -745,11 +733,7 @@ export class RiskService {
 
   async listTreatments(riskId: string) {
     return this.withTenantSchema(async (tx) => {
-      const [risk] = await tx
-        .select()
-        .from(entries)
-        .where(eq(entries.id, riskId))
-        .limit(1);
+      const [risk] = await tx.select().from(entries).where(eq(entries.id, riskId)).limit(1);
 
       if (!risk) {
         throw Object.assign(new Error('Risk entry not found'), {
@@ -768,11 +752,7 @@ export class RiskService {
 
   async createTreatment(riskId: string, data: CreateTreatmentInput, userId: string) {
     return this.withTenantSchema(async (tx) => {
-      const [risk] = await tx
-        .select()
-        .from(entries)
-        .where(eq(entries.id, riskId))
-        .limit(1);
+      const [risk] = await tx.select().from(entries).where(eq(entries.id, riskId)).limit(1);
 
       if (!risk) {
         throw Object.assign(new Error('Risk entry not found'), {
@@ -819,21 +799,22 @@ export class RiskService {
     });
   }
 
-  async updateTreatment(riskId: string, treatmentId: string, data: {
-    type?: string;
-    description?: string;
-    status?: string;
-    responsibleId?: string;
-    targetDate?: Date;
-    costEstimate?: number;
-    effectiveness?: string;
-  }, userId: string) {
+  async updateTreatment(
+    riskId: string,
+    treatmentId: string,
+    data: {
+      type?: string;
+      description?: string;
+      status?: string;
+      responsibleId?: string;
+      targetDate?: Date;
+      costEstimate?: number;
+      effectiveness?: string;
+    },
+    userId: string,
+  ) {
     return this.withTenantSchema(async (tx) => {
-      const [risk] = await tx
-        .select()
-        .from(entries)
-        .where(eq(entries.id, riskId))
-        .limit(1);
+      const [risk] = await tx.select().from(entries).where(eq(entries.id, riskId)).limit(1);
 
       if (!risk) {
         throw Object.assign(new Error('Risk entry not found'), {
@@ -848,7 +829,8 @@ export class RiskService {
       if (data.status !== undefined) updateData['status'] = data.status;
       if (data.responsibleId !== undefined) updateData['responsibleId'] = data.responsibleId;
       if (data.targetDate !== undefined) updateData['targetDate'] = data.targetDate;
-      if (data.costEstimate !== undefined) updateData['costEstimate'] = data.costEstimate.toString();
+      if (data.costEstimate !== undefined)
+        updateData['costEstimate'] = data.costEstimate.toString();
       if (data.effectiveness !== undefined) updateData['effectiveness'] = data.effectiveness;
 
       const [updated] = await tx
@@ -879,11 +861,7 @@ export class RiskService {
 
   async deleteTreatment(riskId: string, treatmentId: string, userId: string) {
     return this.withTenantSchema(async (tx) => {
-      const [risk] = await tx
-        .select()
-        .from(entries)
-        .where(eq(entries.id, riskId))
-        .limit(1);
+      const [risk] = await tx.select().from(entries).where(eq(entries.id, riskId)).limit(1);
 
       if (!risk) {
         throw Object.assign(new Error('Risk entry not found'), {
@@ -911,11 +889,7 @@ export class RiskService {
 
   async listAcceptances(riskId: string) {
     return this.withTenantSchema(async (tx) => {
-      const [risk] = await tx
-        .select()
-        .from(entries)
-        .where(eq(entries.id, riskId))
-        .limit(1);
+      const [risk] = await tx.select().from(entries).where(eq(entries.id, riskId)).limit(1);
 
       if (!risk) {
         throw Object.assign(new Error('Risk entry not found'), {
@@ -934,11 +908,7 @@ export class RiskService {
 
   async createAcceptance(riskId: string, data: RiskAcceptanceInput, userId: string) {
     return this.withTenantSchema(async (tx) => {
-      const [risk] = await tx
-        .select()
-        .from(entries)
-        .where(eq(entries.id, riskId))
-        .limit(1);
+      const [risk] = await tx.select().from(entries).where(eq(entries.id, riskId)).limit(1);
 
       if (!risk) {
         throw Object.assign(new Error('Risk entry not found'), {

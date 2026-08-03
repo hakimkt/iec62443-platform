@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
-import Link from 'next/link';
-import { useAuth } from '@/providers/auth-provider';
-import { Button } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
+import { Button, Label } from '@iec62443/ui/primitives';
 import { ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useAuth } from '@/providers/auth-provider';
 
 export default function MfaPage() {
   const { verifyMfa, mfaChallenge, isLoading } = useAuth();
@@ -36,10 +35,7 @@ export default function MfaPage() {
     }
   }
 
-  function handleKeyDown(
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>,
-  ) {
+  function handleKeyDown(index: number, e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Backspace' && !code[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
@@ -84,9 +80,7 @@ export default function MfaPage() {
     return (
       <div>
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-surface-900">
-            Two-factor authentication
-          </h2>
+          <h2 className="text-xl font-semibold text-surface-900">Two-factor authentication</h2>
           <p className="mt-1 text-sm text-surface-500">
             No MFA challenge in progress. Please sign in again.
           </p>
@@ -104,9 +98,7 @@ export default function MfaPage() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-100">
           <ShieldCheck className="h-7 w-7 text-brand-600" />
         </div>
-        <h2 className="text-xl font-semibold text-surface-900">
-          Verification required
-        </h2>
+        <h2 className="text-xl font-semibold text-surface-900">Verification required</h2>
         <p className="mt-1 text-sm text-surface-500">
           Enter the 6-digit code from your authenticator app
         </p>
@@ -139,22 +131,14 @@ export default function MfaPage() {
           </div>
         </div>
 
-        <Button
-          type="submit"
-          variant="primary"
-          className="w-full"
-          loading={isLoading}
-        >
+        <Button type="submit" variant="primary" className="w-full" loading={isLoading}>
           Verify
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-surface-500">
         Didn&apos;t receive a code?{' '}
-        <Link
-          href="/login"
-          className="font-medium text-brand-600 hover:text-brand-700"
-        >
+        <Link href="/login" className="font-medium text-brand-600 hover:text-brand-700">
           Try signing in again
         </Link>
       </p>

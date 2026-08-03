@@ -1,23 +1,23 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import type { RiskCategory, RiskEntry, RiskEntryStatus, RiskLevel } from '@iec62443/shared-types';
+import { cn } from '@iec62443/ui';
 import {
-  PageHeader,
-  MetricCard,
-  SearchInput,
-  FilterBar,
   DataTable,
   EmptyState,
+  FilterBar,
+  MetricCard,
+  PageHeader,
+  SearchInput,
   StatusBadge,
+  type Column,
 } from '@iec62443/ui/components';
-import type { Column } from '@iec62443/ui/components';
-import { cn } from '@iec62443/ui';
 import { Button } from '@iec62443/ui/primitives';
-import { Plus, Filter } from 'lucide-react';
+import { Filter, Plus } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
 import { useRisks, useRiskStats } from '@/hooks/useRisks';
-import type { RiskEntry, RiskCategory, RiskLevel, RiskEntryStatus } from '@iec62443/shared-types';
 
 const categoryLabels: Record<RiskCategory, string> = {
   safety: 'Safety',
@@ -51,9 +51,25 @@ const statusToBadge: Record<RiskEntryStatus, 'completed' | 'in_progress' | 'arch
   accepted: 'completed',
 };
 
-const categoryFilters = ['', 'safety', 'operational', 'environmental', 'financial', 'reputational', 'regulatory'] as const;
+const categoryFilters = [
+  '',
+  'safety',
+  'operational',
+  'environmental',
+  'financial',
+  'reputational',
+  'regulatory',
+] as const;
 const levelFilters = ['', 'low', 'medium', 'high', 'critical'] as const;
-const statusFilters = ['', 'identified', 'analyzed', 'treated', 'monitored', 'closed', 'accepted'] as const;
+const statusFilters = [
+  '',
+  'identified',
+  'analyzed',
+  'treated',
+  'monitored',
+  'closed',
+  'accepted',
+] as const;
 
 export default function RisksPage() {
   const router = useRouter();
@@ -81,13 +97,37 @@ export default function RisksPage() {
     () =>
       [
         categoryFilter
-          ? { key: 'category', label: 'Category', value: categoryLabels[categoryFilter as RiskCategory] ?? categoryFilter, onRemove: () => { setCategoryFilter(''); setPage(1); } }
+          ? {
+              key: 'category',
+              label: 'Category',
+              value: categoryLabels[categoryFilter as RiskCategory] ?? categoryFilter,
+              onRemove: () => {
+                setCategoryFilter('');
+                setPage(1);
+              },
+            }
           : null,
         levelFilter
-          ? { key: 'level', label: 'Level', value: levelFilter, onRemove: () => { setLevelFilter(''); setPage(1); } }
+          ? {
+              key: 'level',
+              label: 'Level',
+              value: levelFilter,
+              onRemove: () => {
+                setLevelFilter('');
+                setPage(1);
+              },
+            }
           : null,
         statusFilter
-          ? { key: 'status', label: 'Status', value: statusFilter.replace(/_/g, ' '), onRemove: () => { setStatusFilter(''); setPage(1); } }
+          ? {
+              key: 'status',
+              label: 'Status',
+              value: statusFilter.replace(/_/g, ' '),
+              onRemove: () => {
+                setStatusFilter('');
+                setPage(1);
+              },
+            }
           : null,
       ].filter(Boolean) as { key: string; label: string; value: string; onRemove: () => void }[],
     [categoryFilter, levelFilter, statusFilter],
@@ -140,7 +180,9 @@ export default function RisksPage() {
       header: 'Risk Level',
       sortable: true,
       render: (_value: unknown, row: RiskEntry) => (
-        <span className={cn('text-xs font-medium px-2 py-0.5 rounded', riskLevelColors[row.riskLevel])}>
+        <span
+          className={cn('text-xs font-medium px-2 py-0.5 rounded', riskLevelColors[row.riskLevel])}
+        >
           {row.riskLevel}
         </span>
       ),
@@ -176,9 +218,7 @@ export default function RisksPage() {
         actions={
           <div className="flex items-center gap-2">
             <Link href="/risks/matrix">
-              <Button variant="secondary">
-                Risk Matrix
-              </Button>
+              <Button variant="secondary">Risk Matrix</Button>
             </Link>
             <Link href="/risks/new">
               <Button variant="primary" icon={Plus}>
@@ -201,11 +241,7 @@ export default function RisksPage() {
               color={riskLevelMetricColors[level]}
             />
           ))}
-          <MetricCard
-            label="Open"
-            value={stats.byStatus['open'] ?? 0}
-            color="blue"
-          />
+          <MetricCard label="Open" value={stats.byStatus['open'] ?? 0} color="blue" />
         </div>
       )}
 
@@ -214,7 +250,10 @@ export default function RisksPage() {
         searchSlot={
           <SearchInput
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             placeholder="Search risks..."
           />
         }
@@ -229,7 +268,10 @@ export default function RisksPage() {
           {categoryFilters.map((c) => (
             <button
               key={c}
-              onClick={() => { setCategoryFilter(c); setPage(1); }}
+              onClick={() => {
+                setCategoryFilter(c);
+                setPage(1);
+              }}
               className={cn(
                 'rounded-md px-2 py-1 text-xs font-medium transition-colors',
                 categoryFilter === c
@@ -237,7 +279,7 @@ export default function RisksPage() {
                   : 'bg-surface-100 text-surface-600 hover:bg-surface-200',
               )}
             >
-              {c === '' ? 'All' : categoryLabels[c as RiskCategory] ?? c}
+              {c === '' ? 'All' : (categoryLabels[c as RiskCategory] ?? c)}
             </button>
           ))}
         </div>
@@ -247,7 +289,10 @@ export default function RisksPage() {
           {levelFilters.map((l) => (
             <button
               key={l}
-              onClick={() => { setLevelFilter(l); setPage(1); }}
+              onClick={() => {
+                setLevelFilter(l);
+                setPage(1);
+              }}
               className={cn(
                 'rounded-md px-2 py-1 text-xs font-medium transition-colors',
                 levelFilter === l
@@ -265,7 +310,10 @@ export default function RisksPage() {
           {statusFilters.map((s) => (
             <button
               key={s}
-              onClick={() => { setStatusFilter(s); setPage(1); }}
+              onClick={() => {
+                setStatusFilter(s);
+                setPage(1);
+              }}
               className={cn(
                 'rounded-md px-2 py-1 text-xs font-medium transition-colors',
                 statusFilter === s
@@ -300,18 +348,25 @@ export default function RisksPage() {
       />
 
       {/* Empty state when no filters are active and no risks */}
-      {!isLoading && risks.length === 0 && !search && !categoryFilter && !levelFilter && !statusFilter && (
-        <EmptyState
-          icon={Filter}
-          title="No risks found"
-          description="Identify your first risk to get started."
-          action={
-            <Link href="/risks/new">
-              <Button variant="primary" icon={Plus}>Add Risk</Button>
-            </Link>
-          }
-        />
-      )}
+      {!isLoading &&
+        risks.length === 0 &&
+        !search &&
+        !categoryFilter &&
+        !levelFilter &&
+        !statusFilter && (
+          <EmptyState
+            icon={Filter}
+            title="No risks found"
+            description="Identify your first risk to get started."
+            action={
+              <Link href="/risks/new">
+                <Button variant="primary" icon={Plus}>
+                  Add Risk
+                </Button>
+              </Link>
+            }
+          />
+        )}
     </div>
   );
 }

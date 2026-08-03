@@ -1,14 +1,14 @@
 'use client';
 
-import { useTheme } from 'next-themes';
-import { Button } from '@iec62443/ui/primitives';
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@iec62443/ui/primitives';
 import { Monitor, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 export function ThemeToggle() {
   const { setTheme, theme } = useTheme();

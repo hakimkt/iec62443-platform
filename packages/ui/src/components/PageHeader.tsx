@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 const pageHeaderVariants = cva('flex items-start justify-between py-4 px-6', {
@@ -20,8 +20,7 @@ const pageHeaderVariants = cva('flex items-start justify-between py-4 px-6', {
 });
 
 export interface PageHeaderProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof pageHeaderVariants> {
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof pageHeaderVariants> {
   /** Page title */
   title: string;
   /** Optional description below the title */
@@ -33,41 +32,18 @@ export interface PageHeaderProps
 }
 
 const PageHeader = React.forwardRef<HTMLDivElement, PageHeaderProps>(
-  (
-    {
-      className,
-      title,
-      description,
-      actions,
-      breadcrumb,
-      size,
-      bordered,
-      ...props
-    },
-    ref,
-  ) => (
-    <div
-      ref={ref}
-      className={cn(pageHeaderVariants({ size, bordered }), className)}
-      {...props}
-    >
+  ({ className, title, description, actions, breadcrumb, size, bordered, ...props }, ref) => (
+    <div ref={ref} className={cn(pageHeaderVariants({ size, bordered }), className)} {...props}>
       <div className="flex flex-col gap-1">
         {breadcrumb && <div className="mb-1">{breadcrumb}</div>}
         <h1
-          className={cn(
-            'font-semibold text-surface-900',
-            size === 'lg' ? 'text-2xl' : 'text-xl',
-          )}
+          className={cn('font-semibold text-surface-900', size === 'lg' ? 'text-2xl' : 'text-xl')}
         >
           {title}
         </h1>
-        {description && (
-          <p className="text-sm text-surface-500 mt-1">{description}</p>
-        )}
+        {description && <p className="text-sm text-surface-500 mt-1">{description}</p>}
       </div>
-      {actions && (
-        <div className="flex items-center gap-2 shrink-0 ml-4">{actions}</div>
-      )}
+      {actions && <div className="flex items-center gap-2 shrink-0 ml-4">{actions}</div>}
     </div>
   ),
 );

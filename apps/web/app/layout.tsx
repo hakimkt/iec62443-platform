@@ -20,13 +20,13 @@ export const metadata: Metadata = {
   description: 'Industrial Cybersecurity Management Platform',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
+    >
       <body className="min-h-screen bg-surface-0 font-sans text-surface-900 antialiased">
         <Providers>{children}</Providers>
       </body>

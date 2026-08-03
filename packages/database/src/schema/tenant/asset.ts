@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   check,
   index,
@@ -10,7 +11,6 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
 
 // ── Assets ───────────────────────────────────────────────────────────────
 
@@ -39,18 +39,11 @@ export const assets = pgTable(
     lastPatchDate: timestamp('last_patch_date', { withTimezone: true }),
     eolDate: timestamp('eol_date', { withTimezone: true }),
     metadata: jsonb('metadata').default({}),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    check(
-      'assets_purdue_level_check',
-      sql`${table.purdueLevel} BETWEEN 0 AND 5`,
-    ),
+    check('assets_purdue_level_check', sql`${table.purdueLevel} BETWEEN 0 AND 5`),
     check(
       'assets_operational_status_check',
       sql`${table.operationalStatus} IN ('operational', 'decommissioned', 'maintenance', 'standby')`,
@@ -72,9 +65,7 @@ export const relationships = pgTable('relationships', {
   relationshipType: varchar('relationship_type', { length: 50 }).notNull(),
   protocol: varchar('protocol', { length: 100 }),
   metadata: jsonb('metadata').default({}),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 // ── Import Jobs ──────────────────────────────────────────────────────────
@@ -89,9 +80,7 @@ export const importJobs = pgTable(
     succeededCount: integer('succeeded_count'),
     failedCount: integer('failed_count'),
     errors: jsonb('errors').default([]),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     completedAt: timestamp('completed_at', { withTimezone: true }),
   },
   (table) => [

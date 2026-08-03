@@ -1,12 +1,10 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import {
-  PageHeader,
-} from '@iec62443/ui/components';
+import type { HeatMapCell, RiskLevel } from '@iec62443/shared-types';
 import { cn } from '@iec62443/ui';
+import { PageHeader } from '@iec62443/ui/components';
+import React, { useMemo } from 'react';
 import { useRiskHeatMap, useRiskMatrixConfig, useRiskRegisters } from '@/hooks/useRisks';
-import type { RiskLevel, HeatMapCell } from '@iec62443/shared-types';
 
 const riskLevelColors: Record<RiskLevel, string> = {
   low: 'bg-green-200 text-green-900',
@@ -22,7 +20,13 @@ const riskLevelBorderColors: Record<RiskLevel, string> = {
   critical: 'border-red-400',
 };
 
-const defaultLikelihoodLabels = ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'] as const;
+const defaultLikelihoodLabels = [
+  'Rare',
+  'Unlikely',
+  'Possible',
+  'Likely',
+  'Almost Certain',
+] as const;
 const defaultImpactLabels = ['Negligible', 'Minor', 'Moderate', 'Major', 'Catastrophic'] as const;
 
 function getRiskLevel(score: number): RiskLevel {
@@ -56,9 +60,19 @@ export default function RiskMatrixPage() {
 
   // Generate the 5×5 grid (likelihood 5→1 top to bottom, impact 1→5 left to right)
   const grid = useMemo(() => {
-    const rows: { likelihood: number; label: string; cells: { impact: number; label: string; count: number; level: RiskLevel; score: number }[] }[] = [];
+    const rows: {
+      likelihood: number;
+      label: string;
+      cells: { impact: number; label: string; count: number; level: RiskLevel; score: number }[];
+    }[] = [];
     for (let l = 5; l >= 1; l--) {
-      const cells: { impact: number; label: string; count: number; level: RiskLevel; score: number }[] = [];
+      const cells: {
+        impact: number;
+        label: string;
+        count: number;
+        level: RiskLevel;
+        score: number;
+      }[] = [];
       for (let i = 1; i <= 5; i++) {
         const cell = cellMap.get(`${l}-${i}`);
         const score = l * i;
@@ -141,7 +155,10 @@ export default function RiskMatrixPage() {
             </div>
 
             {/* Impact numeric labels */}
-            <div className="grid gap-1 mt-1" style={{ gridTemplateColumns: '100px repeat(5, 1fr)' }}>
+            <div
+              className="grid gap-1 mt-1"
+              style={{ gridTemplateColumns: '100px repeat(5, 1fr)' }}
+            >
               <div />
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="text-center text-xs text-surface-400">
@@ -157,12 +174,32 @@ export default function RiskMatrixPage() {
       <div className="rounded-lg border border-surface-200 bg-surface-0 p-6">
         <h3 className="text-sm font-medium text-surface-700 mb-3">Risk Level Thresholds</h3>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {([
-            { level: 'low' as RiskLevel, label: 'Low', range: '1–5', color: 'bg-green-200 border-green-300 text-green-900' },
-            { level: 'medium' as RiskLevel, label: 'Medium', range: '6–11', color: 'bg-amber-200 border-amber-300 text-amber-900' },
-            { level: 'high' as RiskLevel, label: 'High', range: '12–19', color: 'bg-orange-300 border-orange-400 text-orange-900' },
-            { level: 'critical' as RiskLevel, label: 'Critical', range: '20–25', color: 'bg-red-300 border-red-400 text-red-900' },
-          ]).map((item) => (
+          {[
+            {
+              level: 'low' as RiskLevel,
+              label: 'Low',
+              range: '1–5',
+              color: 'bg-green-200 border-green-300 text-green-900',
+            },
+            {
+              level: 'medium' as RiskLevel,
+              label: 'Medium',
+              range: '6–11',
+              color: 'bg-amber-200 border-amber-300 text-amber-900',
+            },
+            {
+              level: 'high' as RiskLevel,
+              label: 'High',
+              range: '12–19',
+              color: 'bg-orange-300 border-orange-400 text-orange-900',
+            },
+            {
+              level: 'critical' as RiskLevel,
+              label: 'Critical',
+              range: '20–25',
+              color: 'bg-red-300 border-red-400 text-red-900',
+            },
+          ].map((item) => (
             <div key={item.level} className="flex items-center gap-3">
               <div className={cn('h-8 w-8 rounded border-2', item.color)} />
               <div>

@@ -1,7 +1,7 @@
-import * as React from 'react';
 import * as ToastPrimitive from '@radix-ui/react-toast';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { X } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Position variants ──────────────── */
@@ -28,8 +28,7 @@ const toastVariants = cva(
           'border-red-200 bg-red-50 text-red-900 dark:border-red-800 dark:bg-red-950 dark:text-red-100',
         warning:
           'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100',
-        info:
-          'border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100',
+        info: 'border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100',
         default:
           'border-surface-200 bg-white text-surface-900 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-100',
       },
@@ -46,8 +45,9 @@ const ToastProvider = ToastPrimitive.Provider;
 
 /* ───────────────────────────── Viewport ───────────────────────── */
 
-interface ToastViewportProps
-  extends React.ComponentPropsWithoutRef<typeof ToastPrimitive.Viewport> {
+interface ToastViewportProps extends React.ComponentPropsWithoutRef<
+  typeof ToastPrimitive.Viewport
+> {
   position?: keyof typeof viewportPositionMap;
 }
 
@@ -70,19 +70,19 @@ ToastViewport.displayName = ToastPrimitive.Viewport.displayName;
 /* ───────────────────────────── Root ───────────────────────────── */
 
 interface ToastProps
-  extends React.ComponentPropsWithoutRef<typeof ToastPrimitive.Root>,
+  extends
+    React.ComponentPropsWithoutRef<typeof ToastPrimitive.Root>,
     VariantProps<typeof toastVariants> {}
 
-const Toast = React.forwardRef<
-  React.ComponentRef<typeof ToastPrimitive.Root>,
-  ToastProps
->(({ className, variant, ...props }, ref) => (
-  <ToastPrimitive.Root
-    ref={ref}
-    className={cn(toastVariants({ variant }), className)}
-    {...props}
-  />
-));
+const Toast = React.forwardRef<React.ComponentRef<typeof ToastPrimitive.Root>, ToastProps>(
+  ({ className, variant, ...props }, ref) => (
+    <ToastPrimitive.Root
+      ref={ref}
+      className={cn(toastVariants({ variant }), className)}
+      {...props}
+    />
+  ),
+);
 Toast.displayName = ToastPrimitive.Root.displayName;
 
 /* ───────────────────────────── Title ──────────────────────────── */
@@ -91,11 +91,7 @@ const ToastTitle = React.forwardRef<
   React.ComponentRef<typeof ToastPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitive.Title>
 >(({ className, ...props }, ref) => (
-  <ToastPrimitive.Title
-    ref={ref}
-    className={cn('text-sm font-semibold', className)}
-    {...props}
-  />
+  <ToastPrimitive.Title ref={ref} className={cn('text-sm font-semibold', className)} {...props} />
 ));
 ToastTitle.displayName = ToastPrimitive.Title.displayName;
 
@@ -164,14 +160,11 @@ function useToast() {
     }>
   >([]);
 
-  const addToast = React.useCallback(
-    (toast: Omit<(typeof toasts)[number], 'id'>) => {
-      const id = crypto.randomUUID();
-      setToasts((prev) => [...prev, { ...toast, id }]);
-      return id;
-    },
-    [],
-  );
+  const addToast = React.useCallback((toast: Omit<(typeof toasts)[number], 'id'>) => {
+    const id = crypto.randomUUID();
+    setToasts((prev) => [...prev, { ...toast, id }]);
+    return id;
+  }, []);
 
   const removeToast = React.useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -194,7 +187,4 @@ export {
   useToast,
 };
 
-export type {
-  ToastProps,
-  ToastViewportProps,
-};
+export type { ToastProps, ToastViewportProps };

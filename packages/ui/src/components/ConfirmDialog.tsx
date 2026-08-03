@@ -1,13 +1,13 @@
 import * as React from 'react';
+import { Button } from '../primitives/Button';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '../primitives/Dialog';
-import { Button } from '../primitives/Button';
 
 export interface ConfirmDialogProps {
   /** Whether the dialog is open */

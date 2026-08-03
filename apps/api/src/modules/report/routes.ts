@@ -1,6 +1,6 @@
-import type { FastifyInstance } from 'fastify';
 import rateLimit from '@fastify/rate-limit';
-
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import type { FastifyInstance } from 'fastify';
 import { ReportController } from './report.controller.js';
 import { ReportService } from './report.service.js';
 
@@ -9,7 +9,7 @@ import { ReportService } from './report.service.js';
 // ---------------------------------------------------------------------------
 
 export interface ReportRouteOptions {
-  db: import('drizzle-orm/node-postgres').NodePgDatabase;
+  db: NodePgDatabase;
 }
 
 const responseSchema = {
@@ -23,7 +23,10 @@ const responseSchema = {
 const listResponseSchema = {
   type: 'object' as const,
   properties: {
-    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    data: {
+      type: 'array' as const,
+      items: { type: 'object' as const, additionalProperties: true },
+    },
     meta: { type: 'object' as const, additionalProperties: true },
   },
 };
@@ -31,16 +34,16 @@ const listResponseSchema = {
 const paginatedResponseSchema = {
   type: 'object' as const,
   properties: {
-    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    data: {
+      type: 'array' as const,
+      items: { type: 'object' as const, additionalProperties: true },
+    },
     pagination: { type: 'object' as const, additionalProperties: true },
     meta: { type: 'object' as const, additionalProperties: true },
   },
 };
 
-export async function reportRoutes(
-  app: FastifyInstance,
-  options: ReportRouteOptions,
-) {
+export async function reportRoutes(app: FastifyInstance, options: ReportRouteOptions) {
   const { db } = options;
 
   app.register(rateLimit, {
@@ -64,155 +67,179 @@ export async function reportRoutes(
   // Report Templates
   // ══════════════════════════════════════════════════════════════════════
 
-  app.get('/reports/templates', {
-    schema: {
-      tags: ['Reports'],
-      summary: 'List report templates',
-      security: [{ bearerAuth: [] }],
-      response: { 200: listResponseSchema },
+  app.get(
+    '/reports/templates',
+    {
+      schema: {
+        tags: ['Reports'],
+        summary: 'List report templates',
+        security: [{ bearerAuth: [] }],
+        response: { 200: listResponseSchema },
+      },
+      preHandler: [app.authenticate, app.requirePermission('report:read')],
     },
-    preHandler: [app.authenticate, app.requirePermission('report:read')],
-  }, async (request, reply) => {
-    const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId, request.tenantSchema);
-    const controller = new ReportController(service);
-    return controller.getTemplates(request, reply);
-  });
+    async (request, reply) => {
+      const tenantId = request.tenantId ?? '';
+      const service = createService(tenantId, request.tenantSchema);
+      const controller = new ReportController(service);
+      return controller.getTemplates(request, reply);
+    },
+  );
 
   // ══════════════════════════════════════════════════════════════════════
   // List Reports
   // ══════════════════════════════════════════════════════════════════════
 
-  app.get('/reports', {
-    schema: {
-      tags: ['Reports'],
-      summary: 'List reports',
-      security: [{ bearerAuth: [] }],
-      querystring: {
-        type: 'object',
-        properties: {
-          page: { type: 'integer', minimum: 1, default: 1 },
-          perPage: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
-          type: { type: 'string' },
-          status: { type: 'string' },
-          search: { type: 'string', maxLength: 200 },
+  app.get(
+    '/reports',
+    {
+      schema: {
+        tags: ['Reports'],
+        summary: 'List reports',
+        security: [{ bearerAuth: [] }],
+        querystring: {
+          type: 'object',
+          properties: {
+            page: { type: 'integer', minimum: 1, default: 1 },
+            perPage: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+            type: { type: 'string' },
+            status: { type: 'string' },
+            search: { type: 'string', maxLength: 200 },
+          },
         },
+        response: { 200: paginatedResponseSchema },
       },
-      response: { 200: paginatedResponseSchema },
+      preHandler: [app.authenticate, app.requirePermission('report:read')],
     },
-    preHandler: [app.authenticate, app.requirePermission('report:read')],
-  }, async (request, reply) => {
-    const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId, request.tenantSchema);
-    const controller = new ReportController(service);
-    return controller.listReports(request, reply);
-  });
+    async (request, reply) => {
+      const tenantId = request.tenantId ?? '';
+      const service = createService(tenantId, request.tenantSchema);
+      const controller = new ReportController(service);
+      return controller.listReports(request, reply);
+    },
+  );
 
   // ══════════════════════════════════════════════════════════════════════
   // Create Report
   // ══════════════════════════════════════════════════════════════════════
 
-  app.post('/reports', {
-    schema: {
-      tags: ['Reports'],
-      summary: 'Generate a new report',
-      security: [{ bearerAuth: [] }],
-      body: {
-        type: 'object',
-        required: ['type', 'config'],
-        properties: {
-          type: { type: 'string' },
-          title: { type: 'string' },
-          config: { type: 'object' },
+  app.post(
+    '/reports',
+    {
+      schema: {
+        tags: ['Reports'],
+        summary: 'Generate a new report',
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: 'object',
+          required: ['type', 'config'],
+          properties: {
+            type: { type: 'string' },
+            title: { type: 'string' },
+            config: { type: 'object' },
+          },
         },
+        response: { 201: responseSchema },
       },
-      response: { 201: responseSchema },
+      preHandler: [app.authenticate, app.requirePermission('report:write')],
     },
-    preHandler: [app.authenticate, app.requirePermission('report:write')],
-  }, async (request, reply) => {
-    const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId, request.tenantSchema);
-    const controller = new ReportController(service);
-    return controller.createReport(request, reply);
-  });
+    async (request, reply) => {
+      const tenantId = request.tenantId ?? '';
+      const service = createService(tenantId, request.tenantSchema);
+      const controller = new ReportController(service);
+      return controller.createReport(request, reply);
+    },
+  );
 
   // ══════════════════════════════════════════════════════════════════════
   // Get Report
   // ══════════════════════════════════════════════════════════════════════
 
-  app.get('/reports/:id', {
-    schema: {
-      tags: ['Reports'],
-      summary: 'Get a report by ID',
-      security: [{ bearerAuth: [] }],
-      params: {
-        type: 'object',
-        required: ['id'],
-        properties: {
-          id: { type: 'string', format: 'uuid' },
+  app.get(
+    '/reports/:id',
+    {
+      schema: {
+        tags: ['Reports'],
+        summary: 'Get a report by ID',
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+          },
         },
+        response: { 200: responseSchema },
       },
-      response: { 200: responseSchema },
+      preHandler: [app.authenticate, app.requirePermission('report:read')],
     },
-    preHandler: [app.authenticate, app.requirePermission('report:read')],
-  }, async (request, reply) => {
-    const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId, request.tenantSchema);
-    const controller = new ReportController(service);
-    return controller.getReport(request, reply);
-  });
+    async (request, reply) => {
+      const tenantId = request.tenantId ?? '';
+      const service = createService(tenantId, request.tenantSchema);
+      const controller = new ReportController(service);
+      return controller.getReport(request, reply);
+    },
+  );
 
   // ══════════════════════════════════════════════════════════════════════
   // Download Report
   // ══════════════════════════════════════════════════════════════════════
 
-  app.get('/reports/:id/download', {
-    schema: {
-      tags: ['Reports'],
-      summary: 'Download a generated report',
-      security: [{ bearerAuth: [] }],
-      params: {
-        type: 'object',
-        required: ['id'],
-        properties: {
-          id: { type: 'string', format: 'uuid' },
+  app.get(
+    '/reports/:id/download',
+    {
+      schema: {
+        tags: ['Reports'],
+        summary: 'Download a generated report',
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+          },
         },
+        response: { 200: responseSchema },
       },
-      response: { 200: responseSchema },
+      preHandler: [app.authenticate, app.requirePermission('report:read')],
     },
-    preHandler: [app.authenticate, app.requirePermission('report:read')],
-  }, async (request, reply) => {
-    const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId, request.tenantSchema);
-    const controller = new ReportController(service);
-    return controller.downloadReport(request, reply);
-  });
+    async (request, reply) => {
+      const tenantId = request.tenantId ?? '';
+      const service = createService(tenantId, request.tenantSchema);
+      const controller = new ReportController(service);
+      return controller.downloadReport(request, reply);
+    },
+  );
 
   // ══════════════════════════════════════════════════════════════════════
   // Delete Report
   // ══════════════════════════════════════════════════════════════════════
 
-  app.delete('/reports/:id', {
-    schema: {
-      tags: ['Reports'],
-      summary: 'Delete a report',
-      security: [{ bearerAuth: [] }],
-      params: {
-        type: 'object',
-        required: ['id'],
-        properties: {
-          id: { type: 'string', format: 'uuid' },
+  app.delete(
+    '/reports/:id',
+    {
+      schema: {
+        tags: ['Reports'],
+        summary: 'Delete a report',
+        security: [{ bearerAuth: [] }],
+        params: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+          },
+        },
+        response: {
+          204: { type: 'null' },
         },
       },
-      response: {
-        204: { type: 'null' },
-      },
+      preHandler: [app.authenticate, app.requirePermission('report:write')],
     },
-    preHandler: [app.authenticate, app.requirePermission('report:write')],
-  }, async (request, reply) => {
-    const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId, request.tenantSchema);
-    const controller = new ReportController(service);
-    return controller.deleteReport(request, reply);
-  });
+    async (request, reply) => {
+      const tenantId = request.tenantId ?? '';
+      const service = createService(tenantId, request.tenantSchema);
+      const controller = new ReportController(service);
+      return controller.deleteReport(request, reply);
+    },
+  );
 }

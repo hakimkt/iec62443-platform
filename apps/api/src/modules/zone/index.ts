@@ -1,8 +1,6 @@
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import { zoneRoutes } from './routes.js';
 
 // ---------------------------------------------------------------------------
@@ -12,10 +10,7 @@ import { zoneRoutes } from './routes.js';
 declare module 'fastify' {
   interface FastifyInstance {
     db: NodePgDatabase;
-    authenticate: (
-      request: FastifyRequest,
-      reply: FastifyReply,
-    ) => Promise<void>;
+    authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
 
   interface FastifyRequest {
@@ -32,10 +27,7 @@ export interface ZoneModuleOptions {
   connectionString?: string;
 }
 
-async function zoneModule(
-  app: FastifyInstance,
-  _options: ZoneModuleOptions,
-) {
+async function zoneModule(app: FastifyInstance, _options: ZoneModuleOptions) {
   const db = app.db as unknown as NodePgDatabase;
 
   await app.register(zoneRoutes, { db });

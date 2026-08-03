@@ -12,14 +12,14 @@ The IEC 62443 Cybersecurity Management Platform is a multi-tenant, enterprise-gr
 
 ## 2. Design Principles
 
-| Principle | Rationale |
-|---|---|
-| **Multi-tenant isolation** | Each client (asset owner) operates in a fully isolated workspace; no cross-tenant data leakage |
-| **Domain-driven design** | Bounded contexts map directly to IEC 62443 concepts (assessment, risk, zones, CSMS) |
-| **API-first** | All capabilities exposed via REST/GraphQL; UI is a consumer, not a coupling point |
-| **Offline-capable field work** | Assessors in air-gapped plant environments can capture findings offline, sync later |
-| **Audit-first** | Every mutation is event-sourced to an immutable audit log — critical for certification evidence |
-| **Defense in depth** | Security architecture mirrors the Purdue model the platform itself models |
+| Principle                      | Rationale                                                                                       |
+| ------------------------------ | ----------------------------------------------------------------------------------------------- |
+| **Multi-tenant isolation**     | Each client (asset owner) operates in a fully isolated workspace; no cross-tenant data leakage  |
+| **Domain-driven design**       | Bounded contexts map directly to IEC 62443 concepts (assessment, risk, zones, CSMS)             |
+| **API-first**                  | All capabilities exposed via REST/GraphQL; UI is a consumer, not a coupling point               |
+| **Offline-capable field work** | Assessors in air-gapped plant environments can capture findings offline, sync later             |
+| **Audit-first**                | Every mutation is event-sourced to an immutable audit log — critical for certification evidence |
+| **Defense in depth**           | Security architecture mirrors the Purdue model the platform itself models                       |
 
 ---
 
@@ -131,6 +131,7 @@ For critical infrastructure clients requiring data sovereignty:
 ### 5.1 Modular Monolith (Phase 1–2)
 
 Start as a **modular monolith** with strict module boundaries enforced via:
+
 - Package-level visibility (TypeScript path aliases or Go internal packages)
 - Module-level database schemas (PostgreSQL schemas per bounded context)
 - Inter-module communication via an in-process event bus
@@ -140,6 +141,7 @@ Start as a **modular monolith** with strict module boundaries enforced via:
 ### 5.2 Selective Microservices (Phase 3+)
 
 Extract when justified:
+
 - **Evidence Service** → independent service (large binary payloads, S3-native)
 - **Report Generation** → worker service (CPU-intensive PDF rendering)
 - **Sync Service** → independent service (complex conflict resolution)
@@ -147,6 +149,7 @@ Extract when justified:
 ### 5.3 Event Sourcing for Audit Domain
 
 The audit log uses event sourcing:
+
 - All state mutations emit domain events
 - Events stored in an append-only `audit_events` table
 - Event payloads serialized as JSON with cryptographic hash chains (each event hashes the previous event's hash)
@@ -186,6 +189,7 @@ The audit log uses event sourcing:
 ```
 
 **Tenant resolution flow:**
+
 1. JWT contains `tenant_id` claim
 2. Middleware extracts `tenant_id` → sets `search_path` on PostgreSQL connection
 3. All queries automatically scoped to tenant schema
@@ -224,42 +228,42 @@ The audit log uses event sourcing:
 
 ## 8. Integration Points
 
-| System | Protocol | Purpose |
-|---|---|---|
-| Active Directory / Azure AD | SAML 2.0 / OIDC | Enterprise SSO |
-| CMDB (ServiceNow, etc.) | REST API | Asset inventory import |
-| Vulnerability scanners | STIX/TAXII, CSV | Finding ingestion |
-| SIEM | Syslog / CEF | Security event correlation |
-| Document management | WebDAV / S3 | Evidence linking |
-| Jira / Azure DevOps | REST API | Remediation ticket sync |
-| Power BI / Grafana | OData / REST | Dashboard embedding |
+| System                      | Protocol        | Purpose                    |
+| --------------------------- | --------------- | -------------------------- |
+| Active Directory / Azure AD | SAML 2.0 / OIDC | Enterprise SSO             |
+| CMDB (ServiceNow, etc.)     | REST API        | Asset inventory import     |
+| Vulnerability scanners      | STIX/TAXII, CSV | Finding ingestion          |
+| SIEM                        | Syslog / CEF    | Security event correlation |
+| Document management         | WebDAV / S3     | Evidence linking           |
+| Jira / Azure DevOps         | REST API        | Remediation ticket sync    |
+| Power BI / Grafana          | OData / REST    | Dashboard embedding        |
 
 ---
 
 ## 9. Scalability Targets
 
-| Metric | Target |
-|---|---|
-| Concurrent users per tenant | 500 |
-| Total tenants (cloud) | 1,000+ |
-| Assessment records per tenant | 100,000+ |
-| Evidence files per tenant | 1 TB |
-| API response time (p95) | < 200 ms |
+| Metric                           | Target          |
+| -------------------------------- | --------------- |
+| Concurrent users per tenant      | 500             |
+| Total tenants (cloud)            | 1,000+          |
+| Assessment records per tenant    | 100,000+        |
+| Evidence files per tenant        | 1 TB            |
+| API response time (p95)          | < 200 ms        |
 | Offline sync conflict resolution | < 2 s per batch |
-| Report generation (100-page PDF) | < 30 s |
+| Report generation (100-page PDF) | < 30 s          |
 
 ---
 
 ## 10. Disaster Recovery
 
-| Parameter | Value |
-|---|---|
-| RPO (Recovery Point Objective) | 1 hour (continuous WAL archiving) |
-| RTO (Recovery Time Objective) | 4 hours |
-| Backup strategy | Continuous WAL + daily full + hourly incremental |
-| Evidence vault | S3 versioning + cross-region replication |
-| Failover | Automated via health checks; manual promotion for DR region |
+| Parameter                      | Value                                                       |
+| ------------------------------ | ----------------------------------------------------------- |
+| RPO (Recovery Point Objective) | 1 hour (continuous WAL archiving)                           |
+| RTO (Recovery Time Objective)  | 4 hours                                                     |
+| Backup strategy                | Continuous WAL + daily full + hourly incremental            |
+| Evidence vault                 | S3 versioning + cross-region replication                    |
+| Failover                       | Automated via health checks; manual promotion for DR region |
 
 ---
 
-*Next: [Module Breakdown →](modules.md)*
+_Next: [Module Breakdown →](modules.md)_

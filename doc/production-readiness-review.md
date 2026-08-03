@@ -21,9 +21,7 @@ The platform has a solid architectural foundation and comprehensive domain cover
 **File:** `apps/api/src/modules/auth/middleware/tenant.ts:113`
 
 ```typescript
-await db.execute(
-  `SET search_path TO ${tenant.schemaName}, public`,
-);
+await db.execute(`SET search_path TO ${tenant.schemaName}, public`);
 ```
 
 `tenant.schemaName` is sourced from the database (`tenants.schema_name` column) but is interpolated directly into a SQL string without parameterization or sanitization. If an attacker can influence the `schema_name` value (e.g., through a compromised tenant creation flow), they can inject arbitrary SQL.
@@ -38,13 +36,13 @@ await db.execute(
 
 Routes use permissions that **do not exist** in the role permission map (`packages/auth/src/permissions.ts`):
 
-| Route uses | Permission system defines | Impact |
-|---|---|---|
-| `admin:read` | — | Admin module completely inaccessible |
-| `admin:write` | — | Admin module completely inaccessible |
-| `dashboard:read` | — | Dashboard module completely inaccessible |
-| `csms:write` | `csms:create`, `csms:update`, `csms:delete` | CSMS mutations inaccessible |
-| `report:write` | `report:generate`, `report:delete` | Report creation inaccessible |
+| Route uses       | Permission system defines                   | Impact                                   |
+| ---------------- | ------------------------------------------- | ---------------------------------------- |
+| `admin:read`     | —                                           | Admin module completely inaccessible     |
+| `admin:write`    | —                                           | Admin module completely inaccessible     |
+| `dashboard:read` | —                                           | Dashboard module completely inaccessible |
+| `csms:write`     | `csms:create`, `csms:update`, `csms:delete` | CSMS mutations inaccessible              |
+| `report:write`   | `report:generate`, `report:delete`          | Report creation inaccessible             |
 
 The `hasPermission()` function does exact string matching (plus wildcard `resource:*`). No role has `admin:*`, `dashboard:*`, or `csms:write`. This means **no authenticated user can access admin, dashboard, or create CSMS/report resources** — a complete functional failure.
 
@@ -55,6 +53,7 @@ The `hasPermission()` function does exact string matching (plus wildcard `resour
 **Files:** All service files with `createAuditEvent()`
 
 The audit hash chain is computed in two steps:
+
 1. SELECT the last event's hash
 2. INSERT the new event with the computed hash
 
@@ -89,6 +88,7 @@ const mfaChallengeStore = new Map<string, MfaChallengeEntry>();
 **File:** `apps/api/src/modules/assessment/routes.ts:49-76`
 
 Two assessment template endpoints (`GET /assessment-templates` and `GET /assessment-templates/:id`) have **no authentication or authorization** — no `preHandler` at all. While the stabilization report notes this as intentional, it means:
+
 - Any unauthenticated user can enumerate all assessment templates
 - Template content (including security assessment methodology) is exposed
 - This may violate tenant data isolation if templates contain tenant-specific data
@@ -365,6 +365,7 @@ Several tenant-scoped tables lack indexes on `tenant_id` (or equivalent) columns
 **File:** `apps/api/src/modules/auth/auth.service.ts:830-837`
 
 The auth service's `createAuditEvent` fetches the **global** last audit event (not filtered by tenant) when computing the hash chain. The admin service correctly scopes by tenant. This inconsistency means:
+
 - Auth audit events chain against the global last event (cross-tenant)
 - Domain audit events chain against the tenant's last event
 
@@ -377,6 +378,7 @@ This creates two separate chain topologies, which is actually correct for the pl
 ### MEDIUM-06: No Database-Level Tenant Isolation
 
 The architecture doc specifies "Database-per-tenant with shared schema" using PostgreSQL `search_path`. However:
+
 - No PostgreSQL schemas are created for tenants
 - No Row-Level Security (RLS) policies exist
 - The `search_path` approach relies on the application layer to set it correctly on every request
@@ -393,6 +395,7 @@ The architecture doc specifies "Database-per-tenant with shared schema" using Po
 **File:** `apps/worker/src/jobs/report-generation.ts`
 
 The report generation worker does not actually generate reports. It:
+
 - Logs progress messages
 - Returns a hardcoded file URL and size
 - Does not connect to the database
@@ -410,6 +413,7 @@ Similarly, the `bulk-import`, `email-notification`, and `risk-recalculation` wor
 **File:** `apps/api/src/server.ts`
 
 The API server does not register SIGTERM/SIGINT handlers. In a Kubernetes deployment:
+
 - The pod receives SIGTERM
 - In-flight requests are dropped
 - Database connections are not closed cleanly
@@ -425,6 +429,7 @@ The worker has a proper shutdown handler, but the API does not.
 **File:** `apps/api/src/modules/auth/index.ts`
 
 The database connection is created with `createDb(connectionString)` but no pool configuration is visible. Production deployments need:
+
 - Min/max pool size
 - Connection timeout
 - Idle timeout
@@ -439,6 +444,7 @@ The database connection is created with `createDb(connectionString)` but no pool
 **File:** `apps/api/src/modules/auth/middleware/tenant.ts:113`
 
 The `SET search_path` approach modifies the connection's search_path for the current session. With connection pooling:
+
 - If a connection is returned to the pool with a tenant's search_path set, the next request using that connection may execute in the wrong tenant's schema
 - This is a **connection pool contamination** vulnerability
 
@@ -453,6 +459,7 @@ The `SET search_path` approach modifies the connection's search_path for the cur
 ### MEDIUM-10: No RBAC for Auth Module Endpoints
 
 The auth routes (`/auth/register`, `/auth/login`, etc.) are in the public routes list and have no RBAC. While authentication endpoints must be public, the following should be protected:
+
 - `POST /auth/mfa/setup` — any authenticated user can enable MFA for themselves (correct)
 - `POST /auth/mfa/disable` — requires password confirmation (correct)
 - But there's no admin endpoint to disable MFA for another user (needed for account recovery)
@@ -466,6 +473,7 @@ The auth routes (`/auth/register`, `/auth/login`, etc.) are in the public routes
 ### MEDIUM-11: Duplicate Audit Hash Chain Logic
 
 The `createAuditEvent` private method is duplicated across 11 service files. This:
+
 - Increases maintenance burden
 - Makes it easy for bugs to be fixed in one place but not others
 - The auth service's version does not filter by tenant for the last event lookup, while domain services do
@@ -503,6 +511,7 @@ IEC 62443-2-1 defines maturity levels (ML-0 through ML-3). The assessment module
 ```
 
 The password reset flow generates a token but never delivers it. The token is returned in the API response, which:
+
 - Exposes the reset token in the HTTP response
 - Bypasses the email verification step
 - A caller can reset any user's password by knowing their email
@@ -516,6 +525,7 @@ The password reset flow generates a token but never delivers it. The token is re
 **File:** `apps/api/src/modules/admin/admin.service.ts:130-162`
 
 The `inviteMember` method creates a membership with `status: 'invited'` but:
+
 - No invitation email is sent
 - No invitation token is generated
 - The invited user cannot accept the invitation
@@ -550,11 +560,13 @@ The `tsconfig.base.json` should be verified for `strict: true` and `noUncheckedI
 ### CRITICAL-04: Test Coverage Is Critically Low
 
 **Only 3 test files exist** in the entire project:
+
 - `apps/api/src/modules/csms/csms.service.test.ts`
 - `apps/api/src/modules/remediation/remediation.service.test.ts`
 - `apps/api/src/modules/admin/admin.service.test.ts`
 
 **What's NOT tested:**
+
 - Auth module (0 tests) — registration, login, MFA, password reset, token refresh
 - Assessment module (0 tests) — core workflow
 - Finding module (0 tests)
@@ -577,6 +589,7 @@ The `tsconfig.base.json` should be verified for `strict: true` and `noUncheckedI
 ### CRITICAL-05: No Integration Tests
 
 There are no integration tests that verify:
+
 - The full request lifecycle (auth → tenant → RBAC → handler → response)
 - Database queries against a real database
 - Cross-module interactions
@@ -601,6 +614,7 @@ The only infrastructure file is `docker-compose.dev.yml` for local development.
 ### HIGH-09: No Production Configuration Validation
 
 The application starts with development defaults when environment variables are missing:
+
 - `JWT_SECRET` defaults to `'change-me-in-production'`
 - `DATABASE_URL` defaults to `postgresql://postgres:postgres@localhost:5432/iec62443`
 - `CORS_ORIGIN` defaults to `['http://localhost:3000']`
@@ -613,6 +627,7 @@ The application starts with development defaults when environment variables are 
 ### MEDIUM-17: Health Check Endpoint Is Minimal
 
 The `/health` endpoint only returns `{ status: 'ok' }`. It does not check:
+
 - Database connectivity
 - Redis connectivity
 - S3/MinIO connectivity
@@ -635,80 +650,80 @@ The `/health` endpoint only returns `{ status: 'ok' }`. It does not check:
 
 ### Critical (18)
 
-| ID | Finding | Module | Status |
-|---|---|---|---|
-| CRITICAL-01 | SQL Injection in tenant middleware | Auth | ✅ Fixed |
-| CRITICAL-02 | RBAC permission mismatch — admin/dashboard/CSMS/report inaccessible | Routes + Auth | ✅ Fixed |
-| CRITICAL-03 | Non-atomic audit hash chain (race condition) | All services | ✅ Fixed (AuditService created) |
-| CRITICAL-04 | Test coverage critically low (3 files, 23 tests) | Testing | ✅ Fixed (6 files, 46 tests) |
-| CRITICAL-05 | No integration tests | Testing | ⬜ Not fixed |
-| CRITICAL-06 | API route prefix mismatch — routes bypassed auth | Server | ✅ Fixed |
-| CRITICAL-07 | Dashboard service ignores tenant context | Dashboard | ✅ Fixed |
-| CRITICAL-08 | MFA verify endpoint accepts client-supplied secret | Auth | ✅ Fixed |
-| CRITICAL-09 | 6 PATCH endpoints without Zod validation | Multiple | ✅ Fixed |
-| CRITICAL-D1 | No SL-T / SL-A distinction | Domain | ✅ Fixed |
-| CRITICAL-D2 | No FR/SR/SRE taxonomy | Domain | ✅ Fixed |
-| CRITICAL-D3 | Scorecard uses average scoring instead of minimum-bar | Assessment | ✅ Fixed |
-| CRITICAL-D4 | Maturity levels use implementation status instead of ML 0–4 | Assessment/CSMS | ✅ Fixed |
-| CRITICAL-D5 | No structured threat modeling or vulnerability assessment | Risk | ✅ Fixed |
-| CRITICAL-D6 | CSMS 12 elements not enumerated | CSMS | ✅ Fixed |
-| CRITICAL-D7 | Evidence verification is a stub; no file upload | Evidence | ✅ Fixed |
-| CRITICAL-D8 | Remediation status enum mismatch (runtime DB error) | Remediation | ✅ Fixed |
-| CRITICAL-D9 | Purdue compliance check is a stub | Purdue | ✅ Fixed |
+| ID          | Finding                                                             | Module          | Status                          |
+| ----------- | ------------------------------------------------------------------- | --------------- | ------------------------------- |
+| CRITICAL-01 | SQL Injection in tenant middleware                                  | Auth            | ✅ Fixed                        |
+| CRITICAL-02 | RBAC permission mismatch — admin/dashboard/CSMS/report inaccessible | Routes + Auth   | ✅ Fixed                        |
+| CRITICAL-03 | Non-atomic audit hash chain (race condition)                        | All services    | ✅ Fixed (AuditService created) |
+| CRITICAL-04 | Test coverage critically low (3 files, 23 tests)                    | Testing         | ✅ Fixed (6 files, 46 tests)    |
+| CRITICAL-05 | No integration tests                                                | Testing         | ⬜ Not fixed                    |
+| CRITICAL-06 | API route prefix mismatch — routes bypassed auth                    | Server          | ✅ Fixed                        |
+| CRITICAL-07 | Dashboard service ignores tenant context                            | Dashboard       | ✅ Fixed                        |
+| CRITICAL-08 | MFA verify endpoint accepts client-supplied secret                  | Auth            | ✅ Fixed                        |
+| CRITICAL-09 | 6 PATCH endpoints without Zod validation                            | Multiple        | ✅ Fixed                        |
+| CRITICAL-D1 | No SL-T / SL-A distinction                                          | Domain          | ✅ Fixed                        |
+| CRITICAL-D2 | No FR/SR/SRE taxonomy                                               | Domain          | ✅ Fixed                        |
+| CRITICAL-D3 | Scorecard uses average scoring instead of minimum-bar               | Assessment      | ✅ Fixed                        |
+| CRITICAL-D4 | Maturity levels use implementation status instead of ML 0–4         | Assessment/CSMS | ✅ Fixed                        |
+| CRITICAL-D5 | No structured threat modeling or vulnerability assessment           | Risk            | ✅ Fixed                        |
+| CRITICAL-D6 | CSMS 12 elements not enumerated                                     | CSMS            | ✅ Fixed                        |
+| CRITICAL-D7 | Evidence verification is a stub; no file upload                     | Evidence        | ✅ Fixed                        |
+| CRITICAL-D8 | Remediation status enum mismatch (runtime DB error)                 | Remediation     | ✅ Fixed                        |
+| CRITICAL-D9 | Purdue compliance check is a stub                                   | Purdue          | ✅ Fixed                        |
 
 ### High (16)
 
-| ID | Finding | Module | Status |
-|---|---|---|---|
-| HIGH-01 | Non-atomic audit hash chain (detailed) | All services | ✅ Fixed (AuditService with advisory lock) |
-| HIGH-02 | In-memory stores for password reset & MFA | Auth | ⬜ Not fixed |
-| HIGH-03 | Assessment template endpoints unauthenticated | Assessment | ✅ Fixed |
-| HIGH-04 | JWT secret default value | Auth | ✅ Fixed (startup validation) |
-| HIGH-05 | Migration 002 references wrong table / not idempotent | Database | ⬜ Not fixed |
-| HIGH-06 | Missing indexes on foreign keys and common queries | Database | ⬜ Not fixed |
-| HIGH-07 | Report generation worker is a stub | Worker | ⬜ Not fixed |
-| HIGH-08 | Infrastructure directories empty | Infrastructure | ⬜ Not fixed |
-| HIGH-09 | No production config validation | Server | ✅ Fixed |
-| HIGH-10 | No refresh token rotation | Auth | ⬜ Not fixed |
-| HIGH-11 | Admin listMembers missing tenant filter | Admin | ⬜ Not fixed |
-| HIGH-12 | SQL LIKE wildcard injection | Multiple | ⬜ Not fixed |
-| HIGH-13 | No schema migration tracking | Database | ⬜ Not fixed |
-| HIGH-14 | No application-level tenant filtering (defense-in-depth) | All services | ⬜ Not fixed |
-| HIGH-15 | Audit hash chain not enforced at DB level | Database | ⬜ Not fixed |
-| HIGH-16 | Inconsistent soft delete — only evidence has it | Multiple | ⬜ Not fixed |
+| ID      | Finding                                                  | Module         | Status                                     |
+| ------- | -------------------------------------------------------- | -------------- | ------------------------------------------ |
+| HIGH-01 | Non-atomic audit hash chain (detailed)                   | All services   | ✅ Fixed (AuditService with advisory lock) |
+| HIGH-02 | In-memory stores for password reset & MFA                | Auth           | ⬜ Not fixed                               |
+| HIGH-03 | Assessment template endpoints unauthenticated            | Assessment     | ✅ Fixed                                   |
+| HIGH-04 | JWT secret default value                                 | Auth           | ✅ Fixed (startup validation)              |
+| HIGH-05 | Migration 002 references wrong table / not idempotent    | Database       | ⬜ Not fixed                               |
+| HIGH-06 | Missing indexes on foreign keys and common queries       | Database       | ⬜ Not fixed                               |
+| HIGH-07 | Report generation worker is a stub                       | Worker         | ⬜ Not fixed                               |
+| HIGH-08 | Infrastructure directories empty                         | Infrastructure | ⬜ Not fixed                               |
+| HIGH-09 | No production config validation                          | Server         | ✅ Fixed                                   |
+| HIGH-10 | No refresh token rotation                                | Auth           | ⬜ Not fixed                               |
+| HIGH-11 | Admin listMembers missing tenant filter                  | Admin          | ⬜ Not fixed                               |
+| HIGH-12 | SQL LIKE wildcard injection                              | Multiple       | ⬜ Not fixed                               |
+| HIGH-13 | No schema migration tracking                             | Database       | ⬜ Not fixed                               |
+| HIGH-14 | No application-level tenant filtering (defense-in-depth) | All services   | ⬜ Not fixed                               |
+| HIGH-15 | Audit hash chain not enforced at DB level                | Database       | ⬜ Not fixed                               |
+| HIGH-16 | Inconsistent soft delete — only evidence has it          | Multiple       | ⬜ Not fixed                               |
 
 ### Medium (22)
 
-| ID | Finding | Status |
-|---|---|---|
-| MEDIUM-01 | Missing token revocation on logout | ⬜ Not fixed |
-| MEDIUM-02 | API key auth skips tenant validation | ✅ Fixed |
-| MEDIUM-03 | No password complexity validation | ⬜ Not fixed |
-| MEDIUM-04 | CORS origin hardcoded for development | ⬜ Not fixed |
-| MEDIUM-05 | Audit hash chain not scoped by tenant (auth service) | ✅ Fixed (AuditService handles both) |
-| MEDIUM-06 | No database-level tenant isolation (RLS) | ⬜ Not fixed |
-| MEDIUM-07 | No graceful shutdown for API server | ✅ Fixed |
-| MEDIUM-08 | No connection pooling configuration | ⬜ Not fixed |
-| MEDIUM-09 | Shared DB connection pool contamination risk | ✅ Fixed (SET LOCAL search_path) |
-| MEDIUM-10 | No admin endpoint to disable MFA for another user | ⬜ Not fixed |
-| MEDIUM-11 | Duplicate audit hash chain logic (11 copies) | ✅ Fixed (AuditService extracted) |
-| MEDIUM-12 | Security Level (SL) not fully modeled | ⬜ Not fixed |
-| MEDIUM-13 | Assessment maturity levels not validated | ⬜ Not fixed |
-| MEDIUM-14 | No email delivery for password reset | ✅ Fixed (token removed from response) |
-| MEDIUM-15 | No user invitation email flow | ⬜ Not fixed |
-| MEDIUM-16 | Massive code duplication (createAuditEvent) | ✅ Fixed (AuditService extracted) |
-| MEDIUM-17 | Health check endpoint is minimal | ✅ Fixed (DB check + /ready endpoint) |
-| MEDIUM-18 | No observability stack | ⬜ Not fixed |
-| MEDIUM-19 | iecPartSchema vs IecPart type mismatch | ⬜ Not fixed |
-| MEDIUM-20 | console.error bypasses Pino logger | ⬜ Not fixed |
-| MEDIUM-21 | meta.requestId empty in error handlers | ⬜ Not fixed |
-| MEDIUM-22 | No response compression | ⬜ Not fixed |
+| ID        | Finding                                              | Status                                 |
+| --------- | ---------------------------------------------------- | -------------------------------------- |
+| MEDIUM-01 | Missing token revocation on logout                   | ⬜ Not fixed                           |
+| MEDIUM-02 | API key auth skips tenant validation                 | ✅ Fixed                               |
+| MEDIUM-03 | No password complexity validation                    | ⬜ Not fixed                           |
+| MEDIUM-04 | CORS origin hardcoded for development                | ⬜ Not fixed                           |
+| MEDIUM-05 | Audit hash chain not scoped by tenant (auth service) | ✅ Fixed (AuditService handles both)   |
+| MEDIUM-06 | No database-level tenant isolation (RLS)             | ⬜ Not fixed                           |
+| MEDIUM-07 | No graceful shutdown for API server                  | ✅ Fixed                               |
+| MEDIUM-08 | No connection pooling configuration                  | ⬜ Not fixed                           |
+| MEDIUM-09 | Shared DB connection pool contamination risk         | ✅ Fixed (SET LOCAL search_path)       |
+| MEDIUM-10 | No admin endpoint to disable MFA for another user    | ⬜ Not fixed                           |
+| MEDIUM-11 | Duplicate audit hash chain logic (11 copies)         | ✅ Fixed (AuditService extracted)      |
+| MEDIUM-12 | Security Level (SL) not fully modeled                | ⬜ Not fixed                           |
+| MEDIUM-13 | Assessment maturity levels not validated             | ⬜ Not fixed                           |
+| MEDIUM-14 | No email delivery for password reset                 | ✅ Fixed (token removed from response) |
+| MEDIUM-15 | No user invitation email flow                        | ⬜ Not fixed                           |
+| MEDIUM-16 | Massive code duplication (createAuditEvent)          | ✅ Fixed (AuditService extracted)      |
+| MEDIUM-17 | Health check endpoint is minimal                     | ✅ Fixed (DB check + /ready endpoint)  |
+| MEDIUM-18 | No observability stack                               | ⬜ Not fixed                           |
+| MEDIUM-19 | iecPartSchema vs IecPart type mismatch               | ⬜ Not fixed                           |
+| MEDIUM-20 | console.error bypasses Pino logger                   | ⬜ Not fixed                           |
+| MEDIUM-21 | meta.requestId empty in error handlers               | ⬜ Not fixed                           |
+| MEDIUM-22 | No response compression                              | ⬜ Not fixed                           |
 
 ### Low (2)
 
-| ID | Finding | Status |
-|---|---|---|
-| LOW-01 | Inconsistent error object shape | ⬜ Not fixed |
+| ID     | Finding                                | Status       |
+| ------ | -------------------------------------- | ------------ |
+| LOW-01 | Inconsistent error object shape        | ⬜ Not fixed |
 | LOW-02 | No TypeScript strict mode verification | ⬜ Not fixed |
 
 ---
@@ -773,4 +788,4 @@ The `/health` endpoint only returns `{ status: 'ok' }`. It does not check:
 
 ---
 
-*This review was produced as part of the Enterprise Validation Phase for the IEC 62443 Cybersecurity Management Platform.*
+_This review was produced as part of the Enterprise Validation Phase for the IEC 62443 Cybersecurity Management Platform._

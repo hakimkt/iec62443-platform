@@ -1,6 +1,6 @@
-import * as React from 'react';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Root ───────────────────────────── */
@@ -18,23 +18,23 @@ const tabsRootVariants = cva('flex', {
 });
 
 interface TabsProps
-  extends Omit<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>, 'orientation'>,
+  extends
+    Omit<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>, 'orientation'>,
     VariantProps<typeof tabsRootVariants> {
   /** Orientation of the tabs — maps to both Radix and visual layout */
   orientation?: 'horizontal' | 'vertical';
 }
 
-const Tabs = React.forwardRef<
-  React.ComponentRef<typeof TabsPrimitive.Root>,
-  TabsProps
->(({ className, layout, orientation, ...props }, ref) => (
-  <TabsPrimitive.Root
-    ref={ref}
-    orientation={orientation}
-    className={cn(tabsRootVariants({ layout: layout ?? orientation }), className)}
-    {...props}
-  />
-));
+const Tabs = React.forwardRef<React.ComponentRef<typeof TabsPrimitive.Root>, TabsProps>(
+  ({ className, layout, orientation, ...props }, ref) => (
+    <TabsPrimitive.Root
+      ref={ref}
+      orientation={orientation}
+      className={cn(tabsRootVariants({ layout: layout ?? orientation }), className)}
+      {...props}
+    />
+  ),
+);
 Tabs.displayName = 'Tabs';
 
 /* ───────────────────────────── List ───────────────────────────── */
@@ -42,16 +42,12 @@ Tabs.displayName = 'Tabs';
 const tabsListVariants = cva('inline-flex items-center shrink-0', {
   variants: {
     variant: {
-      underline:
-        'border-b border-surface-200 dark:border-surface-700 gap-1',
-      pill:
-        'bg-surface-100 dark:bg-surface-800 rounded-lg p-1 gap-0.5',
+      underline: 'border-b border-surface-200 dark:border-surface-700 gap-1',
+      pill: 'bg-surface-100 dark:bg-surface-800 rounded-lg p-1 gap-0.5',
     },
     layout: {
-      horizontal:
-        'flex-row h-10',
-      vertical:
-        'flex-col border-r border-surface-200 dark:border-surface-700 w-48',
+      horizontal: 'flex-row h-10',
+      vertical: 'flex-col border-r border-surface-200 dark:border-surface-700 w-48',
     },
   },
   defaultVariants: {
@@ -61,19 +57,19 @@ const tabsListVariants = cva('inline-flex items-center shrink-0', {
 });
 
 interface TabsListProps
-  extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>,
+  extends
+    React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>,
     VariantProps<typeof tabsListVariants> {}
 
-const TabsList = React.forwardRef<
-  React.ComponentRef<typeof TabsPrimitive.List>,
-  TabsListProps
->(({ className, variant, layout, ...props }, ref) => (
-  <TabsPrimitive.List
-    ref={ref}
-    className={cn(tabsListVariants({ variant, layout }), className)}
-    {...props}
-  />
-));
+const TabsList = React.forwardRef<React.ComponentRef<typeof TabsPrimitive.List>, TabsListProps>(
+  ({ className, variant, layout, ...props }, ref) => (
+    <TabsPrimitive.List
+      ref={ref}
+      className={cn(tabsListVariants({ variant, layout }), className)}
+      {...props}
+    />
+  ),
+);
 TabsList.displayName = 'TabsList';
 
 /* ───────────────────────────── Trigger ────────────────────────── */
@@ -112,7 +108,8 @@ const tabsTriggerVariants = cva(
 );
 
 interface TabsTriggerProps
-  extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>,
+  extends
+    React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>,
     VariantProps<typeof tabsTriggerVariants> {}
 
 const TabsTrigger = React.forwardRef<
@@ -145,7 +142,8 @@ const tabsContentVariants = cva(
 );
 
 interface TabsContentProps
-  extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>,
+  extends
+    React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>,
     VariantProps<typeof tabsContentVariants> {}
 
 const TabsContent = React.forwardRef<
@@ -173,9 +171,4 @@ export {
   tabsContentVariants,
 };
 
-export type {
-  TabsProps,
-  TabsListProps,
-  TabsTriggerProps,
-  TabsContentProps,
-};
+export type { TabsProps, TabsListProps, TabsTriggerProps, TabsContentProps };

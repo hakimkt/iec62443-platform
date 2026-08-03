@@ -1,6 +1,6 @@
-import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Minus, TrendingDown, TrendingUp } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 /* ───────────────────────────── Color variants ─────────────────── */
@@ -55,19 +55,7 @@ const trendColorMap: Record<string, string> = {
 /* ───────────────────────────── Component ──────────────────────── */
 
 const MetricCard = React.forwardRef<HTMLDivElement, MetricCardProps>(
-  (
-    {
-      className,
-      icon: Icon,
-      label,
-      value,
-      trend,
-      color,
-      onClick,
-      ...props
-    },
-    ref,
-  ) => {
+  ({ className, icon: Icon, label, value, trend, color, onClick, ...props }, ref) => {
     const clickable = !!onClick;
 
     return (
@@ -99,7 +87,9 @@ const MetricCard = React.forwardRef<HTMLDivElement, MetricCardProps>(
             <div
               className={cn(
                 'flex h-10 w-10 items-center justify-center rounded-lg',
-                metricCardColorVariants({ color: color as VariantProps<typeof metricCardColorVariants>['color'] }),
+                metricCardColorVariants({
+                  color: color as VariantProps<typeof metricCardColorVariants>['color'],
+                }),
               )}
             >
               <Icon className="h-5 w-5" aria-hidden />

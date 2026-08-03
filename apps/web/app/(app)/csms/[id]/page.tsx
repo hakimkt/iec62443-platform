@@ -1,33 +1,25 @@
 'use client';
 
-import { use, useState } from 'react';
-import Link from 'next/link';
+import type {
+  CSMSFrameworkStatus,
+  CSMSImprovementPriority,
+  CSMSImprovementStatus,
+  CSMSPolicyStatus,
+  ImplementationStatus,
+} from '@iec62443/shared-types';
 import { cn } from '@iec62443/ui';
 import { Button } from '@iec62443/ui/primitives';
+import { ArrowLeft, BarChart3, Clock, FileCheck, Layers, Loader2, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
+import { use, useState } from 'react';
 import {
-  ArrowLeft,
-  Loader2,
-  Layers,
-  FileCheck,
-  BarChart3,
-  TrendingUp,
-  Clock,
-} from 'lucide-react';
-import {
-  useCSMSFramework,
+  useApprovePolicy,
   useCSMSElements,
+  useCSMSFramework,
   useCSMSPolicies,
   useGapAnalysis,
   useImprovementPlans,
-  useApprovePolicy,
 } from '@/hooks/useCSMS';
-import type {
-  CSMSFrameworkStatus,
-  ImplementationStatus,
-  CSMSPolicyStatus,
-  CSMSImprovementPriority,
-  CSMSImprovementStatus,
-} from '@iec62443/shared-types';
 
 const FRAMEWORK_STATUS_CONFIG: Record<CSMSFrameworkStatus, { label: string; color: string }> = {
   draft: { label: 'Draft', color: 'bg-surface-100 text-surface-600' },
@@ -35,13 +27,14 @@ const FRAMEWORK_STATUS_CONFIG: Record<CSMSFrameworkStatus, { label: string; colo
   archived: { label: 'Archived', color: 'bg-amber-100 text-amber-700' },
 };
 
-const IMPLEMENTATION_STATUS_CONFIG: Record<ImplementationStatus, { label: string; color: string }> = {
-  implemented: { label: 'Implemented', color: 'bg-green-100 text-green-700' },
-  partial: { label: 'Partial', color: 'bg-amber-100 text-amber-700' },
-  planned: { label: 'Planned', color: 'bg-blue-100 text-blue-700' },
-  not_started: { label: 'Not Started', color: 'bg-surface-100 text-surface-600' },
-  na: { label: 'N/A', color: 'bg-surface-50 text-surface-400' },
-};
+const IMPLEMENTATION_STATUS_CONFIG: Record<ImplementationStatus, { label: string; color: string }> =
+  {
+    implemented: { label: 'Implemented', color: 'bg-green-100 text-green-700' },
+    partial: { label: 'Partial', color: 'bg-amber-100 text-amber-700' },
+    planned: { label: 'Planned', color: 'bg-blue-100 text-blue-700' },
+    not_started: { label: 'Not Started', color: 'bg-surface-100 text-surface-600' },
+    na: { label: 'N/A', color: 'bg-surface-50 text-surface-400' },
+  };
 
 const POLICY_STATUS_CONFIG: Record<CSMSPolicyStatus, { label: string; color: string }> = {
   draft: { label: 'Draft', color: 'bg-surface-100 text-surface-600' },
@@ -78,7 +71,9 @@ export default function CSMSFrameworkDetailPage({ params }: { params: Promise<{ 
     frameworkId: frameworkId || undefined,
   });
   const { data: gapAnalysis, isLoading: gapsLoading } = useGapAnalysis(frameworkId || null);
-  const { data: improvements, isLoading: improvementsLoading } = useImprovementPlans(frameworkId || null);
+  const { data: improvements, isLoading: improvementsLoading } = useImprovementPlans(
+    frameworkId || null,
+  );
   const approvePolicy = useApprovePolicy();
 
   const handleApprovePolicy = async (policyId: string) => {
@@ -93,7 +88,8 @@ export default function CSMSFrameworkDetailPage({ params }: { params: Promise<{ 
     );
   }
 
-  const statusConfig = FRAMEWORK_STATUS_CONFIG[framework.status] ?? FRAMEWORK_STATUS_CONFIG['draft'];
+  const statusConfig =
+    FRAMEWORK_STATUS_CONFIG[framework.status] ?? FRAMEWORK_STATUS_CONFIG['draft'];
   const elements = elementsData?.data ?? [];
   const policies = policiesData?.data ?? [];
   const gaps = gapAnalysis?.elements ?? [];
@@ -112,7 +108,12 @@ export default function CSMSFrameworkDetailPage({ params }: { params: Promise<{ 
           </Link>
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-semibold text-surface-900">{framework.name}</h1>
-            <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', statusConfig.color)}>
+            <span
+              className={cn(
+                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                statusConfig.color,
+              )}
+            >
               {statusConfig.label}
             </span>
             <span className="text-sm text-surface-500">v{framework.version}</span>
@@ -123,12 +124,12 @@ export default function CSMSFrameworkDetailPage({ params }: { params: Promise<{ 
       {/* Tabs */}
       <div className="border-b border-surface-200">
         <nav className="flex gap-6" role="tablist" aria-label="CSMS sections">
-          {([
+          {[
             { key: 'elements' as TabKey, label: 'Elements', icon: Layers },
             { key: 'policies' as TabKey, label: 'Policies', icon: FileCheck },
             { key: 'gaps' as TabKey, label: 'Gap Analysis', icon: BarChart3 },
             { key: 'improvements' as TabKey, label: 'Improvement Plans', icon: TrendingUp },
-          ]).map((tab) => (
+          ].map((tab) => (
             <button
               key={tab.key}
               role="tab"
@@ -156,7 +157,9 @@ export default function CSMSFrameworkDetailPage({ params }: { params: Promise<{ 
             </div>
           ) : elements.length > 0 ? (
             elements.map((element) => {
-              const implConfig = IMPLEMENTATION_STATUS_CONFIG[element.implementationStatus] ?? IMPLEMENTATION_STATUS_CONFIG['not_started'];
+              const implConfig =
+                IMPLEMENTATION_STATUS_CONFIG[element.implementationStatus] ??
+                IMPLEMENTATION_STATUS_CONFIG['not_started'];
 
               return (
                 <div
@@ -168,11 +171,18 @@ export default function CSMSFrameworkDetailPage({ params }: { params: Promise<{ 
                       <p className="text-sm font-medium text-surface-900">{element.title}</p>
                       <p className="mt-0.5 text-xs text-surface-500">{element.category}</p>
                       {element.description && (
-                        <p className="mt-1 text-xs text-surface-500 line-clamp-2">{element.description}</p>
+                        <p className="mt-1 text-xs text-surface-500 line-clamp-2">
+                          {element.description}
+                        </p>
                       )}
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', implConfig.color)}>
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                          implConfig.color,
+                        )}
+                      >
                         {implConfig.label}
                       </span>
                       <span className="text-xs text-surface-500">
@@ -200,7 +210,8 @@ export default function CSMSFrameworkDetailPage({ params }: { params: Promise<{ 
             </div>
           ) : policies.length > 0 ? (
             policies.map((policy) => {
-              const policyConfig = POLICY_STATUS_CONFIG[policy.status] ?? POLICY_STATUS_CONFIG['draft'];
+              const policyConfig =
+                POLICY_STATUS_CONFIG[policy.status] ?? POLICY_STATUS_CONFIG['draft'];
 
               return (
                 <div
@@ -213,7 +224,12 @@ export default function CSMSFrameworkDetailPage({ params }: { params: Promise<{ 
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-xs text-surface-500">v{policy.version}</span>
-                      <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', policyConfig.color)}>
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                          policyConfig.color,
+                        )}
+                      >
                         {policyConfig.label}
                       </span>
                       {policy.status === 'review' && (
@@ -248,8 +264,12 @@ export default function CSMSFrameworkDetailPage({ params }: { params: Promise<{ 
             </div>
           ) : gaps.length > 0 ? (
             gaps.map((gap) => {
-              const currentConfig = IMPLEMENTATION_STATUS_CONFIG[gap.currentStatus] ?? IMPLEMENTATION_STATUS_CONFIG['not_started'];
-              const targetConfig = IMPLEMENTATION_STATUS_CONFIG[gap.targetStatus] ?? IMPLEMENTATION_STATUS_CONFIG['not_started'];
+              const currentConfig =
+                IMPLEMENTATION_STATUS_CONFIG[gap.currentStatus] ??
+                IMPLEMENTATION_STATUS_CONFIG['not_started'];
+              const targetConfig =
+                IMPLEMENTATION_STATUS_CONFIG[gap.targetStatus] ??
+                IMPLEMENTATION_STATUS_CONFIG['not_started'];
               const priorityConfig = PRIORITY_CONFIG[gap.priority] ?? PRIORITY_CONFIG['medium'];
 
               return (
@@ -264,21 +284,36 @@ export default function CSMSFrameworkDetailPage({ params }: { params: Promise<{ 
                         <p className="mt-1 text-xs text-surface-500 line-clamp-2">{gap.gap}</p>
                       )}
                     </div>
-                    <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', priorityConfig.color)}>
+                    <span
+                      className={cn(
+                        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                        priorityConfig.color,
+                      )}
+                    >
                       {priorityConfig.label}
                     </span>
                   </div>
                   <div className="mt-3 flex items-center gap-4 text-xs">
                     <span className="flex items-center gap-1.5">
                       <span className="text-surface-500">Current:</span>
-                      <span className={cn('inline-flex items-center rounded px-1.5 py-0.5 font-medium', currentConfig.color)}>
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded px-1.5 py-0.5 font-medium',
+                          currentConfig.color,
+                        )}
+                      >
                         {currentConfig.label}
                       </span>
                     </span>
                     <span className="text-surface-300">→</span>
                     <span className="flex items-center gap-1.5">
                       <span className="text-surface-500">Target:</span>
-                      <span className={cn('inline-flex items-center rounded px-1.5 py-0.5 font-medium', targetConfig.color)}>
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded px-1.5 py-0.5 font-medium',
+                          targetConfig.color,
+                        )}
+                      >
                         {targetConfig.label}
                       </span>
                     </span>
@@ -304,7 +339,8 @@ export default function CSMSFrameworkDetailPage({ params }: { params: Promise<{ 
           ) : improvements && improvements.length > 0 ? (
             improvements.map((plan) => {
               const priorityConfig = PRIORITY_CONFIG[plan.priority] ?? PRIORITY_CONFIG['medium'];
-              const statusConfig = IMPROVEMENT_STATUS_CONFIG[plan.status] ?? IMPROVEMENT_STATUS_CONFIG['planned'];
+              const statusConfig =
+                IMPROVEMENT_STATUS_CONFIG[plan.status] ?? IMPROVEMENT_STATUS_CONFIG['planned'];
 
               return (
                 <div
@@ -315,14 +351,26 @@ export default function CSMSFrameworkDetailPage({ params }: { params: Promise<{ 
                     <div>
                       <p className="text-sm font-medium text-surface-900">{plan.title}</p>
                       {plan.description && (
-                        <p className="mt-0.5 text-xs text-surface-500 line-clamp-1">{plan.description}</p>
+                        <p className="mt-0.5 text-xs text-surface-500 line-clamp-1">
+                          {plan.description}
+                        </p>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', priorityConfig.color)}>
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                          priorityConfig.color,
+                        )}
+                      >
                         {priorityConfig.label}
                       </span>
-                      <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', statusConfig.color)}>
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                          statusConfig.color,
+                        )}
+                      >
                         {statusConfig.label}
                       </span>
                     </div>

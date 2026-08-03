@@ -3,9 +3,10 @@ import { pino } from 'pino';
 
 const logger = pino({
   level: process.env['LOG_LEVEL'] ?? 'info',
-  transport: process.env['NODE_ENV'] === 'development'
-    ? { target: 'pino-pretty', options: { colorize: true } }
-    : undefined,
+  transport:
+    process.env['NODE_ENV'] === 'development'
+      ? { target: 'pino-pretty', options: { colorize: true } }
+      : undefined,
 });
 
 export interface ReportJobData {
@@ -31,15 +32,10 @@ export interface ReportJobResult {
   error?: string;
 }
 
-export async function processReportGeneration(
-  job: Job<ReportJobData>,
-): Promise<ReportJobResult> {
+export async function processReportGeneration(job: Job<ReportJobData>): Promise<ReportJobResult> {
   const { reportId, type, title, config } = job.data;
 
-  logger.info(
-    { jobId: job.id, reportId, type, title },
-    'Starting report generation',
-  );
+  logger.info({ jobId: job.id, reportId, type, title }, 'Starting report generation');
 
   // Idempotency: check if this report was already processed
   if (job.processedOn && job.attemptsMade > 1) {
@@ -69,10 +65,7 @@ export async function processReportGeneration(
   const fileUrl = `/reports/${reportId}/output.${config.format === 'pdf' ? 'pdf' : config.format === 'xlsx' ? 'xlsx' : 'pptx'}`;
   const fileSize = 1024 * 50;
 
-  logger.info(
-    { reportId, fileUrl, fileSize },
-    'Report generation completed',
-  );
+  logger.info({ reportId, fileUrl, fileSize }, 'Report generation completed');
 
   return {
     reportId,

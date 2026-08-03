@@ -1,28 +1,26 @@
-import { eq, and, desc, isNull } from 'drizzle-orm';
-import argon2 from 'argon2';
-import { authenticator } from 'otplib';
 import crypto from 'node:crypto';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import {
-  users,
-  tenants,
-  tenantMemberships,
-  roles,
-  userRoles,
-  auditEvents,
-  authTokens,
-} from '@iec62443/database';
-import {
+  resolvePermissions,
   signAccessToken,
   signRefreshToken,
   verifyToken,
-  resolvePermissions,
-  type TokenPayload,
-  type TokenPair,
   type JwtConfig,
+  type TokenPair,
+  type TokenPayload,
 } from '@iec62443/auth';
+import {
+  auditEvents,
+  authTokens,
+  roles,
+  tenantMemberships,
+  tenants,
+  userRoles,
+  users,
+} from '@iec62443/database';
+import argon2 from 'argon2';
+import { and, desc, eq, isNull, sql } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { authenticator } from 'otplib';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -84,9 +82,7 @@ class ConsoleEmailService implements EmailService {
   async sendPasswordResetEmail(email: string, resetToken: string): Promise<void> {
     // In development, log the reset link. In production, replace with
     // an SMTP-based implementation that sends a real email.
-    console.log(
-      `[EMAIL] Password reset for ${email}: reset token=${resetToken}`,
-    );
+    console.log(`[EMAIL] Password reset for ${email}: reset token=${resetToken}`);
   }
 }
 
@@ -96,10 +92,7 @@ const emailService: EmailService = new ConsoleEmailService();
 // Audit hash chain helper
 // ---------------------------------------------------------------------------
 
-async function computeEventHash(
-  data: string,
-  previousHash: string | null,
-): Promise<string> {
+async function computeEventHash(data: string, previousHash: string | null): Promise<string> {
   const input = `${previousHash ?? ''}|${data}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
@@ -211,11 +204,7 @@ export class AuthService {
     userAgent?: string,
   ): Promise<LoginResult> {
     // Fetch user
-    const [user] = await this.db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+    const [user] = await this.db.select().from(users).where(eq(users.email, email)).limit(1);
 
     if (!user) {
       throw Object.assign(new Error('Invalid email or password'), {
@@ -415,7 +404,7 @@ export class AuthService {
   // ── Logout ───────────────────────────────────────────────────────────
 
   async logoutUser(refreshToken: string): Promise<void> {
-    let payload: TokenPayload | null = null;
+    let payload: TokenPayload | null;
     try {
       payload = await verifyToken(refreshToken, this.jwtConfig);
     } catch {
@@ -433,12 +422,7 @@ export class AuthService {
         const [existing] = await this.db
           .select({ id: authTokens.id })
           .from(authTokens)
-          .where(
-            and(
-              eq(authTokens.tokenHash, jtiHash),
-              eq(authTokens.tokenType, 'jwt_revocation'),
-            ),
-          )
+          .where(and(eq(authTokens.tokenHash, jtiHash), eq(authTokens.tokenType, 'jwt_revocation')))
           .limit(1);
 
         if (!existing) {
@@ -746,11 +730,7 @@ export class AuthService {
       .where(eq(authTokens.id, entry.id));
 
     // Fetch user for response
-    const [user] = await this.db
-      .select()
-      .from(users)
-      .where(eq(users.id, entry.userId))
-      .limit(1);
+    const [user] = await this.db.select().from(users).where(eq(users.id, entry.userId)).limit(1);
 
     if (!user) {
       throw Object.assign(new Error('User not found'), {
@@ -797,11 +777,7 @@ export class AuthService {
     ipAddress?: string,
     userAgent?: string,
   ): Promise<void> {
-    const [user] = await this.db
-      .select()
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
+    const [user] = await this.db.select().from(users).where(eq(users.id, userId)).limit(1);
 
     if (!user) {
       throw Object.assign(new Error('User not found'), {
@@ -896,12 +872,7 @@ export class AuthService {
       })
       .from(tenantMemberships)
       .innerJoin(tenants, eq(tenantMemberships.tenantId, tenants.id))
-      .where(
-        and(
-          eq(tenantMemberships.userId, userId),
-          eq(tenantMemberships.status, 'active'),
-        ),
-      );
+      .where(and(eq(tenantMemberships.userId, userId), eq(tenantMemberships.status, 'active')));
 
     return memberships.map((m) => ({
       id: m.tenantId,
@@ -924,12 +895,7 @@ export class AuthService {
         role: tenantMemberships.role,
       })
       .from(tenantMemberships)
-      .where(
-        and(
-          eq(tenantMemberships.userId, userId),
-          eq(tenantMemberships.status, 'active'),
-        ),
-      )
+      .where(and(eq(tenantMemberships.userId, userId), eq(tenantMemberships.status, 'active')))
       .limit(1);
 
     let tenantId = '';
@@ -953,12 +919,7 @@ export class AuthService {
         .select({ name: roles.name })
         .from(userRoles)
         .innerJoin(roles, eq(userRoles.roleId, roles.id))
-        .where(
-          and(
-            eq(userRoles.userId, userId),
-            eq(userRoles.tenantId, membership.tenantId),
-          ),
-        );
+        .where(and(eq(userRoles.userId, userId), eq(userRoles.tenantId, membership.tenantId)));
 
       roleNames = userRolesRows.map((r) => r.name);
 
@@ -982,11 +943,7 @@ export class AuthService {
       this.jwtConfig,
     );
 
-    const refreshToken = await signRefreshToken(
-      userId,
-      tenantId,
-      this.jwtConfig,
-    );
+    const refreshToken = await signRefreshToken(userId, tenantId, this.jwtConfig);
 
     return { accessToken, refreshToken };
   }

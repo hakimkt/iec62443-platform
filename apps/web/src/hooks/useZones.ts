@@ -1,8 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type {
+  Conduit,
+  SegmentationRule,
+  Zone,
+  ZoneMembership,
+  ZoneTopology,
+} from '@iec62443/shared-types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiClient } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
-
-import type { Zone, Conduit, ZoneMembership, SegmentationRule, ZoneTopology } from '@iec62443/shared-types';
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -42,15 +47,13 @@ export function useZones(params: ZoneListParams = {}) {
       if (params.page) queryParams['page'] = String(params.page);
       if (params.perPage) queryParams['perPage'] = String(params.perPage);
       if (params.zoneType) queryParams['zoneType'] = params.zoneType;
-      if (params.securityLevel !== undefined) queryParams['securityLevel'] = String(params.securityLevel);
+      if (params.securityLevel !== undefined)
+        queryParams['securityLevel'] = String(params.securityLevel);
       if (params.purdueLevel !== undefined) queryParams['purdueLevel'] = String(params.purdueLevel);
       if (params.search) queryParams['search'] = params.search;
       if (params.sort) queryParams['sort'] = params.sort;
 
-      const result = await client.get<PaginatedResponse<Zone>>(
-        '/zones',
-        queryParams,
-      );
+      const result = await client.get<PaginatedResponse<Zone>>('/zones', queryParams);
       return result;
     },
   });
@@ -62,9 +65,7 @@ export function useZone(id: string | null) {
   return useQuery({
     queryKey: queryKeys.zones.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<Zone>>(
-        `/zones/${id}`,
-      );
+      const result = await client.get<SingleResponse<Zone>>(`/zones/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -87,10 +88,7 @@ export function useCreateZone() {
       color?: string;
       metadata?: Record<string, unknown>;
     }) => {
-      const result = await client.post<SingleResponse<Zone>>(
-        '/zones',
-        data,
-      );
+      const result = await client.post<SingleResponse<Zone>>('/zones', data);
       return result.data;
     },
     onSuccess: () => {
@@ -106,10 +104,7 @@ export function useUpdateZone() {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: { id: string; [key: string]: unknown }) => {
-      const result = await client.patch<SingleResponse<Zone>>(
-        `/zones/${id}`,
-        data,
-      );
+      const result = await client.patch<SingleResponse<Zone>>(`/zones/${id}`, data);
       return result.data;
     },
     onSuccess: (_data, variables) => {
@@ -194,9 +189,7 @@ export function useZoneRules(zoneId: string | null) {
   return useQuery({
     queryKey: queryKeys.zones.rules(zoneId ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<SegmentationRule[]>>(
-        `/zones/${zoneId}/rules`,
-      );
+      const result = await client.get<SingleResponse<SegmentationRule[]>>(`/zones/${zoneId}/rules`);
       return result.data;
     },
     enabled: !!zoneId,
@@ -208,7 +201,17 @@ export function useCreateSegmentationRule() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ zoneId, ...data }: { zoneId: string; ruleType: string; description?: string; direction?: string; action?: string; isCompliant?: boolean }) => {
+    mutationFn: async ({
+      zoneId,
+      ...data
+    }: {
+      zoneId: string;
+      ruleType: string;
+      description?: string;
+      direction?: string;
+      action?: string;
+      isCompliant?: boolean;
+    }) => {
       const result = await client.post<SingleResponse<SegmentationRule>>(
         `/zones/${zoneId}/rules`,
         data,
@@ -260,10 +263,7 @@ export function useConduits(params: ConduitListParams = {}) {
       if (params.conduitType) queryParams['conduitType'] = params.conduitType;
       if (params.search) queryParams['search'] = params.search;
 
-      const result = await client.get<PaginatedResponse<Conduit>>(
-        '/conduits',
-        queryParams,
-      );
+      const result = await client.get<PaginatedResponse<Conduit>>('/conduits', queryParams);
       return result;
     },
   });
@@ -275,9 +275,7 @@ export function useConduit(id: string | null) {
   return useQuery({
     queryKey: queryKeys.zones.conduits.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<Conduit>>(
-        `/conduits/${id}`,
-      );
+      const result = await client.get<SingleResponse<Conduit>>(`/conduits/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -302,10 +300,7 @@ export function useCreateConduit() {
       monitoring?: boolean;
       metadata?: Record<string, unknown>;
     }) => {
-      const result = await client.post<SingleResponse<Conduit>>(
-        '/conduits',
-        data,
-      );
+      const result = await client.post<SingleResponse<Conduit>>('/conduits', data);
       return result.data;
     },
     onSuccess: () => {
@@ -321,10 +316,7 @@ export function useUpdateConduit() {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: { id: string; [key: string]: unknown }) => {
-      const result = await client.patch<SingleResponse<Conduit>>(
-        `/conduits/${id}`,
-        data,
-      );
+      const result = await client.patch<SingleResponse<Conduit>>(`/conduits/${id}`, data);
       return result.data;
     },
     onSuccess: (_data, variables) => {
@@ -358,9 +350,7 @@ export function useZoneTopology() {
   return useQuery({
     queryKey: queryKeys.zones.topology(),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<ZoneTopology>>(
-        '/zone-topology',
-      );
+      const result = await client.get<SingleResponse<ZoneTopology>>('/zone-topology');
       return result.data;
     },
   });
@@ -371,11 +361,16 @@ export function useUpdateTopology() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { zones: Array<{ id: string; diagramX?: number; diagramY?: number; diagramWidth?: number; diagramHeight?: number }> }) => {
-      const result = await client.put<SingleResponse<void>>(
-        '/zone-topology',
-        data,
-      );
+    mutationFn: async (data: {
+      zones: Array<{
+        id: string;
+        diagramX?: number;
+        diagramY?: number;
+        diagramWidth?: number;
+        diagramHeight?: number;
+      }>;
+    }) => {
+      const result = await client.put<SingleResponse<void>>('/zone-topology', data);
       return result;
     },
     onSuccess: () => {

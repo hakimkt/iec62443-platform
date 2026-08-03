@@ -1,19 +1,8 @@
-export {
-  Button,
-  buttonVariants,
-  type ButtonProps,
-} from './Button';
+export { Button, buttonVariants, type ButtonProps } from './Button';
 
-export {
-  Input,
-  inputVariants,
-  type InputProps,
-} from './Input';
+export { Input, inputVariants, type InputProps } from './Input';
 
-export {
-  Textarea,
-  type TextareaProps,
-} from './Textarea';
+export { Textarea, type TextareaProps } from './Textarea';
 
 export {
   Select,
@@ -29,14 +18,10 @@ export {
   MultiSelect,
   type SelectTriggerProps,
   type SelectContentProps,
-  type SelectItemProps,
   type MultiSelectProps,
 } from './Select';
 
-export {
-  Checkbox,
-  type CheckboxProps,
-} from './Checkbox';
+export { Checkbox, type CheckboxProps } from './Checkbox';
 
 export {
   RadioGroup,
@@ -46,11 +31,7 @@ export {
   type RadioGroupItemProps,
 } from './RadioGroup';
 
-export {
-  Switch,
-  switchVariants,
-  type SwitchProps,
-} from './Switch';
+export { Switch, switchVariants, type SwitchProps } from './Switch';
 
 export {
   Dialog,
@@ -66,9 +47,6 @@ export {
   DialogFooter,
   dialogContentVariants,
   type DialogContentProps,
-  type DialogHeaderProps,
-  type DialogBodyProps,
-  type DialogFooterProps,
 } from './Dialog';
 
 export {
@@ -122,12 +100,7 @@ export {
   tabsTriggerVariants,
   tabsContentVariants,
 } from './Tabs';
-export type {
-  TabsProps,
-  TabsListProps,
-  TabsTriggerProps,
-  TabsContentProps,
-} from './Tabs';
+export type { TabsProps, TabsListProps, TabsTriggerProps, TabsContentProps } from './Tabs';
 
 // Accordion
 export {
@@ -139,11 +112,7 @@ export {
   accordionItemVariants,
   accordionTriggerVariants,
 } from './Accordion';
-export type {
-  AccordionProps,
-  AccordionItemProps,
-  AccordionTriggerProps,
-} from './Accordion';
+export type { AccordionProps, AccordionItemProps, AccordionTriggerProps } from './Accordion';
 
 // Avatar
 export {
@@ -155,11 +124,7 @@ export {
   statusDotVariants,
   getInitials,
 } from './Avatar';
-export type {
-  AvatarProps,
-  AvatarImageProps,
-  AvatarFallbackProps,
-} from './Avatar';
+export type { AvatarProps, AvatarImageProps, AvatarFallbackProps } from './Avatar';
 
 // Badge
 export { Badge, badgeVariants } from './Badge';

@@ -1,8 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { Asset, AssetRelationship, AssetStats } from '@iec62443/shared-types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiClient } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
-
-import type { Asset, AssetStats, AssetRelationship } from '@iec62443/shared-types';
 
 interface AssetListParams {
   page?: number;
@@ -57,10 +56,7 @@ export function useAssets(params: AssetListParams = {}) {
       if (params.search) queryParams['search'] = params.search;
       if (params.sort) queryParams['sort'] = params.sort;
 
-      const result = await client.get<PaginatedResponse<Asset>>(
-        '/assets',
-        queryParams,
-      );
+      const result = await client.get<PaginatedResponse<Asset>>('/assets', queryParams);
       return result;
     },
   });
@@ -72,9 +68,7 @@ export function useAsset(id: string | null) {
   return useQuery({
     queryKey: queryKeys.assets.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<Asset>>(
-        `/assets/${id}`,
-      );
+      const result = await client.get<SingleResponse<Asset>>(`/assets/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -87,9 +81,7 @@ export function useAssetStats() {
   return useQuery({
     queryKey: queryKeys.assets.stats(),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<AssetStats>>(
-        '/assets/stats',
-      );
+      const result = await client.get<SingleResponse<AssetStats>>('/assets/stats');
       return result.data;
     },
   });
@@ -121,10 +113,7 @@ export function useCreateAsset() {
       eolDate?: string;
       metadata?: Record<string, unknown>;
     }) => {
-      const result = await client.post<SingleResponse<Asset>>(
-        '/assets',
-        data,
-      );
+      const result = await client.post<SingleResponse<Asset>>('/assets', data);
       return result.data;
     },
     onSuccess: () => {
@@ -139,17 +128,8 @@ export function useUpdateAsset() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      ...data
-    }: {
-      id: string;
-      [key: string]: unknown;
-    }) => {
-      const result = await client.patch<SingleResponse<Asset>>(
-        `/assets/${id}`,
-        data,
-      );
+    mutationFn: async ({ id, ...data }: { id: string; [key: string]: unknown }) => {
+      const result = await client.patch<SingleResponse<Asset>>(`/assets/${id}`, data);
       return result.data;
     },
     onSuccess: (_data, variables) => {
@@ -226,13 +206,7 @@ export function useDeleteRelationship() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      assetId,
-      relId,
-    }: {
-      assetId: string;
-      relId: string;
-    }) => {
+    mutationFn: async ({ assetId, relId }: { assetId: string; relId: string }) => {
       await client.delete(`/assets/${assetId}/relationships/${relId}`);
     },
     onSuccess: (_data, variables) => {
@@ -255,10 +229,7 @@ export function useExportAssets() {
       if (params?.criticality) queryParams['criticality'] = params.criticality;
       if (params?.operationalStatus) queryParams['operationalStatus'] = params.operationalStatus;
 
-      const result = await client.get<SingleResponse<Asset[]>>(
-        '/assets/export',
-        queryParams,
-      );
+      const result = await client.get<SingleResponse<Asset[]>>('/assets/export', queryParams);
       return result.data;
     },
   });

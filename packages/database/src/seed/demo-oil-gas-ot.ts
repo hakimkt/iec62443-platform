@@ -1,8 +1,7 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { desc, eq, sql } from 'drizzle-orm';
-import { Pool } from 'pg';
 import crypto from 'node:crypto';
-
+import { desc, eq, sql } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 import * as platformSchema from '../schema/platform/index.js';
 import * as tenantSchema from '../schema/tenant/index.js';
 
@@ -680,7 +679,8 @@ const SEGMENTATION_RULES = [
     conduitId: '91000000-0000-0000-0000-000000000004',
     zoneId: '71000000-0000-0000-0000-000000000005',
     ruleType: 'firewall',
-    description: 'Engineering access to PLCs lacks time-window enforcement — gap against IEC 62443-3-3 SR 2.1 RE 1',
+    description:
+      'Engineering access to PLCs lacks time-window enforcement — gap against IEC 62443-3-3 SR 2.1 RE 1',
     direction: 'outbound',
     action: 'allow',
     isCompliant: false,
@@ -785,103 +785,121 @@ async function seed() {
   console.log('\n[1/6] Creating zones...');
 
   for (const zone of ZONES) {
-    await tenantDb.insert(tenantSchema.zones).values({
-      id: zone.id,
-      name: zone.name,
-      description: zone.description,
-      zoneType: zone.zoneType,
-      securityLevel: zone.securityLevel,
-      targetSl: zone.targetSl,
-      achievedSl: zone.achievedSl,
-      purdueLevel: zone.purdueLevel,
-      diagramX: zone.diagramX,
-      diagramY: zone.diagramY,
-      diagramWidth: zone.diagramWidth,
-      diagramHeight: zone.diagramHeight,
-      color: zone.color,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.zones)
+      .values({
+        id: zone.id,
+        name: zone.name,
+        description: zone.description,
+        zoneType: zone.zoneType,
+        securityLevel: zone.securityLevel,
+        targetSl: zone.targetSl,
+        achievedSl: zone.achievedSl,
+        purdueLevel: zone.purdueLevel,
+        diagramX: zone.diagramX,
+        diagramY: zone.diagramY,
+        diagramWidth: zone.diagramWidth,
+        diagramHeight: zone.diagramHeight,
+        color: zone.color,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 2. Assets ────────────────────────────────────────────────────────
   console.log('[2/6] Creating assets...');
 
   for (const asset of ASSETS) {
-    await tenantDb.insert(tenantSchema.assets).values({
-      id: asset.id,
-      name: asset.name,
-      description: asset.description,
-      type: asset.type,
-      criticality: asset.criticality,
-      vendor: asset.vendor,
-      model: asset.model,
-      firmwareVersion: asset.firmwareVersion,
-      serialNumber: asset.serialNumber,
-      ipAddress: asset.ipAddress,
-      macAddress: asset.macAddress,
-      networkSegment: asset.networkSegment,
-      purdueLevel: asset.purdueLevel,
-      zoneId: asset.zoneId,
-      location: asset.location,
-      operationalStatus: asset.operationalStatus,
-      metadata: asset.metadata,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.assets)
+      .values({
+        id: asset.id,
+        name: asset.name,
+        description: asset.description,
+        type: asset.type,
+        criticality: asset.criticality,
+        vendor: asset.vendor,
+        model: asset.model,
+        firmwareVersion: asset.firmwareVersion,
+        serialNumber: asset.serialNumber,
+        ipAddress: asset.ipAddress,
+        macAddress: asset.macAddress,
+        networkSegment: asset.networkSegment,
+        purdueLevel: asset.purdueLevel,
+        zoneId: asset.zoneId,
+        location: asset.location,
+        operationalStatus: asset.operationalStatus,
+        metadata: asset.metadata,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 3. Zone Memberships ──────────────────────────────────────────────
   console.log('[3/6] Creating zone memberships...');
 
   for (const asset of ASSETS) {
-    await tenantDb.insert(tenantSchema.memberships).values({
-      zoneId: asset.zoneId,
-      assetId: asset.id,
-      assignedBy: SEED_USER_ID,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.memberships)
+      .values({
+        zoneId: asset.zoneId,
+        assetId: asset.id,
+        assignedBy: SEED_USER_ID,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 4. Conduits ──────────────────────────────────────────────────────
   console.log('[4/6] Creating conduits...');
 
   for (const conduit of CONDUITS) {
-    await tenantDb.insert(tenantSchema.conduits).values({
-      id: conduit.id,
-      name: conduit.name,
-      description: conduit.description,
-      sourceZoneId: conduit.sourceZoneId,
-      targetZoneId: conduit.targetZoneId,
-      conduitType: conduit.conduitType,
-      protocol: conduit.protocol,
-      securityLevel: conduit.securityLevel,
-      targetSl: conduit.targetSl,
-      achievedSl: conduit.achievedSl,
-      encryption: conduit.encryption,
-      authentication: conduit.authentication,
-      monitoring: conduit.monitoring,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.conduits)
+      .values({
+        id: conduit.id,
+        name: conduit.name,
+        description: conduit.description,
+        sourceZoneId: conduit.sourceZoneId,
+        targetZoneId: conduit.targetZoneId,
+        conduitType: conduit.conduitType,
+        protocol: conduit.protocol,
+        securityLevel: conduit.securityLevel,
+        targetSl: conduit.targetSl,
+        achievedSl: conduit.achievedSl,
+        encryption: conduit.encryption,
+        authentication: conduit.authentication,
+        monitoring: conduit.monitoring,
+      })
+      .onConflictDoNothing();
   }
 
   // ── 5. Asset Relationships & Segmentation Rules ──────────────────────
   console.log('[5/6] Creating asset relationships and segmentation rules...');
 
   for (const rel of RELATIONSHIPS) {
-    await tenantDb.insert(tenantSchema.relationships).values({
-      sourceAssetId: rel.sourceAssetId,
-      targetAssetId: rel.targetAssetId,
-      relationshipType: rel.relationshipType,
-      protocol: rel.protocol,
-      metadata: rel.metadata,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.relationships)
+      .values({
+        sourceAssetId: rel.sourceAssetId,
+        targetAssetId: rel.targetAssetId,
+        relationshipType: rel.relationshipType,
+        protocol: rel.protocol,
+        metadata: rel.metadata,
+      })
+      .onConflictDoNothing();
   }
 
   for (const rule of SEGMENTATION_RULES) {
-    await tenantDb.insert(tenantSchema.segmentationRules).values({
-      conduitId: rule.conduitId,
-      zoneId: rule.zoneId,
-      ruleType: rule.ruleType,
-      description: rule.description,
-      direction: rule.direction,
-      action: rule.action,
-      isCompliant: rule.isCompliant,
-    }).onConflictDoNothing();
+    await tenantDb
+      .insert(tenantSchema.segmentationRules)
+      .values({
+        conduitId: rule.conduitId,
+        zoneId: rule.zoneId,
+        ruleType: rule.ruleType,
+        description: rule.description,
+        direction: rule.direction,
+        action: rule.action,
+        isCompliant: rule.isCompliant,
+      })
+      .onConflictDoNothing();
   }
 
   await tenantPool.end();
@@ -911,7 +929,12 @@ async function seed() {
       entityType: 'asset',
       entityId: asset.id,
       action: 'create',
-      details: { name: asset.name, type: asset.type, criticality: asset.criticality, zoneId: asset.zoneId },
+      details: {
+        name: asset.name,
+        type: asset.type,
+        criticality: asset.criticality,
+        zoneId: asset.zoneId,
+      },
     });
   }
 
@@ -998,12 +1021,16 @@ async function seed() {
   console.log('');
   console.log('Zones:');
   for (const zone of ZONES) {
-    console.log(`  ${zone.name.padEnd(40)} SL${zone.achievedSl}→SL${zone.targetSl}  Purdue L${zone.purdueLevel}`);
+    console.log(
+      `  ${zone.name.padEnd(40)} SL${zone.achievedSl}→SL${zone.targetSl}  Purdue L${zone.purdueLevel}`,
+    );
   }
   console.log('');
   console.log('Assets:');
   for (const asset of ASSETS) {
-    console.log(`  ${asset.name.padEnd(40)} ${asset.criticality.padEnd(20)} Purdue L${asset.purdueLevel}`);
+    console.log(
+      `  ${asset.name.padEnd(40)} ${asset.criticality.padEnd(20)} Purdue L${asset.purdueLevel}`,
+    );
   }
   console.log('');
   console.log('Conduits:');

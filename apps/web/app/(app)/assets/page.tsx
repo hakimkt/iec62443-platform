@@ -1,23 +1,23 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import type { Asset, AssetType } from '@iec62443/shared-types';
+import { cn } from '@iec62443/ui';
 import {
-  PageHeader,
-  MetricCard,
-  SearchInput,
-  FilterBar,
   DataTable,
   EmptyState,
+  FilterBar,
+  MetricCard,
+  PageHeader,
+  SearchInput,
   StatusBadge,
+  type Column,
 } from '@iec62443/ui/components';
-import type { Column } from '@iec62443/ui/components';
-import { cn } from '@iec62443/ui';
 import { Button } from '@iec62443/ui/primitives';
-import { Plus, Upload, Filter } from 'lucide-react';
+import { Filter, Plus, Upload } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
 import { useAssets, useAssetStats } from '@/hooks/useAssets';
-import type { Asset, AssetType } from '@iec62443/shared-types';
 
 const typeLabels: Partial<Record<AssetType, string>> = {
   plc: 'PLC',
@@ -71,8 +71,24 @@ const criticalityMetricColors: Record<string, 'brand' | 'green' | 'red' | 'amber
   non_critical: 'green',
 };
 
-const typeFilters = ['', 'plc', 'hmi', 'scada_server', 'switch', 'router', 'firewall', 'server'] as const;
-const criticalityFilters = ['', 'safety_critical', 'mission_critical', 'business_critical', 'operational', 'non_critical'] as const;
+const typeFilters = [
+  '',
+  'plc',
+  'hmi',
+  'scada_server',
+  'switch',
+  'router',
+  'firewall',
+  'server',
+] as const;
+const criticalityFilters = [
+  '',
+  'safety_critical',
+  'mission_critical',
+  'business_critical',
+  'operational',
+  'non_critical',
+] as const;
 const statusFilters = ['', 'operational', 'maintenance', 'decommissioned', 'standby'] as const;
 
 export default function AssetsPage() {
@@ -101,13 +117,37 @@ export default function AssetsPage() {
     () =>
       [
         typeFilter
-          ? { key: 'type', label: 'Type', value: typeLabels[typeFilter as AssetType] ?? typeFilter, onRemove: () => { setTypeFilter(''); setPage(1); } }
+          ? {
+              key: 'type',
+              label: 'Type',
+              value: typeLabels[typeFilter as AssetType] ?? typeFilter,
+              onRemove: () => {
+                setTypeFilter('');
+                setPage(1);
+              },
+            }
           : null,
         criticalityFilter
-          ? { key: 'criticality', label: 'Criticality', value: criticalityFilter.replace(/_/g, ' '), onRemove: () => { setCriticalityFilter(''); setPage(1); } }
+          ? {
+              key: 'criticality',
+              label: 'Criticality',
+              value: criticalityFilter.replace(/_/g, ' '),
+              onRemove: () => {
+                setCriticalityFilter('');
+                setPage(1);
+              },
+            }
           : null,
         statusFilter
-          ? { key: 'status', label: 'Status', value: statusFilter.replace(/_/g, ' '), onRemove: () => { setStatusFilter(''); setPage(1); } }
+          ? {
+              key: 'status',
+              label: 'Status',
+              value: statusFilter.replace(/_/g, ' '),
+              onRemove: () => {
+                setStatusFilter('');
+                setPage(1);
+              },
+            }
           : null,
       ].filter(Boolean) as { key: string; label: string; value: string; onRemove: () => void }[],
     [typeFilter, criticalityFilter, statusFilter],
@@ -150,7 +190,12 @@ export default function AssetsPage() {
       header: 'Criticality',
       sortable: true,
       render: (_value: unknown, row: Asset) => (
-        <span className={cn('text-xs font-medium px-2 py-0.5 rounded', criticalityColors[row.criticality] ?? 'bg-surface-100 text-surface-600')}>
+        <span
+          className={cn(
+            'text-xs font-medium px-2 py-0.5 rounded',
+            criticalityColors[row.criticality] ?? 'bg-surface-100 text-surface-600',
+          )}
+        >
           {row.criticality.replace(/_/g, ' ')}
         </span>
       ),
@@ -160,7 +205,9 @@ export default function AssetsPage() {
       header: 'Purdue Level',
       render: (_value: unknown, row: Asset) => (
         <span className="text-sm text-surface-600">
-          {row.purdueLevel !== null ? purdueLevelLabels[row.purdueLevel] ?? `L${row.purdueLevel}` : '—'}
+          {row.purdueLevel !== null
+            ? (purdueLevelLabels[row.purdueLevel] ?? `L${row.purdueLevel}`)
+            : '—'}
         </span>
       ),
     },
@@ -228,7 +275,10 @@ export default function AssetsPage() {
         searchSlot={
           <SearchInput
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             placeholder="Search assets..."
           />
         }
@@ -243,7 +293,10 @@ export default function AssetsPage() {
           {typeFilters.map((t) => (
             <button
               key={t}
-              onClick={() => { setTypeFilter(t); setPage(1); }}
+              onClick={() => {
+                setTypeFilter(t);
+                setPage(1);
+              }}
               className={cn(
                 'rounded-md px-2 py-1 text-xs font-medium transition-colors',
                 typeFilter === t
@@ -251,7 +304,7 @@ export default function AssetsPage() {
                   : 'bg-surface-100 text-surface-600 hover:bg-surface-200',
               )}
             >
-              {t === '' ? 'All' : typeLabels[t as AssetType] ?? t}
+              {t === '' ? 'All' : (typeLabels[t as AssetType] ?? t)}
             </button>
           ))}
         </div>
@@ -261,7 +314,10 @@ export default function AssetsPage() {
           {criticalityFilters.map((c) => (
             <button
               key={c}
-              onClick={() => { setCriticalityFilter(c); setPage(1); }}
+              onClick={() => {
+                setCriticalityFilter(c);
+                setPage(1);
+              }}
               className={cn(
                 'rounded-md px-2 py-1 text-xs font-medium transition-colors',
                 criticalityFilter === c
@@ -279,7 +335,10 @@ export default function AssetsPage() {
           {statusFilters.map((s) => (
             <button
               key={s}
-              onClick={() => { setStatusFilter(s); setPage(1); }}
+              onClick={() => {
+                setStatusFilter(s);
+                setPage(1);
+              }}
               className={cn(
                 'rounded-md px-2 py-1 text-xs font-medium transition-colors',
                 statusFilter === s
@@ -314,18 +373,25 @@ export default function AssetsPage() {
       />
 
       {/* Empty state when no filters are active and no assets */}
-      {!isLoading && assets.length === 0 && !search && !typeFilter && !criticalityFilter && !statusFilter && (
-        <EmptyState
-          icon={Filter}
-          title="No assets found"
-          description="Add your first asset to get started."
-          action={
-            <Link href="/assets/new">
-              <Button variant="primary" icon={Plus}>Add Asset</Button>
-            </Link>
-          }
-        />
-      )}
+      {!isLoading &&
+        assets.length === 0 &&
+        !search &&
+        !typeFilter &&
+        !criticalityFilter &&
+        !statusFilter && (
+          <EmptyState
+            icon={Filter}
+            title="No assets found"
+            description="Add your first asset to get started."
+            action={
+              <Link href="/assets/new">
+                <Button variant="primary" icon={Plus}>
+                  Add Asset
+                </Button>
+              </Link>
+            }
+          />
+        )}
     </div>
   );
 }

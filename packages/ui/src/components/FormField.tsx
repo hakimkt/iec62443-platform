@@ -16,28 +16,14 @@ export interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
 /* ──────────────────────────── Component ───────────────────────── */
 
 const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
-  (
-    {
-      className,
-      label,
-      htmlFor,
-      required,
-      error,
-      hint,
-      children,
-      ...props
-    },
-    ref,
-  ) => {
+  ({ className, label, htmlFor, required, error, hint, children, ...props }, ref) => {
     return (
       <div ref={ref} className={cn('space-y-1.5', className)} {...props}>
         <Label htmlFor={htmlFor} required={required} error={!!error}>
           {label}
         </Label>
 
-        {hint && !error && (
-          <p className="text-xs text-surface-500">{hint}</p>
-        )}
+        {hint && !error && <p className="text-xs text-surface-500">{hint}</p>}
 
         {children}
 

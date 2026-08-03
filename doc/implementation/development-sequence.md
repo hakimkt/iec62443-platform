@@ -7,15 +7,15 @@
 
 ## 1. Sequencing Principles
 
-| Principle | Rationale |
-|---|---|
-| **Dependency-first** | Build entities before screens that depend on them |
-| **Horizontal slices** | Each sprint delivers a working feature end-to-end (DB → API → UI) |
-| **Shell early** | AppShell, auth, and navigation enable testing all subsequent screens |
-| **Primitives before composed** | UI primitives must exist before any feature screen can render |
-| **Read before write** | List/view screens before create/edit screens (easier to test) |
-| **Static before dynamic** | Reference data screens before interactive workflows |
-| **Defer complex viz** | Charts and diagrams after core CRUD is working |
+| Principle                      | Rationale                                                            |
+| ------------------------------ | -------------------------------------------------------------------- |
+| **Dependency-first**           | Build entities before screens that depend on them                    |
+| **Horizontal slices**          | Each sprint delivers a working feature end-to-end (DB → API → UI)    |
+| **Shell early**                | AppShell, auth, and navigation enable testing all subsequent screens |
+| **Primitives before composed** | UI primitives must exist before any feature screen can render        |
+| **Read before write**          | List/view screens before create/edit screens (easier to test)        |
+| **Static before dynamic**      | Reference data screens before interactive workflows                  |
+| **Defer complex viz**          | Charts and diagrams after core CRUD is working                       |
 
 ---
 
@@ -798,6 +798,7 @@ Phase 9: Polish + Testing
 ```
 
 **Parallelization opportunities:**
+
 - Phase 4 (Findings) and Phase 5 (Assets) can run in parallel (no dependency between them)
 - Within Phase 6: Risk backend (Week 15) and Zone backend (Week 17) are independent
 - Chart/diagram component development in `packages/ui` can happen parallel to frontend feature pages
@@ -807,34 +808,34 @@ Phase 9: Polish + Testing
 
 ## 4. Risk Mitigation
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| ReactFlow complexity for zone designer | High | Use simplified SVG first, upgrade to ReactFlow in Phase 6 |
-| Large template seeding (48+ questions) | Medium | Seed via migration scripts, not API calls |
-| S3/MinIO integration delays | Medium | Use local filesystem for Phase 3–5, add S3 in Phase 5 |
-| WebSocket reliability in offline mode | High | Start with polling, add WebSocket in Phase 4+ |
-| Multi-tenant schema complexity | Medium | Single schema + tenant_id column for Phase 1–3, migrate to schema-per-tenant later |
-| Chart rendering performance | Low | Lazy-load chart components, defer until scroll into view |
+| Risk                                   | Impact | Mitigation                                                                         |
+| -------------------------------------- | ------ | ---------------------------------------------------------------------------------- |
+| ReactFlow complexity for zone designer | High   | Use simplified SVG first, upgrade to ReactFlow in Phase 6                          |
+| Large template seeding (48+ questions) | Medium | Seed via migration scripts, not API calls                                          |
+| S3/MinIO integration delays            | Medium | Use local filesystem for Phase 3–5, add S3 in Phase 5                              |
+| WebSocket reliability in offline mode  | High   | Start with polling, add WebSocket in Phase 4+                                      |
+| Multi-tenant schema complexity         | Medium | Single schema + tenant_id column for Phase 1–3, migrate to schema-per-tenant later |
+| Chart rendering performance            | Low    | Lazy-load chart components, defer until scroll into view                           |
 
 ---
 
 ## 5. Milestone Summary
 
-| Milestone | Week | Deliverable |
-|---|---|---|
-| M1: Dev Environment | 2 | Monorepo, CI/CD, Docker Compose |
-| M2: Auth Complete | 4 | Login, register, MFA, JWT, middleware |
-| M3: App Shell | 6 | Sidebar, top bar, navigation, empty dashboard |
-| M4: Assessment CRUD | 9 | Create, list, view, scorecard, templates |
-| M5: Finding Lifecycle | 12 | CRUD, status transitions, comments, linking |
-| M6: Question Flow | 12 | 3-column assessment wizard with auto-save |
-| M7: Asset + Evidence | 14 | Asset CRUD + CSV import, evidence upload |
-| M8: Risk Register | 16 | CRUD + heat map + distribution charts |
-| M9: Zone + Purdue | 18 | Zone designer + Purdue visualization |
-| M10: Dashboard | 20 | All dashboard widgets, report generation |
-| M11: Full Feature Set | 23 | Remediation, CSMS, Admin complete |
-| M12: Production Ready | 26 | Tested, documented, staging deployed |
+| Milestone             | Week | Deliverable                                   |
+| --------------------- | ---- | --------------------------------------------- |
+| M1: Dev Environment   | 2    | Monorepo, CI/CD, Docker Compose               |
+| M2: Auth Complete     | 4    | Login, register, MFA, JWT, middleware         |
+| M3: App Shell         | 6    | Sidebar, top bar, navigation, empty dashboard |
+| M4: Assessment CRUD   | 9    | Create, list, view, scorecard, templates      |
+| M5: Finding Lifecycle | 12   | CRUD, status transitions, comments, linking   |
+| M6: Question Flow     | 12   | 3-column assessment wizard with auto-save     |
+| M7: Asset + Evidence  | 14   | Asset CRUD + CSV import, evidence upload      |
+| M8: Risk Register     | 16   | CRUD + heat map + distribution charts         |
+| M9: Zone + Purdue     | 18   | Zone designer + Purdue visualization          |
+| M10: Dashboard        | 20   | All dashboard widgets, report generation      |
+| M11: Full Feature Set | 23   | Remediation, CSMS, Admin complete             |
+| M12: Production Ready | 26   | Tested, documented, staging deployed          |
 
 ---
 
-*Back to: [Frontend Architecture →](frontend-architecture.md) | [Component Mapping →](component-mapping.md) | [API Requirements →](api-requirements.md) | [Database Dependencies →](database-dependencies.md)*
+_Back to: [Frontend Architecture →](frontend-architecture.md) | [Component Mapping →](component-mapping.md) | [API Requirements →](api-requirements.md) | [Database Dependencies →](database-dependencies.md)_

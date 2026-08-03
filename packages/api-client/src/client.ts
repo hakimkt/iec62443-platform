@@ -121,10 +121,10 @@ export class ApiClient {
     }
 
     if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({
+      const errorBody = (await response.json().catch(() => ({
         error: { code: 'UNKNOWN_ERROR', message: `HTTP ${response.status}` },
         meta: { requestId: '', timestamp: new Date().toISOString() },
-      })) as ApiError;
+      }))) as ApiError;
       throw new ApiClientError(response.status, errorBody);
     }
 
@@ -176,10 +176,10 @@ export class ApiClient {
     });
 
     if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({
+      const errorBody = (await response.json().catch(() => ({
         error: { code: 'UNKNOWN_ERROR', message: `HTTP ${response.status}` },
         meta: { requestId: '', timestamp: new Date().toISOString() },
-      })) as ApiError;
+      }))) as ApiError;
       throw new ApiClientError(response.status, errorBody);
     }
 

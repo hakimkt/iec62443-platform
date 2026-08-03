@@ -50,30 +50,30 @@ The platform uses a **hierarchical role-based access control (RBAC)** model with
 
 ### Format: `resource:action`
 
-| Resource | Actions |
-|---|---|
-| `tenant` | `read`, `update`, `delete`, `manage_members`, `manage_billing` |
-| `role` | `read`, `create`, `update`, `delete` |
-| `user` | `read`, `create`, `update`, `delete`, `impersonate` |
-| `assessment` | `read`, `create`, `update`, `delete`, `complete`, `export` |
-| `assessment.response` | `read`, `write`, `review` |
-| `assessment.template` | `read`, `create`, `update`, `delete` |
-| `risk` | `read`, `create`, `update`, `delete`, `accept`, `export` |
-| `risk.treatment` | `read`, `create`, `update`, `delete` |
-| `risk.register` | `read`, `create`, `update`, `delete` |
-| `zone` | `read`, `create`, `update`, `delete` |
-| `conduit` | `read`, `create`, `update`, `delete` |
-| `purdue` | `read`, `create`, `update`, `delete` |
-| `csms` | `read`, `create`, `update`, `delete`, `approve_policy` |
-| `finding` | `read`, `create`, `update`, `delete`, `transition`, `assign`, `export` |
-| `evidence` | `read`, `upload`, `update`, `delete`, `download`, `verify` |
-| `remediation` | `read`, `create`, `update`, `delete`, `verify`, `assign` |
-| `asset` | `read`, `create`, `update`, `delete`, `import`, `export` |
-| `report` | `read`, `generate`, `download`, `delete` |
-| `audit_log` | `read`, `export` |
-| `api_key` | `read`, `create`, `delete` |
-| `webhook` | `read`, `create`, `update`, `delete` |
-| `integration` | `read`, `create`, `update`, `delete` |
+| Resource              | Actions                                                                |
+| --------------------- | ---------------------------------------------------------------------- |
+| `tenant`              | `read`, `update`, `delete`, `manage_members`, `manage_billing`         |
+| `role`                | `read`, `create`, `update`, `delete`                                   |
+| `user`                | `read`, `create`, `update`, `delete`, `impersonate`                    |
+| `assessment`          | `read`, `create`, `update`, `delete`, `complete`, `export`             |
+| `assessment.response` | `read`, `write`, `review`                                              |
+| `assessment.template` | `read`, `create`, `update`, `delete`                                   |
+| `risk`                | `read`, `create`, `update`, `delete`, `accept`, `export`               |
+| `risk.treatment`      | `read`, `create`, `update`, `delete`                                   |
+| `risk.register`       | `read`, `create`, `update`, `delete`                                   |
+| `zone`                | `read`, `create`, `update`, `delete`                                   |
+| `conduit`             | `read`, `create`, `update`, `delete`                                   |
+| `purdue`              | `read`, `create`, `update`, `delete`                                   |
+| `csms`                | `read`, `create`, `update`, `delete`, `approve_policy`                 |
+| `finding`             | `read`, `create`, `update`, `delete`, `transition`, `assign`, `export` |
+| `evidence`            | `read`, `upload`, `update`, `delete`, `download`, `verify`             |
+| `remediation`         | `read`, `create`, `update`, `delete`, `verify`, `assign`               |
+| `asset`               | `read`, `create`, `update`, `delete`, `import`, `export`               |
+| `report`              | `read`, `generate`, `download`, `delete`                               |
+| `audit_log`           | `read`, `export`                                                       |
+| `api_key`             | `read`, `create`, `delete`                                             |
+| `webhook`             | `read`, `create`, `update`, `delete`                                   |
+| `integration`         | `read`, `create`, `update`, `delete`                                   |
 
 ---
 
@@ -90,7 +90,7 @@ Permissions:
   user:impersonate            — Impersonate any user (for support)
   audit_log:read              — Cross-tenant audit log access
   audit_log:export            — Export cross-tenant audit data
-  
+
 Restrictions:
   - Cannot access tenant data (assessments, findings, etc.)
   - Cannot impersonate without audit trail entry
@@ -107,7 +107,7 @@ Permissions:
   tenant:read|update|delete|manage_members|manage_billing
   role:*                      — Full role management
   user:*                      — Full user management within tenant
-  
+
   + All permissions of Tenant Admin (inherited)
 ```
 
@@ -123,7 +123,7 @@ Permissions:
   api_key:*
   webhook:*
   integration:*
-  
+
   + All permissions of Project Manager (inherited)
 ```
 
@@ -142,7 +142,7 @@ Permissions:
   remediation:read|create|update|delete|verify|assign
   report:read|generate|download|delete
   asset:read|create|update|delete|import|export
-  
+
   + All permissions of Lead Assessor (inherited)
 ```
 
@@ -163,7 +163,7 @@ Permissions:
   purdue:read|create|update
   asset:read|create|update
   report:read|generate|download
-  
+
   + All permissions of Assessor (inherited)
 ```
 
@@ -243,32 +243,32 @@ Permissions:
 
 ## 4. Permission Matrix
 
-| Permission | Platform Admin | Tenant Owner | Tenant Admin | Project Mgr | Lead Assessor | Assessor | Quality Mgr | Risk Mgr | Viewer |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| tenant:manage_billing | | ✓ | | | | | | | |
-| tenant:delete | | ✓ | | | | | | | |
-| tenant:manage_members | | ✓ | ✓ | | | | | | |
-| role:* | | ✓ | RCU | | | | | | |
-| user:* | | ✓ | RCUD | | | | | | |
-| assessment:create | | ✓ | ✓ | ✓ | ✓ | | | | |
-| assessment:delete | | ✓ | ✓ | ✓ | | | | | |
-| assessment:complete | | ✓ | ✓ | ✓ | | | ✓ | | |
-| assessment.response:write | | ✓ | ✓ | ✓ | ✓ | ✓ | | | |
-| assessment.response:review | | ✓ | ✓ | ✓ | ✓ | | ✓ | | |
-| risk:accept | | ✓ | ✓ | ✓ | | | ✓ | ✓ | |
-| risk:delete | | ✓ | ✓ | ✓ | | | | ✓ | |
-| finding:transition | | ✓ | ✓ | ✓ | ✓ | | ✓ | | |
-| finding:assign | | ✓ | ✓ | ✓ | ✓ | | | | |
-| evidence:upload | | ✓ | ✓ | ✓ | ✓ | ✓ | | | |
-| evidence:download | | ✓ | ✓ | ✓ | ✓ | ✓ | | | ✓ |
-| evidence:verify | | ✓ | ✓ | ✓ | ✓ | | ✓ | | |
-| remediation:verify | | ✓ | ✓ | ✓ | | | ✓ | | |
-| csms:approve_policy | | ✓ | ✓ | | | | ✓ | | |
-| report:generate | | ✓ | ✓ | ✓ | ✓ | | ✓ | ✓ | |
-| audit_log:read | ✓ | ✓ | ✓ | | | | ✓ | | |
-| audit_log:export | ✓ | ✓ | ✓ | | | | ✓ | | |
-| api_key:* | | ✓ | ✓ | | | | | | |
-| integration:* | | ✓ | ✓ | | | | | | |
+| Permission                 | Platform Admin | Tenant Owner | Tenant Admin | Project Mgr | Lead Assessor | Assessor | Quality Mgr | Risk Mgr | Viewer |
+| -------------------------- | :------------: | :----------: | :----------: | :---------: | :-----------: | :------: | :---------: | :------: | :----: |
+| tenant:manage_billing      |                |      ✓       |              |             |               |          |             |          |        |
+| tenant:delete              |                |      ✓       |              |             |               |          |             |          |        |
+| tenant:manage_members      |                |      ✓       |      ✓       |             |               |          |             |          |        |
+| role:*                     |                |      ✓       |     RCU      |             |               |          |             |          |        |
+| user:*                     |                |      ✓       |     RCUD     |             |               |          |             |          |        |
+| assessment:create          |                |      ✓       |      ✓       |      ✓      |       ✓       |          |             |          |        |
+| assessment:delete          |                |      ✓       |      ✓       |      ✓      |               |          |             |          |        |
+| assessment:complete        |                |      ✓       |      ✓       |      ✓      |               |          |      ✓      |          |        |
+| assessment.response:write  |                |      ✓       |      ✓       |      ✓      |       ✓       |    ✓     |             |          |        |
+| assessment.response:review |                |      ✓       |      ✓       |      ✓      |       ✓       |          |      ✓      |          |        |
+| risk:accept                |                |      ✓       |      ✓       |      ✓      |               |          |      ✓      |    ✓     |        |
+| risk:delete                |                |      ✓       |      ✓       |      ✓      |               |          |             |    ✓     |        |
+| finding:transition         |                |      ✓       |      ✓       |      ✓      |       ✓       |          |      ✓      |          |        |
+| finding:assign             |                |      ✓       |      ✓       |      ✓      |       ✓       |          |             |          |        |
+| evidence:upload            |                |      ✓       |      ✓       |      ✓      |       ✓       |    ✓     |             |          |        |
+| evidence:download          |                |      ✓       |      ✓       |      ✓      |       ✓       |    ✓     |             |          |   ✓    |
+| evidence:verify            |                |      ✓       |      ✓       |      ✓      |       ✓       |          |      ✓      |          |        |
+| remediation:verify         |                |      ✓       |      ✓       |      ✓      |               |          |      ✓      |          |        |
+| csms:approve_policy        |                |      ✓       |      ✓       |             |               |          |      ✓      |          |        |
+| report:generate            |                |      ✓       |      ✓       |      ✓      |       ✓       |          |      ✓      |    ✓     |        |
+| audit_log:read             |       ✓        |      ✓       |      ✓       |             |               |          |      ✓      |          |        |
+| audit_log:export           |       ✓        |      ✓       |      ✓       |             |               |          |      ✓      |          |        |
+| api_key:*                  |                |      ✓       |      ✓       |             |               |          |             |          |        |
+| integration:*              |                |      ✓       |      ✓       |             |               |          |             |          |        |
 
 ---
 
@@ -293,13 +293,13 @@ Behavior:
 
 ### 5.2 Field-Level Security
 
-| Field | Visibility | Rule |
-|---|---|---|
-| Evidence files (binary) | Restricted | `evidence:download` permission required |
-| Audit log IP addresses | Restricted | `audit_log:read` + Tenant Admin role |
-| User email addresses | Masked | Viewer role sees `j***@example.com` |
-| API key values | One-time display | Shown only at creation time |
-| MFA secrets | Never exposed | Write-only via MFA flow |
+| Field                   | Visibility       | Rule                                    |
+| ----------------------- | ---------------- | --------------------------------------- |
+| Evidence files (binary) | Restricted       | `evidence:download` permission required |
+| Audit log IP addresses  | Restricted       | `audit_log:read` + Tenant Admin role    |
+| User email addresses    | Masked           | Viewer role sees `j***@example.com`     |
+| API key values          | One-time display | Shown only at creation time             |
+| MFA secrets             | Never exposed    | Write-only via MFA flow                 |
 
 ### 5.3 Row-Level Security (RLS)
 
@@ -321,16 +321,16 @@ CREATE POLICY tenant_isolation ON {schema}.{table}
 
 Critical operations enforce multi-party approval:
 
-| Operation | Required Roles | Flow |
-|---|---|---|
-| **Risk acceptance (Critical)** | Risk Manager proposes → Tenant Owner approves | 2-party |
-| **Risk acceptance (High)** | Risk Manager proposes → Quality Manager approves | 2-party |
-| **Assessment completion** | Lead Assessor completes → Quality Manager reviews | 2-party |
-| **Evidence deletion** | Creator requests → Tenant Admin approves | 2-party |
-| **Audit log export** | Tenant Owner or Tenant Admin | 1-party + audit trail |
-| **User impersonation** | Platform Admin only | 1-party + audit + notification |
-| **Tenant deletion** | Tenant Owner confirms → Platform Admin executes | 2-party |
-| **Policy approval** | Author submits → Quality Manager approves | 2-party |
+| Operation                      | Required Roles                                    | Flow                           |
+| ------------------------------ | ------------------------------------------------- | ------------------------------ |
+| **Risk acceptance (Critical)** | Risk Manager proposes → Tenant Owner approves     | 2-party                        |
+| **Risk acceptance (High)**     | Risk Manager proposes → Quality Manager approves  | 2-party                        |
+| **Assessment completion**      | Lead Assessor completes → Quality Manager reviews | 2-party                        |
+| **Evidence deletion**          | Creator requests → Tenant Admin approves          | 2-party                        |
+| **Audit log export**           | Tenant Owner or Tenant Admin                      | 1-party + audit trail          |
+| **User impersonation**         | Platform Admin only                               | 1-party + audit + notification |
+| **Tenant deletion**            | Tenant Owner confirms → Platform Admin executes   | 2-party                        |
+| **Policy approval**            | Author submits → Quality Manager approves         | 2-party                        |
 
 ---
 
@@ -355,6 +355,7 @@ POST /api/v1/roles
 ```
 
 ### Constraints on Custom Roles
+
 - Cannot include permissions above the creator's own role
 - Cannot include `tenant:delete`, `user:impersonate`, or `role:delete`
 - Maximum 50 custom roles per tenant
@@ -390,18 +391,18 @@ POST /api/v1/roles
 
 Every RBAC-relevant event is audit-logged:
 
-| Event | Data Captured |
-|---|---|
-| `role.granted` | user_id, role_id, granted_by, tenant_id |
-| `role.revoked` | user_id, role_id, revoked_by, reason |
-| `role.created` | role definition, created_by |
-| `role.updated` | role_id, changed permissions (diff) |
-| `role.deleted` | role_id, deleted_by |
+| Event               | Data Captured                                   |
+| ------------------- | ----------------------------------------------- |
+| `role.granted`      | user_id, role_id, granted_by, tenant_id         |
+| `role.revoked`      | user_id, role_id, revoked_by, reason            |
+| `role.created`      | role definition, created_by                     |
+| `role.updated`      | role_id, changed permissions (diff)             |
+| `role.deleted`      | role_id, deleted_by                             |
 | `permission.denied` | user_id, requested_permission, resource, action |
-| `user.impersonated` | admin_id, target_user_id, duration |
-| `mfa.enabled` | user_id, method |
-| `mfa.disabled` | user_id, disabled_by |
+| `user.impersonated` | admin_id, target_user_id, duration              |
+| `mfa.enabled`       | user_id, method                                 |
+| `mfa.disabled`      | user_id, disabled_by                            |
 
 ---
 
-*Next: [Security Architecture →](security-model.md)*
+_Next: [Security Architecture →](security-model.md)_

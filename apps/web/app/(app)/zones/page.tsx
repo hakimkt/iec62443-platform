@@ -1,23 +1,23 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import type { Zone, ZoneType } from '@iec62443/shared-types';
+import { cn } from '@iec62443/ui';
 import {
-  PageHeader,
-  MetricCard,
-  SearchInput,
-  FilterBar,
   DataTable,
   EmptyState,
+  FilterBar,
+  MetricCard,
+  PageHeader,
+  SearchInput,
   SecurityLevelBadge,
+  type Column,
 } from '@iec62443/ui/components';
-import type { Column } from '@iec62443/ui/components';
-import { cn } from '@iec62443/ui';
 import { Button } from '@iec62443/ui/primitives';
-import { Plus, Network, Filter } from 'lucide-react';
-import { useZones, useConduits } from '@/hooks/useZones';
-import type { Zone, ZoneType } from '@iec62443/shared-types';
+import { Filter, Network, Plus } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
+import { useConduits, useZones } from '@/hooks/useZones';
 
 const zoneTypeLabels: Partial<Record<ZoneType, string>> = {
   process_control: 'Process Control',
@@ -39,7 +39,16 @@ const purdueLevelLabels: Record<number, string> = {
   5: 'L5 — External',
 };
 
-const zoneTypeFilters = ['', 'process_control', 'safety_instrumented', 'manufacturing_ops', 'enterprise_it', 'idmz', 'remote_access', 'wireless'] as const;
+const zoneTypeFilters = [
+  '',
+  'process_control',
+  'safety_instrumented',
+  'manufacturing_ops',
+  'enterprise_it',
+  'idmz',
+  'remote_access',
+  'wireless',
+] as const;
 const securityLevelFilters = ['', '0', '1', '2', '3', '4'] as const;
 
 export default function ZonesPage() {
@@ -76,10 +85,26 @@ export default function ZonesPage() {
     () =>
       [
         zoneTypeFilter
-          ? { key: 'zoneType', label: 'Zone Type', value: zoneTypeLabels[zoneTypeFilter as ZoneType] ?? zoneTypeFilter, onRemove: () => { setZoneTypeFilter(''); setPage(1); } }
+          ? {
+              key: 'zoneType',
+              label: 'Zone Type',
+              value: zoneTypeLabels[zoneTypeFilter as ZoneType] ?? zoneTypeFilter,
+              onRemove: () => {
+                setZoneTypeFilter('');
+                setPage(1);
+              },
+            }
           : null,
         securityLevelFilter
-          ? { key: 'securityLevel', label: 'SL', value: `SL ${securityLevelFilter}`, onRemove: () => { setSecurityLevelFilter(''); setPage(1); } }
+          ? {
+              key: 'securityLevel',
+              label: 'SL',
+              value: `SL ${securityLevelFilter}`,
+              onRemove: () => {
+                setSecurityLevelFilter('');
+                setPage(1);
+              },
+            }
           : null,
       ].filter(Boolean) as { key: string; label: string; value: string; onRemove: () => void }[],
     [zoneTypeFilter, securityLevelFilter],
@@ -129,7 +154,9 @@ export default function ZonesPage() {
       header: 'Purdue Level',
       render: (_value: unknown, row: Zone) => (
         <span className="text-sm text-surface-600">
-          {row.purdueLevel !== null ? purdueLevelLabels[row.purdueLevel] ?? `L${row.purdueLevel}` : '—'}
+          {row.purdueLevel !== null
+            ? (purdueLevelLabels[row.purdueLevel] ?? `L${row.purdueLevel}`)
+            : '—'}
         </span>
       ),
     },
@@ -184,7 +211,10 @@ export default function ZonesPage() {
         searchSlot={
           <SearchInput
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             placeholder="Search zones..."
           />
         }
@@ -199,7 +229,10 @@ export default function ZonesPage() {
           {zoneTypeFilters.map((t) => (
             <button
               key={t}
-              onClick={() => { setZoneTypeFilter(t); setPage(1); }}
+              onClick={() => {
+                setZoneTypeFilter(t);
+                setPage(1);
+              }}
               className={cn(
                 'rounded-md px-2 py-1 text-xs font-medium transition-colors',
                 zoneTypeFilter === t
@@ -207,7 +240,7 @@ export default function ZonesPage() {
                   : 'bg-surface-100 text-surface-600 hover:bg-surface-200',
               )}
             >
-              {t === '' ? 'All' : zoneTypeLabels[t as ZoneType] ?? t}
+              {t === '' ? 'All' : (zoneTypeLabels[t as ZoneType] ?? t)}
             </button>
           ))}
         </div>
@@ -217,7 +250,10 @@ export default function ZonesPage() {
           {securityLevelFilters.map((s) => (
             <button
               key={s}
-              onClick={() => { setSecurityLevelFilter(s); setPage(1); }}
+              onClick={() => {
+                setSecurityLevelFilter(s);
+                setPage(1);
+              }}
               className={cn(
                 'rounded-md px-2 py-1 text-xs font-medium transition-colors',
                 securityLevelFilter === s
@@ -259,7 +295,9 @@ export default function ZonesPage() {
           description="Create your first security zone to get started."
           action={
             <Link href="/zones/new">
-              <Button variant="primary" icon={Plus}>New Zone</Button>
+              <Button variant="primary" icon={Plus}>
+                New Zone
+              </Button>
             </Link>
           }
         />

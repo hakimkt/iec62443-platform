@@ -1,15 +1,26 @@
 'use client';
 
-import { use, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@iec62443/ui/primitives';
-import { ProgressBar } from '@iec62443/ui/primitives';
-import { Textarea } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@iec62443/ui/primitives';
-import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { cn } from '@iec62443/ui';
-import { useAssessment, useAssessmentQuestions, useSubmitResponse, useCompleteAssessment } from '@/hooks/useAssessments';
+import {
+  Button,
+  Label,
+  ProgressBar,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+} from '@iec62443/ui/primitives';
+import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { use, useCallback, useState } from 'react';
+import {
+  useAssessment,
+  useAssessmentQuestions,
+  useCompleteAssessment,
+  useSubmitResponse,
+} from '@/hooks/useAssessments';
 
 type MaturityLevel = 0 | 1 | 2 | 3 | 4;
 
@@ -20,7 +31,8 @@ const MATURITY_LABELS: Record<number, { title: string; description: string }> = 
   },
   1: {
     title: 'ML 1 — Managed',
-    description: 'Process is performed informally. Results are achieved but not consistently documented.',
+    description:
+      'Process is performed informally. Results are achieved but not consistently documented.',
   },
   2: {
     title: 'ML 2 — Defined',
@@ -28,11 +40,13 @@ const MATURITY_LABELS: Record<number, { title: string; description: string }> = 
   },
   3: {
     title: 'ML 3 — Implemented',
-    description: 'Process is consistently implemented across the organization. Evidence of compliance is available.',
+    description:
+      'Process is consistently implemented across the organization. Evidence of compliance is available.',
   },
   4: {
     title: 'ML 4 — Improving',
-    description: 'Process is measured, reviewed, and continuously improved. Metrics drive optimization.',
+    description:
+      'Process is measured, reviewed, and continuously improved. Metrics drive optimization.',
   },
 };
 
@@ -70,60 +84,91 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
   );
 
   const answeredCount = questionList.filter(
-    (q) => localScore[q.id] !== undefined || localMaturity[q.id] !== undefined || q.response?.score !== undefined || q.response?.maturityLevel,
+    (q) =>
+      localScore[q.id] !== undefined ||
+      localMaturity[q.id] !== undefined ||
+      q.response?.score !== undefined ||
+      q.response?.maturityLevel,
   ).length;
 
-  const allAnswered = questionList.length > 0 && questionList.every(
-    (q) => localScore[q.id] !== undefined || localMaturity[q.id] !== undefined || q.response?.score !== undefined || q.response?.maturityLevel,
-  );
+  const allAnswered =
+    questionList.length > 0 &&
+    questionList.every(
+      (q) =>
+        localScore[q.id] !== undefined ||
+        localMaturity[q.id] !== undefined ||
+        q.response?.score !== undefined ||
+        q.response?.maturityLevel,
+    );
 
   const completionPct = questionList.length > 0 ? (answeredCount / questionList.length) * 100 : 0;
 
   // Save current question and optionally advance
-  const saveAndAdvance = useCallback(async (advance: boolean = true) => {
-    if (!currentQuestion) return;
-    const qId = currentQuestion.id;
-    const score = localScore[qId] ?? currentQuestion.response?.score;
-    const maturity = localMaturity[qId] ?? (currentQuestion.response?.maturityLevel as MaturityLevel | undefined);
-    const notes = localNotes[qId] ?? currentQuestion.response?.assessorNotes;
+  const saveAndAdvance = useCallback(
+    async (advance: boolean = true) => {
+      if (!currentQuestion) return;
+      const qId = currentQuestion.id;
+      const score = localScore[qId] ?? currentQuestion.response?.score;
+      const maturity =
+        localMaturity[qId] ??
+        (currentQuestion.response?.maturityLevel as MaturityLevel | undefined);
+      const notes = localNotes[qId] ?? currentQuestion.response?.assessorNotes;
 
-    if (score === undefined && maturity === undefined) {
-      // Nothing to save, just advance
-      if (advance && currentIndex < questionList.length - 1) {
-        setCurrentIndex((i) => i + 1);
+      if (score === undefined && maturity === undefined) {
+        // Nothing to save, just advance
+        if (advance && currentIndex < questionList.length - 1) {
+          setCurrentIndex((i) => i + 1);
+        }
+        return;
       }
-      return;
-    }
 
-    setSaving(true);
-    try {
-      await submitResponse.mutateAsync({
-        engagementId: assessmentId,
-        questionId: qId,
-        score,
-        maturityLevel: maturity,
-        assessorNotes: notes ?? undefined,
-      });
+      setSaving(true);
+      try {
+        await submitResponse.mutateAsync({
+          engagementId: assessmentId,
+          questionId: qId,
+          score,
+          maturityLevel: maturity,
+          assessorNotes: notes ?? undefined,
+        });
 
-      if (advance && currentIndex < questionList.length - 1) {
-        setCurrentIndex((i) => i + 1);
+        if (advance && currentIndex < questionList.length - 1) {
+          setCurrentIndex((i) => i + 1);
+        }
+      } finally {
+        setSaving(false);
       }
-    } finally {
-      setSaving(false);
-    }
-  }, [currentQuestion, localScore, localMaturity, localNotes, assessmentId, submitResponse, currentIndex, questionList.length]);
+    },
+    [
+      currentQuestion,
+      localScore,
+      localMaturity,
+      localNotes,
+      assessmentId,
+      submitResponse,
+      currentIndex,
+      questionList.length,
+    ],
+  );
 
   // Save all unsaved answers before completing
   const saveAllAnswers = useCallback(async () => {
     const promises = questionList.map(async (q) => {
       const score = localScore[q.id] ?? q.response?.score;
-      const maturity = localMaturity[q.id] ?? (q.response?.maturityLevel as MaturityLevel | undefined);
+      const maturity =
+        localMaturity[q.id] ?? (q.response?.maturityLevel as MaturityLevel | undefined);
       const notes = localNotes[q.id] ?? q.response?.assessorNotes;
 
       if (score === undefined && maturity === undefined) return;
 
       // Skip if already saved to server with same values
-      if (savedQuestions.has(q.id) && localScore[q.id] === undefined && localMaturity[q.id] === undefined && localNotes[q.id] === undefined) return;
+      if (
+        savedQuestions.has(q.id) &&
+        localScore[q.id] === undefined &&
+        localMaturity[q.id] === undefined &&
+        localNotes[q.id] === undefined
+      )
+        return;
 
       await submitResponse.mutateAsync({
         engagementId: assessmentId,
@@ -135,7 +180,15 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
     });
 
     await Promise.all(promises);
-  }, [questionList, localScore, localMaturity, localNotes, assessmentId, submitResponse, savedQuestions]);
+  }, [
+    questionList,
+    localScore,
+    localMaturity,
+    localNotes,
+    assessmentId,
+    submitResponse,
+    savedQuestions,
+  ]);
 
   const handleComplete = useCallback(async () => {
     setSaving(true);
@@ -148,13 +201,16 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
     }
   }, [saveAllAnswers, completeAssessment, assessmentId]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowRight' && currentIndex < questionList.length - 1) {
-      setCurrentIndex((i) => i + 1);
-    } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
-      setCurrentIndex((i) => i - 1);
-    }
-  }, [currentIndex, questionList.length]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'ArrowRight' && currentIndex < questionList.length - 1) {
+        setCurrentIndex((i) => i + 1);
+      } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
+        setCurrentIndex((i) => i - 1);
+      }
+    },
+    [currentIndex, questionList.length],
+  );
 
   // Completion screen
   if (showCompletion) {
@@ -210,10 +266,13 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
         {/* Question navigator sidebar */}
         <div className="rounded-lg border border-surface-200 bg-surface-0 p-3">
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-surface-500">Questions</h3>
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-surface-500">
+            Questions
+          </h3>
           <div className="space-y-1">
             {questionList.map((q, index) => {
-              const hasLocalAnswer = localScore[q.id] !== undefined || localMaturity[q.id] !== undefined;
+              const hasLocalAnswer =
+                localScore[q.id] !== undefined || localMaturity[q.id] !== undefined;
               const hasServerAnswer = q.response?.score !== undefined || q.response?.maturityLevel;
               const isAnswered = hasLocalAnswer || hasServerAnswer;
               const isCurrent = index === currentIndex;
@@ -228,10 +287,14 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
                       : 'text-surface-600 hover:bg-surface-50',
                   )}
                 >
-                  <div className={cn(
-                    'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-2xs font-medium',
-                    isAnswered ? 'bg-green-100 text-green-700' : 'bg-surface-100 text-surface-400',
-                  )}>
+                  <div
+                    className={cn(
+                      'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-2xs font-medium',
+                      isAnswered
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-surface-100 text-surface-400',
+                    )}
+                  >
                     {isAnswered ? '✓' : index + 1}
                   </div>
                   <span className="truncate">{q.clauseRef || q.questionText.slice(0, 40)}</span>
@@ -245,7 +308,9 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
         {currentQuestion && (
           <div className="rounded-lg border border-surface-200 bg-surface-0 p-6">
             <div className="mb-4 flex items-center gap-2">
-              <span className="text-sm font-medium text-surface-500">Q{currentIndex + 1} of {questionList.length}</span>
+              <span className="text-sm font-medium text-surface-500">
+                Q{currentIndex + 1} of {questionList.length}
+              </span>
               {currentQuestion.clauseRef && (
                 <span className="text-xs font-mono text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded">
                   {currentQuestion.clauseRef}
@@ -256,9 +321,7 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
               )}
             </div>
 
-            <h2 className="text-lg font-medium text-surface-900">
-              {currentQuestion.questionText}
-            </h2>
+            <h2 className="text-lg font-medium text-surface-900">{currentQuestion.questionText}</h2>
 
             {currentQuestion.guidanceText && (
               <p className="mt-2 text-sm text-surface-500">{currentQuestion.guidanceText}</p>
@@ -275,12 +338,20 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
               <div className="space-y-2">
                 <Label>Maturity Level</Label>
                 <p className="text-xs text-surface-400">
-                  Rate the organizational maturity for this requirement. Higher levels require documented, consistent processes with evidence.
+                  Rate the organizational maturity for this requirement. Higher levels require
+                  documented, consistent processes with evidence.
                 </p>
                 <Select
-                  value={(localMaturity[currentQuestion.id] ?? currentQuestion.response?.maturityLevel)?.toString() ?? ''}
+                  value={
+                    (
+                      localMaturity[currentQuestion.id] ?? currentQuestion.response?.maturityLevel
+                    )?.toString() ?? ''
+                  }
                   onValueChange={(val) => {
-                    setLocalMaturity((prev) => ({ ...prev, [currentQuestion.id]: Number(val) as MaturityLevel }));
+                    setLocalMaturity((prev) => ({
+                      ...prev,
+                      [currentQuestion.id]: Number(val) as MaturityLevel,
+                    }));
                   }}
                 >
                   <SelectTrigger>
@@ -295,9 +366,15 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
                   </SelectContent>
                 </Select>
                 {/* Show description for selected maturity level */}
-                {(localMaturity[currentQuestion.id] ?? currentQuestion.response?.maturityLevel) !== undefined && (
+                {(localMaturity[currentQuestion.id] ?? currentQuestion.response?.maturityLevel) !==
+                  undefined && (
                   <p className="rounded-md bg-surface-50 px-3 py-2 text-xs text-surface-600">
-                    {MATURITY_LABELS[localMaturity[currentQuestion.id] ?? (currentQuestion.response?.maturityLevel as number)]?.description}
+                    {
+                      MATURITY_LABELS[
+                        localMaturity[currentQuestion.id] ??
+                          (currentQuestion.response?.maturityLevel as number)
+                      ]?.description
+                    }
                   </p>
                 )}
               </div>
@@ -306,12 +383,18 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
               <div className="space-y-2">
                 <Label>Score (0–{currentQuestion.maxScore ?? 4})</Label>
                 <p className="text-xs text-surface-400">
-                  Rate how well the requirement is fulfilled. Each score level indicates the degree of compliance.
+                  Rate how well the requirement is fulfilled. Each score level indicates the degree
+                  of compliance.
                 </p>
                 <Select
-                  value={String(localScore[currentQuestion.id] ?? currentQuestion.response?.score ?? '')}
+                  value={String(
+                    localScore[currentQuestion.id] ?? currentQuestion.response?.score ?? '',
+                  )}
                   onValueChange={(val) => {
-                    setLocalScore((prev) => ({ ...prev, [currentQuestion.id]: val ? parseInt(val, 10) : undefined }));
+                    setLocalScore((prev) => ({
+                      ...prev,
+                      [currentQuestion.id]: val ? parseInt(val, 10) : undefined,
+                    }));
                   }}
                 >
                   <SelectTrigger>
@@ -326,9 +409,14 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
                   </SelectContent>
                 </Select>
                 {/* Show description for selected score */}
-                {(localScore[currentQuestion.id] ?? currentQuestion.response?.score) !== undefined && (
+                {(localScore[currentQuestion.id] ?? currentQuestion.response?.score) !==
+                  undefined && (
                   <p className="rounded-md bg-surface-50 px-3 py-2 text-xs text-surface-600">
-                    {SCORE_DESCRIPTIONS[localScore[currentQuestion.id] ?? currentQuestion.response?.score ?? 0]}
+                    {
+                      SCORE_DESCRIPTIONS[
+                        localScore[currentQuestion.id] ?? currentQuestion.response?.score ?? 0
+                      ]
+                    }
                   </p>
                 )}
               </div>
@@ -338,7 +426,9 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
                 <Label>Assessor Notes</Label>
                 <Textarea
                   placeholder="Add notes, evidence references, or observations about this response..."
-                  value={localNotes[currentQuestion.id] ?? currentQuestion.response?.assessorNotes ?? ''}
+                  value={
+                    localNotes[currentQuestion.id] ?? currentQuestion.response?.assessorNotes ?? ''
+                  }
                   onChange={(e) => {
                     setLocalNotes((prev) => ({ ...prev, [currentQuestion.id]: e.target.value }));
                   }}
@@ -360,19 +450,11 @@ export default function AssessmentQuestionsPage({ params }: { params: Promise<{ 
 
               <div className="flex items-center gap-2">
                 {allAnswered && currentIndex === questionList.length - 1 ? (
-                  <Button
-                    variant="primary"
-                    onClick={handleComplete}
-                    loading={saving}
-                  >
+                  <Button variant="primary" onClick={handleComplete} loading={saving}>
                     Complete Assessment
                   </Button>
                 ) : (
-                  <Button
-                    variant="primary"
-                    onClick={() => saveAndAdvance(true)}
-                    loading={saving}
-                  >
+                  <Button variant="primary" onClick={() => saveAndAdvance(true)} loading={saving}>
                     Save & Continue
                   </Button>
                 )}

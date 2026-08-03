@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { Check } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 import { Button } from '../primitives/Button';
 
@@ -13,8 +13,7 @@ export interface WizardStep {
 
 /* ───────────────────────────── Props ──────────────────────────── */
 
-export interface FormWizardProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface FormWizardProps extends React.HTMLAttributes<HTMLDivElement> {
   steps: WizardStep[];
   currentStep: number;
   onStepChange: (step: number) => void;
@@ -95,26 +94,18 @@ const FormWizard = React.forwardRef<HTMLDivElement, FormWizardProps>(
                       'flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors',
                       isActive && 'bg-brand-600 text-white',
                       isCompleted && 'bg-green-600 text-white',
-                      !isActive &&
-                        !isCompleted &&
-                        'bg-surface-200 text-surface-400',
+                      !isActive && !isCompleted && 'bg-surface-200 text-surface-400',
                       index <= currentStep && 'cursor-pointer',
                     )}
                     aria-label={`Step ${index + 1}: ${step.title}`}
                     aria-current={isActive ? 'step' : undefined}
                   >
-                    {isCompleted ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      index + 1
-                    )}
+                    {isCompleted ? <Check className="h-4 w-4" /> : index + 1}
                   </button>
                   <span
                     className={cn(
                       'mt-1.5 text-xs max-w-[80px] text-center truncate',
-                      isActive
-                        ? 'text-brand-600 font-medium'
-                        : 'text-surface-500',
+                      isActive ? 'text-brand-600 font-medium' : 'text-surface-500',
                     )}
                   >
                     {step.title}
@@ -126,9 +117,7 @@ const FormWizard = React.forwardRef<HTMLDivElement, FormWizardProps>(
                   <div
                     className={cn(
                       'h-0.5 flex-1 mx-2 mt-[-1.125rem]',
-                      index < currentStep
-                        ? 'bg-brand-600'
-                        : 'bg-surface-200',
+                      index < currentStep ? 'bg-brand-600' : 'bg-surface-200',
                     )}
                   />
                 )}
@@ -138,26 +127,16 @@ const FormWizard = React.forwardRef<HTMLDivElement, FormWizardProps>(
         </div>
 
         {/* Step content */}
-        <div className="mt-6">
-          {currentStepData?.content}
-        </div>
+        <div className="mt-6">{currentStepData?.content}</div>
 
         {/* Footer */}
         <div className="mt-6 flex items-center justify-end gap-3">
           {!isFirst && (
-            <Button
-              variant="secondary"
-              onClick={handleBack}
-              disabled={loading}
-            >
+            <Button variant="secondary" onClick={handleBack} disabled={loading}>
               {backLabel}
             </Button>
           )}
-          <Button
-            variant="primary"
-            onClick={handleNext}
-            loading={loading}
-          >
+          <Button variant="primary" onClick={handleNext} loading={loading}>
             {isLast ? completeLabel : nextLabel}
           </Button>
         </div>

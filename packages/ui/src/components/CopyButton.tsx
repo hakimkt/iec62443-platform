@@ -1,12 +1,11 @@
-import * as React from 'react';
 import { Check, Copy } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 import { Button } from '../primitives/Button';
 
 /* ───────────────────────────── Types ──────────────────────────── */
 
-export interface CopyButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface CopyButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   value: string;
   successLabel?: string;
   label?: string;
@@ -15,17 +14,7 @@ export interface CopyButtonProps
 /* ──────────────────────────── Component ───────────────────────── */
 
 const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
-  (
-    {
-      className,
-      value,
-      successLabel = 'Copied!',
-      label = 'Copy',
-      onClick,
-      ...props
-    },
-    ref,
-  ) => {
+  ({ className, value, successLabel = 'Copied!', label = 'Copy', onClick, ...props }, ref) => {
     const [copied, setCopied] = React.useState(false);
     const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -79,11 +68,7 @@ const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
         {...(copied ? { 'data-copied': true } : {})}
         {...props}
       >
-        {copied ? (
-          <span className="text-green-600">{successLabel}</span>
-        ) : (
-          label
-        )}
+        {copied ? <span className="text-green-600">{successLabel}</span> : label}
       </Button>
     );
   },

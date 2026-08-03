@@ -1,34 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import type { TenantMemberStatus } from '@iec62443/shared-types';
 import { cn } from '@iec62443/ui';
-import { Button } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Separator } from '@iec62443/ui/primitives';
+import { Button, Input, Separator } from '@iec62443/ui/primitives';
 import {
-  Users,
-  Shield,
   Key,
-  ScrollText,
-  Settings,
-  Plus,
   Loader2,
+  Plus,
+  ScrollText,
   Search,
+  Settings,
+  Shield,
   Trash2,
+  Users,
 } from 'lucide-react';
+import { useState } from 'react';
 import {
-  useMembers,
-  useRoles,
   useApiKeys,
   useAuditLog,
+  useInviteMember,
+  useMembers,
+  useRemoveMember,
+  useRevokeApiKey,
+  useRoles,
   useTenantSettings,
   useUpdateMember,
-  useRemoveMember,
-  useInviteMember,
-  useRevokeApiKey,
   useUpdateTenantSettings,
 } from '@/hooks/useAdmin';
-import type { TenantMemberStatus } from '@iec62443/shared-types';
 
 type TabKey = 'members' | 'roles' | 'apiKeys' | 'auditLog' | 'settings';
 
@@ -52,12 +50,8 @@ export default function AdminPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-surface-900">
-          Administration
-        </h1>
-        <p className="mt-1 text-sm text-surface-500">
-          Manage users, roles, and system settings
-        </p>
+        <h1 className="text-2xl font-semibold text-surface-900">Administration</h1>
+        <p className="mt-1 text-sm text-surface-500">Manage users, roles, and system settings</p>
       </div>
 
       {/* Tab Navigation */}
@@ -143,16 +137,14 @@ function MembersTab() {
             type="text"
             placeholder="Search members..."
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className="w-full rounded-md border border-surface-200 bg-surface-0 py-2 pl-10 pr-4 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
         </div>
-        <Button
-          variant="primary"
-          size="sm"
-          icon={Plus}
-          onClick={() => setShowInvite(!showInvite)}
-        >
+        <Button variant="primary" size="sm" icon={Plus} onClick={() => setShowInvite(!showInvite)}>
           Invite
         </Button>
       </div>
@@ -203,11 +195,21 @@ function MembersTab() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-200 bg-surface-50">
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">User ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Role</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    User ID
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Role
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -229,10 +231,12 @@ function MembersTab() {
                       </select>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={cn(
-                        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                        MEMBER_STATUS_COLORS[member.status] ?? 'bg-surface-100 text-surface-600',
-                      )}>
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                          MEMBER_STATUS_COLORS[member.status] ?? 'bg-surface-100 text-surface-600',
+                        )}
+                      >
                         {member.status}
                       </span>
                     </td>
@@ -254,8 +258,9 @@ function MembersTab() {
           {pagination && pagination.totalPages > 1 && (
             <div className="flex items-center justify-between text-sm text-surface-500">
               <span>
-                Showing {((pagination.page - 1) * pagination.perPage) + 1}–
-                {Math.min(pagination.page * pagination.perPage, pagination.total)} of {pagination.total}
+                Showing {(pagination.page - 1) * pagination.perPage + 1}–
+                {Math.min(pagination.page * pagination.perPage, pagination.total)} of{' '}
+                {pagination.total}
               </span>
               <div className="flex items-center gap-2">
                 <Button
@@ -302,10 +307,7 @@ function RolesTab() {
     <div className="space-y-3">
       {roles && roles.length > 0 ? (
         roles.map((role) => (
-          <div
-            key={role.id}
-            className="rounded-lg border border-surface-200 bg-surface-0 p-4"
-          >
+          <div key={role.id} className="rounded-lg border border-surface-200 bg-surface-0 p-4">
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">
@@ -362,10 +364,7 @@ function ApiKeysTab() {
     <div className="space-y-3">
       {apiKeys && apiKeys.length > 0 ? (
         apiKeys.map((key) => (
-          <div
-            key={key.id}
-            className="rounded-lg border border-surface-200 bg-surface-0 p-4"
-          >
+          <div key={key.id} className="rounded-lg border border-surface-200 bg-surface-0 p-4">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-surface-900">{key.name}</p>
@@ -382,12 +381,8 @@ function ApiKeysTab() {
             </div>
             <div className="mt-2 flex items-center gap-4 text-xs text-surface-500">
               <span>Created {formatDate(key.createdAt)}</span>
-              {key.lastUsedAt && (
-                <span>Last used {formatDate(key.lastUsedAt)}</span>
-              )}
-              {key.expiresAt && (
-                <span>Expires {formatDate(key.expiresAt)}</span>
-              )}
+              {key.lastUsedAt && <span>Last used {formatDate(key.lastUsedAt)}</span>}
+              {key.expiresAt && <span>Expires {formatDate(key.expiresAt)}</span>}
             </div>
           </div>
         ))
@@ -429,13 +424,19 @@ function AuditLogTab() {
             type="text"
             placeholder="Search audit log..."
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className="w-full rounded-md border border-surface-200 bg-surface-0 py-2 pl-10 pr-4 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
         </div>
         <select
           value={eventTypeFilter}
-          onChange={(e) => { setEventTypeFilter(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setEventTypeFilter(e.target.value);
+            setPage(1);
+          }}
           className="rounded-md border border-surface-200 bg-surface-0 px-3 py-2 text-sm text-surface-700 focus:border-brand-500 focus:outline-none"
         >
           <option value="">All Event Types</option>
@@ -458,12 +459,24 @@ function AuditLogTab() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-200 bg-surface-50">
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Timestamp</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">User</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Event Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Entity</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Action</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">Details</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Timestamp
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    User
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Event Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Entity
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Action
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-500">
+                    Details
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -472,23 +485,22 @@ function AuditLogTab() {
                     <td className="px-4 py-3 text-xs text-surface-500 whitespace-nowrap">
                       {formatDateTime(entry.createdAt)}
                     </td>
-                    <td className="px-4 py-3 text-xs text-surface-600">
-                      {entry.userId ?? '—'}
-                    </td>
-                    <td className="px-4 py-3 text-xs text-surface-600">
-                      {entry.eventType}
-                    </td>
-                    <td className="px-4 py-3 text-xs text-surface-600">
-                      {entry.entityType}
-                    </td>
+                    <td className="px-4 py-3 text-xs text-surface-600">{entry.userId ?? '—'}</td>
+                    <td className="px-4 py-3 text-xs text-surface-600">{entry.eventType}</td>
+                    <td className="px-4 py-3 text-xs text-surface-600">{entry.entityType}</td>
                     <td className="px-4 py-3">
-                      <span className={cn(
-                        'inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium',
-                        entry.action === 'create' ? 'bg-green-100 text-green-700' :
-                        entry.action === 'update' ? 'bg-blue-100 text-blue-700' :
-                        entry.action === 'delete' ? 'bg-red-100 text-red-700' :
-                        'bg-surface-100 text-surface-600',
-                      )}>
+                      <span
+                        className={cn(
+                          'inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium',
+                          entry.action === 'create'
+                            ? 'bg-green-100 text-green-700'
+                            : entry.action === 'update'
+                              ? 'bg-blue-100 text-blue-700'
+                              : entry.action === 'delete'
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-surface-100 text-surface-600',
+                        )}
+                      >
                         {entry.action}
                       </span>
                     </td>
@@ -504,8 +516,9 @@ function AuditLogTab() {
           {pagination && pagination.totalPages > 1 && (
             <div className="flex items-center justify-between text-sm text-surface-500">
               <span>
-                Showing {((pagination.page - 1) * pagination.perPage) + 1}–
-                {Math.min(pagination.page * pagination.perPage, pagination.total)} of {pagination.total}
+                Showing {(pagination.page - 1) * pagination.perPage + 1}–
+                {Math.min(pagination.page * pagination.perPage, pagination.total)} of{' '}
+                {pagination.total}
               </span>
               <div className="flex items-center gap-2">
                 <Button
@@ -672,7 +685,9 @@ function SettingsTab() {
               <p className="mt-1 text-xs text-surface-400">0 = never expires</p>
             </div>
             <div>
-              <label className="block text-sm text-surface-500 mb-1">Session Timeout (minutes)</label>
+              <label className="block text-sm text-surface-500 mb-1">
+                Session Timeout (minutes)
+              </label>
               <Input
                 type="number"
                 value={sessionTimeoutMinutes}
@@ -684,11 +699,7 @@ function SettingsTab() {
           </div>
 
           <div className="flex justify-end pt-2">
-            <Button
-              variant="primary"
-              onClick={handleSave}
-              loading={updateSettings.isPending}
-            >
+            <Button variant="primary" onClick={handleSave} loading={updateSettings.isPending}>
               Save Settings
             </Button>
           </div>

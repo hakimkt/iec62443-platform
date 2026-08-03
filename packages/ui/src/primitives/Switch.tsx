@@ -1,6 +1,6 @@
-import * as React from 'react';
 import * as SwitchPrimitive from '@radix-ui/react-switch';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 const switchVariants = cva(
@@ -29,7 +29,8 @@ const switchVariants = cva(
 );
 
 export interface SwitchProps
-  extends React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>,
+  extends
+    React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>,
     VariantProps<typeof switchVariants> {
   /** Label text displayed next to the switch */
   label?: string;
@@ -37,44 +38,42 @@ export interface SwitchProps
   description?: string;
 }
 
-const Switch = React.forwardRef<
-  React.ComponentRef<typeof SwitchPrimitive.Root>,
-  SwitchProps
->(({ className, size, label, description, id, ...props }, ref) => {
-  const inputId = id || React.useId();
+const Switch = React.forwardRef<React.ComponentRef<typeof SwitchPrimitive.Root>, SwitchProps>(
+  ({ className, size, label, description, id: providedId, ...props }, ref) => {
+    const generatedId = React.useId();
+    const inputId = providedId || generatedId;
 
-  return (
-    <div className="flex items-center justify-between gap-3">
-      {(label || description) && (
-        <div className="flex-1">
-          {label && (
-            <label
-              htmlFor={inputId}
-              className="cursor-pointer text-sm font-medium text-surface-700 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
-            >
-              {label}
-            </label>
-          )}
-          {description && (
-            <p className="text-xs text-surface-500">{description}</p>
-          )}
-        </div>
-      )}
-      <SwitchPrimitive.Root
-        ref={ref}
-        id={inputId}
-        className={cn(switchVariants({ size }), className)}
-        {...props}
-      >
-        <SwitchPrimitive.Thumb
-          className={cn(
-            'pointer-events-none block rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=unchecked]:translate-x-0',
-          )}
-        />
-      </SwitchPrimitive.Root>
-    </div>
-  );
-});
+    return (
+      <div className="flex items-center justify-between gap-3">
+        {(label || description) && (
+          <div className="flex-1">
+            {label && (
+              <label
+                htmlFor={inputId}
+                className="cursor-pointer text-sm font-medium text-surface-700 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+              >
+                {label}
+              </label>
+            )}
+            {description && <p className="text-xs text-surface-500">{description}</p>}
+          </div>
+        )}
+        <SwitchPrimitive.Root
+          ref={ref}
+          id={inputId}
+          className={cn(switchVariants({ size }), className)}
+          {...props}
+        >
+          <SwitchPrimitive.Thumb
+            className={cn(
+              'pointer-events-none block rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=unchecked]:translate-x-0',
+            )}
+          />
+        </SwitchPrimitive.Root>
+      </div>
+    );
+  },
+);
 Switch.displayName = 'Switch';
 
 export { Switch, switchVariants };

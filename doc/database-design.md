@@ -790,18 +790,18 @@ TABLE asset.import_jobs (
 
 ## 13. Indexing Strategy
 
-| Table | Index | Type | Purpose |
-|---|---|---|---|
-| findings | (engagement_id, status) | B-tree | Assessment findings lookup |
-| findings | (severity, status) | B-tree | Dashboard severity filters |
-| risk.entries | (register_id, risk_level) | B-tree | Risk register views |
-| evidence.items | (sha256_hash) | B-tree | Evidence deduplication |
-| evidence.links | (entity_type, entity_id) | B-tree | Reverse evidence lookup |
-| asset.assets | (asset_type, status) | B-tree | Asset inventory queries |
-| audit_events | (entity_type, entity_id) | B-tree | Entity audit trail |
-| audit_events | (created_at) | BRIN | Time-range audit queries |
-| assessment.responses | (engagement_id) | B-tree | Assessment progress |
+| Table                | Index                     | Type   | Purpose                    |
+| -------------------- | ------------------------- | ------ | -------------------------- |
+| findings             | (engagement_id, status)   | B-tree | Assessment findings lookup |
+| findings             | (severity, status)        | B-tree | Dashboard severity filters |
+| risk.entries         | (register_id, risk_level) | B-tree | Risk register views        |
+| evidence.items       | (sha256_hash)             | B-tree | Evidence deduplication     |
+| evidence.links       | (entity_type, entity_id)  | B-tree | Reverse evidence lookup    |
+| asset.assets         | (asset_type, status)      | B-tree | Asset inventory queries    |
+| audit_events         | (entity_type, entity_id)  | B-tree | Entity audit trail         |
+| audit_events         | (created_at)              | BRIN   | Time-range audit queries   |
+| assessment.responses | (engagement_id)           | B-tree | Assessment progress        |
 
 ---
 
-*Next: [API Architecture →](api-design.md)*
+_Next: [API Architecture →](api-design.md)_

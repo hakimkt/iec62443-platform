@@ -1,12 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useAuth } from '@/providers/auth-provider';
-import { Button } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
+import { Button, Input, Label } from '@iec62443/ui/primitives';
 import { Eye, EyeOff, UserPlus } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useAuth } from '@/providers/auth-provider';
 
 export default function RegisterPage() {
   const { register, isLoading } = useAuth();
@@ -66,12 +64,8 @@ export default function RegisterPage() {
   return (
     <div>
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-surface-900">
-          Create your account
-        </h2>
-        <p className="mt-1 text-sm text-surface-500">
-          Start your IEC 62443 compliance journey
-        </p>
+        <h2 className="text-xl font-semibold text-surface-900">Create your account</h2>
+        <p className="mt-1 text-sm text-surface-500">Start your IEC 62443 compliance journey</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -141,16 +135,11 @@ export default function RegisterPage() {
               tabIndex={-1}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
           <p className="text-xs text-surface-500">
-            Must be at least 8 characters with uppercase, lowercase, number,
-            and special character.
+            Must be at least 8 characters with uppercase, lowercase, number, and special character.
           </p>
         </div>
 
@@ -180,10 +169,7 @@ export default function RegisterPage() {
 
       <p className="mt-6 text-center text-sm text-surface-500">
         Already have an account?{' '}
-        <Link
-          href="/login"
-          className="font-medium text-brand-600 hover:text-brand-700"
-        >
+        <Link href="/login" className="font-medium text-brand-600 hover:text-brand-700">
           Sign in
         </Link>
       </p>

@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
 export const uuidSchema = z.string().uuid();
-export const slugSchema = z.string().min(2).max(100).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+export const slugSchema = z
+  .string()
+  .min(2)
+  .max(100)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 export const emailSchema = z.string().email().max(320);
 export const passwordSchema = z
   .string()

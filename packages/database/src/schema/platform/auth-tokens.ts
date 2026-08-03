@@ -1,13 +1,5 @@
-import {
-  check,
-  index,
-  jsonb,
-  pgTable,
-  timestamp,
-  uuid,
-  varchar,
-} from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
+import { check, index, jsonb, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { users } from './users.js';
 
 // ── Auth Tokens ──────────────────────────────────────────────────────────
@@ -26,9 +18,7 @@ export const authTokens = pgTable(
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     consumedAt: timestamp('consumed_at', { withTimezone: true }),
     metadata: jsonb('metadata').default({}),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     check(

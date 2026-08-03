@@ -1,18 +1,18 @@
 import {
-  LayoutDashboard,
-  ClipboardCheck,
-  Server,
-  Layers,
-  Network,
   AlertTriangle,
-  Target,
-  Paperclip,
-  Wrench,
-  Shield,
+  ClipboardCheck,
   FileText,
+  Layers,
+  LayoutDashboard,
+  Network,
+  Paperclip,
+  Server,
   Settings,
+  Shield,
+  Target,
+  Wrench,
+  type LucideIcon,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 
 export interface NavItem {
   key: string;

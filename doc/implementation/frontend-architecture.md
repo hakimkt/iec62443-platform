@@ -510,7 +510,7 @@ apps/web/src/components/
 // UI Store — sidebar, panels, modals
 interface UIStore {
   sidebarExpanded: boolean;
-  sidebarCollapsed: boolean;        // manual override
+  sidebarCollapsed: boolean; // manual override
   contextPanelOpen: boolean;
   contextPanelEntity: { type: string; id: string } | null;
   commandPaletteOpen: boolean;
@@ -565,8 +565,8 @@ interface AssessmentWizardStore {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,       // 5 min before refetch
-      gcTime: 30 * 60 * 1000,         // 30 min garbage collection
+      staleTime: 5 * 60 * 1000, // 5 min before refetch
+      gcTime: 30 * 60 * 1000, // 30 min garbage collection
       retry: 2,
       retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
       refetchOnWindowFocus: true,
@@ -581,27 +581,27 @@ const queryClient = new QueryClient({
 // Per-entity query key factories
 export const queryKeys = {
   assessments: {
-    all:      ['assessments'] as const,
-    lists:    () => [...queryKeys.assessments.all, 'list'] as const,
-    list:     (filters: AssessmentFilters) => [...queryKeys.assessments.lists(), filters] as const,
-    details:  () => [...queryKeys.assessments.all, 'detail'] as const,
-    detail:   (id: string) => [...queryKeys.assessments.details(), id] as const,
-    scorecard:(id: string) => [...queryKeys.assessments.detail(id), 'scorecard'] as const,
-    questions:(id: string) => [...queryKeys.assessments.detail(id), 'questions'] as const,
+    all: ['assessments'] as const,
+    lists: () => [...queryKeys.assessments.all, 'list'] as const,
+    list: (filters: AssessmentFilters) => [...queryKeys.assessments.lists(), filters] as const,
+    details: () => [...queryKeys.assessments.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.assessments.details(), id] as const,
+    scorecard: (id: string) => [...queryKeys.assessments.detail(id), 'scorecard'] as const,
+    questions: (id: string) => [...queryKeys.assessments.detail(id), 'questions'] as const,
   },
   findings: {
-    all:      ['findings'] as const,
-    lists:    () => [...queryKeys.findings.all, 'list'] as const,
-    list:     (filters: FindingFilters) => [...queryKeys.findings.lists(), filters] as const,
-    details:  () => [...queryKeys.findings.all, 'detail'] as const,
-    detail:   (id: string) => [...queryKeys.findings.details(), id] as const,
-    history:  (id: string) => [...queryKeys.findings.detail(id), 'history'] as const,
+    all: ['findings'] as const,
+    lists: () => [...queryKeys.findings.all, 'list'] as const,
+    list: (filters: FindingFilters) => [...queryKeys.findings.lists(), filters] as const,
+    details: () => [...queryKeys.findings.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.findings.details(), id] as const,
+    history: (id: string) => [...queryKeys.findings.detail(id), 'history'] as const,
     comments: (id: string) => [...queryKeys.findings.detail(id), 'comments'] as const,
   },
-  risks: { /* same pattern */ },
-  zones: { /* same pattern */ },
-  assets: { /* same pattern */ },
-  evidence: { /* same pattern */ },
+  risks: {/* same pattern */},
+  zones: {/* same pattern */},
+  assets: {/* same pattern */},
+  evidence: {/* same pattern */},
   // ...
 };
 ```
@@ -733,7 +733,7 @@ const wsEventHandlers = {
 // Use nuqs (Next.js URL state) for filter/pagination persistence
 // This makes URLs shareable and bookmarkable
 
-import { useQueryState, parseAsInteger, parseAsStringLiteral } from 'nuqs';
+import { parseAsInteger, parseAsStringLiteral, useQueryState } from 'nuqs';
 
 function FindingsPage() {
   const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
@@ -743,12 +743,17 @@ function FindingsPage() {
   const [status, setStatus] = useQueryState('filter[status]');
   const [search, setSearch] = useQueryState('search');
 
-  const filters = useMemo(() => ({
-    page, per_page: perPage, sort,
-    'filter[severity]': severity,
-    'filter[status]': status,
-    search,
-  }), [page, perPage, sort, severity, status, search]);
+  const filters = useMemo(
+    () => ({
+      page,
+      per_page: perPage,
+      sort,
+      'filter[severity]': severity,
+      'filter[status]': status,
+      search,
+    }),
+    [page, perPage, sort, severity, status, search],
+  );
 
   const { data } = useFindings(filters);
   // ...
@@ -946,20 +951,20 @@ interface ChartWrapperProps {
 
 ## 9. Performance Strategy
 
-| Strategy | Implementation |
-|---|---|
-| **Route-based code splitting** | Next.js App Router auto-splits per route |
-| **Component lazy loading** | `dynamic(() => import('./HeavyChart'))` for charts, diagrams |
-| **Image optimization** | `next/image` with responsive sizes, WebP format |
-| **Font optimization** | `next/font` with Inter Variable, `font-display: swap` |
-| **Bundle analysis** | `@next/bundle-analyzer` in CI, < 300KB initial JS target |
-| **Prefetching** | `<Link prefetch>` on sidebar nav items |
-| **Virtual scrolling** | `@tanstack/react-virtual` for tables with 500+ rows |
-| **Debounced search** | 300ms debounce on search inputs |
-| **Optimistic updates** | TanStack Query `onMutate` for instant UI feedback |
-| **Stale-while-revalidate** | 5-min staleTime, background refetch on focus |
-| **Service worker** | Workbox for offline shell caching (Phase 3) |
+| Strategy                       | Implementation                                               |
+| ------------------------------ | ------------------------------------------------------------ |
+| **Route-based code splitting** | Next.js App Router auto-splits per route                     |
+| **Component lazy loading**     | `dynamic(() => import('./HeavyChart'))` for charts, diagrams |
+| **Image optimization**         | `next/image` with responsive sizes, WebP format              |
+| **Font optimization**          | `next/font` with Inter Variable, `font-display: swap`        |
+| **Bundle analysis**            | `@next/bundle-analyzer` in CI, < 300KB initial JS target     |
+| **Prefetching**                | `<Link prefetch>` on sidebar nav items                       |
+| **Virtual scrolling**          | `@tanstack/react-virtual` for tables with 500+ rows          |
+| **Debounced search**           | 300ms debounce on search inputs                              |
+| **Optimistic updates**         | TanStack Query `onMutate` for instant UI feedback            |
+| **Stale-while-revalidate**     | 5-min staleTime, background refetch on focus                 |
+| **Service worker**             | Workbox for offline shell caching (Phase 3)                  |
 
 ---
 
-*Next: [Component Mapping →](component-mapping.md)*
+_Next: [Component Mapping →](component-mapping.md)_

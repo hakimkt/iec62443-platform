@@ -1,13 +1,11 @@
 'use client';
 
-import { Suspense, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { Button, Input, Label } from '@iec62443/ui/primitives';
+import { CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
 import { useAuth } from '@/providers/auth-provider';
-import { Button } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
-import { Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 
 export default function ResetPasswordPage() {
   return (
@@ -87,12 +85,8 @@ function ResetPasswordForm() {
     return (
       <div className="text-center">
         <CheckCircle2 className="mx-auto h-12 w-12 text-green-600" />
-        <h2 className="mt-4 text-xl font-semibold text-surface-900">
-          Password reset successfully
-        </h2>
-        <p className="mt-2 text-sm text-surface-500">
-          You can now sign in with your new password.
-        </p>
+        <h2 className="mt-4 text-xl font-semibold text-surface-900">Password reset successfully</h2>
+        <p className="mt-2 text-sm text-surface-500">You can now sign in with your new password.</p>
         <Link href="/login">
           <Button variant="primary" className="mt-6">
             Sign in
@@ -105,12 +99,8 @@ function ResetPasswordForm() {
   return (
     <div>
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-surface-900">
-          Set new password
-        </h2>
-        <p className="mt-1 text-sm text-surface-500">
-          Choose a strong password for your account
-        </p>
+        <h2 className="text-xl font-semibold text-surface-900">Set new password</h2>
+        <p className="mt-1 text-sm text-surface-500">Choose a strong password for your account</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -140,16 +130,11 @@ function ResetPasswordForm() {
               tabIndex={-1}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
           <p className="text-xs text-surface-500">
-            Must be at least 14 characters with uppercase, lowercase, number,
-            and special character.
+            Must be at least 14 characters with uppercase, lowercase, number, and special character.
           </p>
         </div>
 
@@ -166,12 +151,7 @@ function ResetPasswordForm() {
           />
         </div>
 
-        <Button
-          type="submit"
-          variant="primary"
-          className="w-full"
-          loading={isLoading}
-        >
+        <Button type="submit" variant="primary" className="w-full" loading={isLoading}>
           Reset password
         </Button>
       </form>

@@ -1,8 +1,6 @@
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import { reportRoutes } from './routes.js';
 
 // ---------------------------------------------------------------------------
@@ -13,10 +11,7 @@ export interface ReportModuleOptions {
   connectionString?: string;
 }
 
-async function reportModule(
-  app: FastifyInstance,
-  _options: ReportModuleOptions,
-) {
+async function reportModule(app: FastifyInstance, _options: ReportModuleOptions) {
   const db = app.db as unknown as NodePgDatabase;
 
   await app.register(reportRoutes, { db });

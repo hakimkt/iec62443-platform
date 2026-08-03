@@ -38,39 +38,29 @@ export const queryKeys = {
       [...queryKeys.assessments.lists(), filters] as const,
     details: () => [...queryKeys.assessments.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.assessments.details(), id] as const,
-    scorecard: (id: string) =>
-      [...queryKeys.assessments.detail(id), 'scorecard'] as const,
-    questions: (id: string) =>
-      [...queryKeys.assessments.detail(id), 'questions'] as const,
+    scorecard: (id: string) => [...queryKeys.assessments.detail(id), 'scorecard'] as const,
+    questions: (id: string) => [...queryKeys.assessments.detail(id), 'questions'] as const,
   },
   findings: {
     all: ['findings'] as const,
     lists: () => [...queryKeys.findings.all, 'list'] as const,
-    list: (filters: Record<string, unknown>) =>
-      [...queryKeys.findings.lists(), filters] as const,
+    list: (filters: Record<string, unknown>) => [...queryKeys.findings.lists(), filters] as const,
     details: () => [...queryKeys.findings.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.findings.details(), id] as const,
-    history: (id: string) =>
-      [...queryKeys.findings.detail(id), 'history'] as const,
-    comments: (id: string) =>
-      [...queryKeys.findings.detail(id), 'comments'] as const,
+    history: (id: string) => [...queryKeys.findings.detail(id), 'history'] as const,
+    comments: (id: string) => [...queryKeys.findings.detail(id), 'comments'] as const,
   },
   risks: {
     all: ['risks'] as const,
     lists: () => [...queryKeys.risks.all, 'list'] as const,
-    list: (filters: Record<string, unknown>) =>
-      [...queryKeys.risks.lists(), filters] as const,
+    list: (filters: Record<string, unknown>) => [...queryKeys.risks.lists(), filters] as const,
     details: () => [...queryKeys.risks.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.risks.details(), id] as const,
     stats: () => [...queryKeys.risks.all, 'stats'] as const,
-    heatmap: (registerId: string) =>
-      [...queryKeys.risks.all, 'heatmap', registerId] as const,
-    matrix: (registerId: string) =>
-      [...queryKeys.risks.all, 'matrix', registerId] as const,
-    treatments: (riskId: string) =>
-      [...queryKeys.risks.detail(riskId), 'treatments'] as const,
-    acceptances: (riskId: string) =>
-      [...queryKeys.risks.detail(riskId), 'acceptances'] as const,
+    heatmap: (registerId: string) => [...queryKeys.risks.all, 'heatmap', registerId] as const,
+    matrix: (registerId: string) => [...queryKeys.risks.all, 'matrix', registerId] as const,
+    treatments: (riskId: string) => [...queryKeys.risks.detail(riskId), 'treatments'] as const,
+    acceptances: (riskId: string) => [...queryKeys.risks.detail(riskId), 'acceptances'] as const,
     registers: {
       all: ['risk-registers'] as const,
       lists: () => [...queryKeys.risks.registers.all, 'list'] as const,
@@ -83,14 +73,11 @@ export const queryKeys = {
   zones: {
     all: ['zones'] as const,
     lists: () => [...queryKeys.zones.all, 'list'] as const,
-    list: (filters: Record<string, unknown>) =>
-      [...queryKeys.zones.lists(), filters] as const,
+    list: (filters: Record<string, unknown>) => [...queryKeys.zones.lists(), filters] as const,
     details: () => [...queryKeys.zones.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.zones.details(), id] as const,
-    memberships: (zoneId: string) =>
-      [...queryKeys.zones.detail(zoneId), 'memberships'] as const,
-    rules: (zoneId: string) =>
-      [...queryKeys.zones.detail(zoneId), 'rules'] as const,
+    memberships: (zoneId: string) => [...queryKeys.zones.detail(zoneId), 'memberships'] as const,
+    rules: (zoneId: string) => [...queryKeys.zones.detail(zoneId), 'rules'] as const,
     topology: () => [...queryKeys.zones.all, 'topology'] as const,
     conduits: {
       all: ['conduits'] as const,
@@ -103,50 +90,38 @@ export const queryKeys = {
   purdue: {
     all: ['purdue'] as const,
     lists: () => [...queryKeys.purdue.all, 'list'] as const,
-    list: (filters: Record<string, unknown>) =>
-      [...queryKeys.purdue.lists(), filters] as const,
+    list: (filters: Record<string, unknown>) => [...queryKeys.purdue.lists(), filters] as const,
     details: () => [...queryKeys.purdue.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.purdue.details(), id] as const,
-    levels: (modelId: string) =>
-      [...queryKeys.purdue.detail(modelId), 'levels'] as const,
-    mappings: (modelId: string) =>
-      [...queryKeys.purdue.detail(modelId), 'mappings'] as const,
-    rules: (modelId: string) =>
-      [...queryKeys.purdue.detail(modelId), 'rules'] as const,
-    compliance: (modelId: string) =>
-      [...queryKeys.purdue.detail(modelId), 'compliance'] as const,
+    levels: (modelId: string) => [...queryKeys.purdue.detail(modelId), 'levels'] as const,
+    mappings: (modelId: string) => [...queryKeys.purdue.detail(modelId), 'mappings'] as const,
+    rules: (modelId: string) => [...queryKeys.purdue.detail(modelId), 'rules'] as const,
+    compliance: (modelId: string) => [...queryKeys.purdue.detail(modelId), 'compliance'] as const,
   },
   assets: {
     all: ['assets'] as const,
     lists: () => [...queryKeys.assets.all, 'list'] as const,
-    list: (filters: Record<string, unknown>) =>
-      [...queryKeys.assets.lists(), filters] as const,
+    list: (filters: Record<string, unknown>) => [...queryKeys.assets.lists(), filters] as const,
     details: () => [...queryKeys.assets.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.assets.details(), id] as const,
     stats: () => [...queryKeys.assets.all, 'stats'] as const,
-    relationships: (id: string) =>
-      [...queryKeys.assets.detail(id), 'relationships'] as const,
+    relationships: (id: string) => [...queryKeys.assets.detail(id), 'relationships'] as const,
   },
   evidence: {
     all: ['evidence'] as const,
     lists: () => [...queryKeys.evidence.all, 'list'] as const,
-    list: (filters: Record<string, unknown>) =>
-      [...queryKeys.evidence.lists(), filters] as const,
+    list: (filters: Record<string, unknown>) => [...queryKeys.evidence.lists(), filters] as const,
     details: () => [...queryKeys.evidence.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.evidence.details(), id] as const,
-    links: (id: string) =>
-      [...queryKeys.evidence.detail(id), 'links'] as const,
-    custody: (id: string) =>
-      [...queryKeys.evidence.detail(id), 'custody'] as const,
-    verify: (id: string) =>
-      [...queryKeys.evidence.detail(id), 'verify'] as const,
+    links: (id: string) => [...queryKeys.evidence.detail(id), 'links'] as const,
+    custody: (id: string) => [...queryKeys.evidence.detail(id), 'custody'] as const,
+    verify: (id: string) => [...queryKeys.evidence.detail(id), 'verify'] as const,
     storage: () => [...queryKeys.evidence.all, 'storage'] as const,
   },
   reports: {
     all: ['reports'] as const,
     lists: () => [...queryKeys.reports.all, 'list'] as const,
-    list: (filters: Record<string, unknown>) =>
-      [...queryKeys.reports.lists(), filters] as const,
+    list: (filters: Record<string, unknown>) => [...queryKeys.reports.lists(), filters] as const,
     details: () => [...queryKeys.reports.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.reports.details(), id] as const,
   },

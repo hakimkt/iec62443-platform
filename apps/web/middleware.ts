@@ -1,5 +1,4 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 const PUBLIC_PATHS = [
   '/login',
@@ -10,24 +9,14 @@ const PUBLIC_PATHS = [
   '/sso/callback',
 ];
 
-const AUTH_PATHS = [
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/reset-password',
-  '/mfa',
-];
+const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password', '/mfa'];
 
 function isPublicPath(pathname: string): boolean {
-  return PUBLIC_PATHS.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`),
-  );
+  return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
 function isAuthPath(pathname: string): boolean {
-  return AUTH_PATHS.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`),
-  );
+  return AUTH_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
 function isAppPath(pathname: string): boolean {

@@ -6,15 +6,15 @@
 
 ## 1. API Design Principles
 
-| Principle | Implementation |
-|---|---|
-| **RESTful** | Resource-oriented URLs, standard HTTP methods, HATEOAS links |
-| **Versioned** | URL path versioning (`/api/v1/`) with header override support |
-| **Consistent** | Uniform response envelope, pagination, error format |
-| **Secure** | JWT auth, API key auth, TLS 1.3 mandatory, CORS strict |
-| **Documented** | OpenAPI 3.1 specification auto-generated from code |
-| **Rate limited** | Tiered rate limits per endpoint group and tenant plan |
-| **Idempotent** | PUT/DELETE are idempotent; POST uses `Idempotency-Key` header |
+| Principle        | Implementation                                                |
+| ---------------- | ------------------------------------------------------------- |
+| **RESTful**      | Resource-oriented URLs, standard HTTP methods, HATEOAS links  |
+| **Versioned**    | URL path versioning (`/api/v1/`) with header override support |
+| **Consistent**   | Uniform response envelope, pagination, error format           |
+| **Secure**       | JWT auth, API key auth, TLS 1.3 mandatory, CORS strict        |
+| **Documented**   | OpenAPI 3.1 specification auto-generated from code            |
+| **Rate limited** | Tiered rate limits per endpoint group and tenant plan         |
+| **Idempotent**   | PUT/DELETE are idempotent; POST uses `Idempotency-Key` header |
 
 ---
 
@@ -36,11 +36,11 @@ Version negotiation:
 
 ### 3.1 Authentication Methods
 
-| Method | Use Case | Flow |
-|---|---|---|
-| **JWT Bearer** | Web/Mobile app users | OAuth2 Authorization Code + PKCE |
-| **API Key** | Integrations, scripts | `X-API-Key: iec62443_xxxx` header |
-| **OAuth2 Client Credentials** | Service-to-service | Machine-to-machine token exchange |
+| Method                        | Use Case              | Flow                              |
+| ----------------------------- | --------------------- | --------------------------------- |
+| **JWT Bearer**                | Web/Mobile app users  | OAuth2 Authorization Code + PKCE  |
+| **API Key**                   | Integrations, scripts | `X-API-Key: iec62443_xxxx` header |
+| **OAuth2 Client Credentials** | Service-to-service    | Machine-to-machine token exchange |
 
 ### 3.2 JWT Structure
 
@@ -137,17 +137,17 @@ Version negotiation:
 
 ### 4.4 Error Codes
 
-| HTTP Status | Error Code | Description |
-|---|---|---|
-| 400 | VALIDATION_ERROR | Request body/params failed validation |
-| 401 | UNAUTHORIZED | Missing or invalid authentication |
-| 403 | FORBIDDEN | Valid auth but insufficient permissions |
-| 404 | NOT_FOUND | Resource does not exist |
-| 409 | CONFLICT | State conflict (duplicate, version mismatch) |
-| 422 | UNPROCESSABLE | Semantically invalid (business rule violation) |
-| 429 | RATE_LIMITED | Too many requests |
-| 500 | INTERNAL_ERROR | Unexpected server error |
-| 503 | SERVICE_UNAVAILABLE | Temporary maintenance or degradation |
+| HTTP Status | Error Code          | Description                                    |
+| ----------- | ------------------- | ---------------------------------------------- |
+| 400         | VALIDATION_ERROR    | Request body/params failed validation          |
+| 401         | UNAUTHORIZED        | Missing or invalid authentication              |
+| 403         | FORBIDDEN           | Valid auth but insufficient permissions        |
+| 404         | NOT_FOUND           | Resource does not exist                        |
+| 409         | CONFLICT            | State conflict (duplicate, version mismatch)   |
+| 422         | UNPROCESSABLE       | Semantically invalid (business rule violation) |
+| 429         | RATE_LIMITED        | Too many requests                              |
+| 500         | INTERNAL_ERROR      | Unexpected server error                        |
+| 503         | SERVICE_UNAVAILABLE | Temporary maintenance or degradation           |
 
 ---
 
@@ -408,27 +408,27 @@ DELETE  /api/v1/api-keys/:id                 Revoke API key
 
 ## 6. Query Parameters (Standard)
 
-| Parameter | Type | Description | Example |
-|---|---|---|---|
-| `page` | integer | Page number (1-indexed) | `?page=2` |
-| `per_page` | integer | Items per page (max 100) | `?per_page=50` |
-| `sort` | string | Sort field (prefix `-` for desc) | `?sort=-created_at` |
-| `filter[field]` | string | Filter by field value | `?filter[status]=open` |
-| `filter[field][op]` | string | Filter with operator | `?filter[severity][in]=high,critical` |
-| `search` | string | Full-text search | `?search=firewall+config` |
-| `include` | string | Eager-load relations | `?include=evidence,findings` |
-| `fields[type]` | string | Sparse fieldsets | `?fields[findings]=title,severity` |
+| Parameter           | Type    | Description                      | Example                               |
+| ------------------- | ------- | -------------------------------- | ------------------------------------- |
+| `page`              | integer | Page number (1-indexed)          | `?page=2`                             |
+| `per_page`          | integer | Items per page (max 100)         | `?per_page=50`                        |
+| `sort`              | string  | Sort field (prefix `-` for desc) | `?sort=-created_at`                   |
+| `filter[field]`     | string  | Filter by field value            | `?filter[status]=open`                |
+| `filter[field][op]` | string  | Filter with operator             | `?filter[severity][in]=high,critical` |
+| `search`            | string  | Full-text search                 | `?search=firewall+config`             |
+| `include`           | string  | Eager-load relations             | `?include=evidence,findings`          |
+| `fields[type]`      | string  | Sparse fieldsets                 | `?fields[findings]=title,severity`    |
 
 ### Filter Operators
 
-| Operator | Description | Example |
-|---|---|---|
-| `eq` (default) | Equal | `?filter[status]=open` |
-| `neq` | Not equal | `?filter[status][neq]=closed` |
-| `in` | In set | `?filter[severity][in]=high,critical` |
-| `gt`, `gte` | Greater than | `?filter[created_at][gte]=2026-01-01` |
-| `lt`, `lte` | Less than | `?filter[score][lt]=3` |
-| `like` | Pattern match | `?filter[title][like]=%firewall%` |
+| Operator       | Description   | Example                               |
+| -------------- | ------------- | ------------------------------------- |
+| `eq` (default) | Equal         | `?filter[status]=open`                |
+| `neq`          | Not equal     | `?filter[status][neq]=closed`         |
+| `in`           | In set        | `?filter[severity][in]=high,critical` |
+| `gt`, `gte`    | Greater than  | `?filter[created_at][gte]=2026-01-01` |
+| `lt`, `lte`    | Less than     | `?filter[score][lt]=3`                |
+| `like`         | Pattern match | `?filter[title][like]=%firewall%`     |
 
 ---
 
@@ -458,16 +458,17 @@ Message format:
 
 ## 8. Rate Limiting
 
-| Tier | Rate Limit | Burst |
-|---|---|---|
-| **Standard** (read operations) | 600 req/min | 100 |
-| **Write** (mutations) | 120 req/min | 20 |
-| **Auth** (login, register) | 10 req/min | 5 |
-| **Upload** (evidence) | 30 req/min | 5 |
-| **Export/Report** (generation) | 10 req/min | 3 |
-| **Search** (full-text) | 60 req/min | 15 |
+| Tier                           | Rate Limit  | Burst |
+| ------------------------------ | ----------- | ----- |
+| **Standard** (read operations) | 600 req/min | 100   |
+| **Write** (mutations)          | 120 req/min | 20    |
+| **Auth** (login, register)     | 10 req/min  | 5     |
+| **Upload** (evidence)          | 30 req/min  | 5     |
+| **Export/Report** (generation) | 10 req/min  | 3     |
+| **Search** (full-text)         | 60 req/min  | 15    |
 
 Headers returned on every response:
+
 ```
 X-RateLimit-Limit: 600
 X-RateLimit-Remaining: 594
@@ -498,15 +499,16 @@ Delivery:
 
 ## 10. Bulk Operations
 
-| Operation | Endpoint | Method | Format |
-|---|---|---|---|
-| Bulk create findings | `/api/v1/findings/bulk` | POST | JSON array |
-| Bulk update findings | `/api/v1/findings/bulk` | PATCH | JSON array with IDs |
-| Bulk import assets | `/api/v1/assets/import` | POST | CSV/JSON multipart |
-| Bulk export | `/api/v1/export` | POST | Configurable scope |
-| Bulk status transition | `/api/v1/findings/bulk-transition` | POST | IDs + target status |
+| Operation              | Endpoint                           | Method | Format              |
+| ---------------------- | ---------------------------------- | ------ | ------------------- |
+| Bulk create findings   | `/api/v1/findings/bulk`            | POST   | JSON array          |
+| Bulk update findings   | `/api/v1/findings/bulk`            | PATCH  | JSON array with IDs |
+| Bulk import assets     | `/api/v1/assets/import`            | POST   | CSV/JSON multipart  |
+| Bulk export            | `/api/v1/export`                   | POST   | Configurable scope  |
+| Bulk status transition | `/api/v1/findings/bulk-transition` | POST   | IDs + target status |
 
 All bulk operations return a job ID and are processed asynchronously:
+
 ```json
 {
   "data": {
@@ -531,4 +533,4 @@ All bulk operations return a job ID and are processed asynchronously:
 
 ---
 
-*Next: [RBAC Design →](rbac-design.md)*
+_Next: [RBAC Design →](rbac-design.md)_

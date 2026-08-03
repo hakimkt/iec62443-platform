@@ -12,12 +12,7 @@ type UUID = string & { readonly __brand: unique symbol };
 // ---------------------------------------------------------------------------
 
 /** Severity classification of a finding. */
-export type FindingSeverity =
-  | 'critical'
-  | 'high'
-  | 'medium'
-  | 'low'
-  | 'informational';
+export type FindingSeverity = 'critical' | 'high' | 'medium' | 'low' | 'informational';
 
 /** Lifecycle status of a finding. */
 export type FindingStatus =

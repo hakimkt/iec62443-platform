@@ -1,13 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getApiClient } from '@/lib/api';
-import { queryKeys } from '@/lib/query-client';
-
 import type {
+  ChainOfCustodyEvent,
   EvidenceItem,
   EvidenceLink,
-  ChainOfCustodyEvent,
   StorageQuota,
 } from '@iec62443/shared-types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { getApiClient } from '@/lib/api';
+import { queryKeys } from '@/lib/query-client';
 
 interface EvidenceListParams {
   page?: number;
@@ -54,10 +53,7 @@ export function useEvidence(params: EvidenceListParams = {}) {
       if (params.search) queryParams['search'] = params.search;
       if (params.tags?.length) queryParams['tags'] = params.tags.join(',');
 
-      const result = await client.get<PaginatedResponse<EvidenceItem>>(
-        '/evidence',
-        queryParams,
-      );
+      const result = await client.get<PaginatedResponse<EvidenceItem>>('/evidence', queryParams);
       return result;
     },
   });
@@ -69,9 +65,7 @@ export function useEvidenceItem(id: string | null) {
   return useQuery({
     queryKey: queryKeys.evidence.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<EvidenceItem>>(
-        `/evidence/${id}`,
-      );
+      const result = await client.get<SingleResponse<EvidenceItem>>(`/evidence/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -90,10 +84,7 @@ export function useCreateEvidence() {
       retentionUntil?: string;
       tags?: string[];
     }) => {
-      const result = await client.post<SingleResponse<EvidenceItem>>(
-        '/evidence',
-        data,
-      );
+      const result = await client.post<SingleResponse<EvidenceItem>>('/evidence', data);
       return result.data;
     },
     onSuccess: () => {
@@ -116,10 +107,7 @@ export function useUpdateEvidence() {
       description?: string;
       tags?: string[];
     }) => {
-      const result = await client.patch<SingleResponse<EvidenceItem>>(
-        `/evidence/${id}`,
-        data,
-      );
+      const result = await client.patch<SingleResponse<EvidenceItem>>(`/evidence/${id}`, data);
       return result.data;
     },
     onSuccess: (_data, variables) => {
@@ -193,13 +181,7 @@ export function useUnlinkEvidence() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      evidenceId,
-      linkId,
-    }: {
-      evidenceId: string;
-      linkId: string;
-    }) => {
+    mutationFn: async ({ evidenceId, linkId }: { evidenceId: string; linkId: string }) => {
       await client.delete(`/evidence/${evidenceId}/links/${linkId}`);
     },
     onSuccess: (_data, variables) => {
@@ -252,9 +234,7 @@ export function useStorageQuota() {
   return useQuery({
     queryKey: queryKeys.evidence.storage(),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<StorageQuota>>(
-        '/tenant/storage',
-      );
+      const result = await client.get<SingleResponse<StorageQuota>>('/tenant/storage');
       return result.data;
     },
   });

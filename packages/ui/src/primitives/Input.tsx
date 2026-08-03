@@ -1,6 +1,6 @@
-import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { X } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 const inputVariants = cva(
@@ -19,7 +19,8 @@ const inputVariants = cva(
 );
 
 export interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'prefix'>,
+  extends
+    Omit<React.InputHTMLAttributes<HTMLInputElement>, 'prefix'>,
     VariantProps<typeof inputVariants> {
   /** Icon element rendered before the input text */
   prefix?: React.ReactNode;
@@ -52,12 +53,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div className="w-full">
-        <div
-          className={cn(
-            'relative flex items-center',
-            prefix && 'gap-0',
-          )}
-        >
+        <div className={cn('relative flex items-center', prefix && 'gap-0')}>
           {prefix && (
             <span className="pointer-events-none absolute left-3 flex items-center text-surface-400">
               {prefix}
@@ -96,11 +92,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {errorText && (
-          <p
-            id={`${props.id}-error`}
-            className="mt-1 text-sm text-red-600"
-            role="alert"
-          >
+          <p id={`${props.id}-error`} className="mt-1 text-sm text-red-600" role="alert">
             {errorText}
           </p>
         )}

@@ -1,12 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useAuth } from '@/providers/auth-provider';
-import { Button } from '@iec62443/ui/primitives';
-import { Input } from '@iec62443/ui/primitives';
-import { Label } from '@iec62443/ui/primitives';
+import { Button, Input, Label } from '@iec62443/ui/primitives';
 import { ArrowLeft, Mail } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useAuth } from '@/providers/auth-provider';
 
 export default function ForgotPasswordPage() {
   const { forgotPassword } = useAuth();
@@ -34,17 +32,15 @@ export default function ForgotPasswordPage() {
     return (
       <div>
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-surface-900">
-            Check your email
-          </h2>
+          <h2 className="text-xl font-semibold text-surface-900">Check your email</h2>
           <p className="mt-1 text-sm text-surface-500">
             We sent a password reset link to <strong>{email}</strong>
           </p>
         </div>
 
         <div className="rounded-md border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-800">
-          If an account exists with this email, you will receive a password
-          reset link shortly. The link expires in 1 hour.
+          If an account exists with this email, you will receive a password reset link shortly. The
+          link expires in 1 hour.
         </div>
 
         <div className="mt-6">
@@ -63,9 +59,7 @@ export default function ForgotPasswordPage() {
   return (
     <div>
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-surface-900">
-          Reset your password
-        </h2>
+        <h2 className="text-xl font-semibold text-surface-900">Reset your password</h2>
         <p className="mt-1 text-sm text-surface-500">
           Enter your email and we&apos;ll send you a reset link
         </p>
@@ -92,13 +86,7 @@ export default function ForgotPasswordPage() {
           />
         </div>
 
-        <Button
-          type="submit"
-          variant="primary"
-          className="w-full"
-          loading={isLoading}
-          icon={Mail}
-        >
+        <Button type="submit" variant="primary" className="w-full" loading={isLoading} icon={Mail}>
           Send reset link
         </Button>
       </form>

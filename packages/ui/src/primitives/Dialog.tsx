@@ -1,7 +1,7 @@
-import * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { X } from 'lucide-react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { X } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 const Dialog = DialogPrimitive.Root;
@@ -46,7 +46,8 @@ const dialogContentVariants = cva(
 );
 
 export interface DialogContentProps
-  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>,
+  extends
+    React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>,
     VariantProps<typeof dialogContentVariants> {
   /** Whether to show the close button in the top-right corner */
   showClose?: boolean;
@@ -79,9 +80,7 @@ DialogContent.displayName = 'DialogContent';
 
 /* ─── Header ──────────────────────────────────────────────────────── */
 
-export interface DialogHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const DialogHeader = React.forwardRef<HTMLDivElement, DialogHeaderProps>(
+const DialogHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
@@ -122,24 +121,16 @@ DialogDescription.displayName = DialogPrimitive.Description.displayName;
 
 /* ─── Body ────────────────────────────────────────────────────────── */
 
-export interface DialogBodyProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const DialogBody = React.forwardRef<HTMLDivElement, DialogBodyProps>(
+const DialogBody = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('max-h-[85vh] overflow-y-auto py-2', className)}
-      {...props}
-    />
+    <div ref={ref} className={cn('max-h-[85vh] overflow-y-auto py-2', className)} {...props} />
   ),
 );
 DialogBody.displayName = 'DialogBody';
 
 /* ─── Footer ──────────────────────────────────────────────────────── */
 
-export interface DialogFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const DialogFooter = React.forwardRef<HTMLDivElement, DialogFooterProps>(
+const DialogFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}

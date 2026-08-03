@@ -1,15 +1,13 @@
-import { eq, and, desc, sql, count, ilike, sum } from 'drizzle-orm';
 import crypto from 'node:crypto';
-
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
 import {
+  auditEvents,
+  chainOfCustody,
+  evidenceFiles,
   evidenceItems,
   evidenceLinks,
-  chainOfCustody,
-  auditEvents,
-  evidenceFiles,
 } from '@iec62443/database';
+import { and, count, desc, eq, ilike, sql, sum } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -60,10 +58,7 @@ const VALID_ENTITY_TYPES = ['finding', 'assessment', 'risk', 'csms_element'] as 
 // Audit hash chain helper
 // ---------------------------------------------------------------------------
 
-async function computeEventHash(
-  data: string,
-  previousHash: string | null,
-): Promise<string> {
+async function computeEventHash(data: string, previousHash: string | null): Promise<string> {
   const input = `${previousHash ?? ''}|${data}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
@@ -83,10 +78,14 @@ export class EvidenceService {
     this.tenantSchema = tenantSchema;
   }
 
-  private async withTenantSchema<T>(fn: (tx: Parameters<Parameters<typeof this.db.transaction>[0]>[0]) => Promise<T>): Promise<T> {
+  private async withTenantSchema<T>(
+    fn: (tx: Parameters<Parameters<typeof this.db.transaction>[0]>[0]) => Promise<T>,
+  ): Promise<T> {
     return this.db.transaction(async (tx) => {
       if (this.tenantSchema) {
-        await tx.execute(sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`);
+        await tx.execute(
+          sql`SET LOCAL search_path TO ${sql.identifier(this.tenantSchema)}, public`,
+        );
       }
       return fn(tx);
     });
@@ -114,9 +113,7 @@ export class EvidenceService {
       }
 
       if (filters.tags && filters.tags.length > 0) {
-        conditions.push(
-          sql`${evidenceItems.tags} && ${filters.tags}`,
-        );
+        conditions.push(sql`${evidenceItems.tags} && ${filters.tags}`);
       }
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -167,11 +164,7 @@ export class EvidenceService {
 
   async getEvidence(id: string) {
     return this.withTenantSchema(async (tx) => {
-      const [item] = await tx
-        .select()
-        .from(evidenceItems)
-        .where(eq(evidenceItems.id, id))
-        .limit(1);
+      const [item] = await tx.select().from(evidenceItems).where(eq(evidenceItems.id, id)).limit(1);
 
       if (!item) {
         throw Object.assign(new Error('Evidence not found'), {
@@ -235,11 +228,7 @@ export class EvidenceService {
   async updateEvidence(id: string, data: UpdateEvidenceInput, userId: string) {
     return this.withTenantSchema(async (tx) => {
       // Verify evidence exists (inline to use tx)
-      const [item] = await tx
-        .select()
-        .from(evidenceItems)
-        .where(eq(evidenceItems.id, id))
-        .limit(1);
+      const [item] = await tx.select().from(evidenceItems).where(eq(evidenceItems.id, id)).limit(1);
 
       if (!item) {
         throw Object.assign(new Error('Evidence not found'), {
@@ -294,11 +283,7 @@ export class EvidenceService {
   async deleteEvidence(id: string, userId: string) {
     return this.withTenantSchema(async (tx) => {
       // Verify evidence exists (inline to use tx)
-      const [item] = await tx
-        .select()
-        .from(evidenceItems)
-        .where(eq(evidenceItems.id, id))
-        .limit(1);
+      const [item] = await tx.select().from(evidenceItems).where(eq(evidenceItems.id, id)).limit(1);
 
       if (!item) {
         throw Object.assign(new Error('Evidence not found'), {
@@ -384,9 +369,11 @@ export class EvidenceService {
       }
 
       // Validate entity type
-      if (!VALID_ENTITY_TYPES.includes(data.entityType as typeof VALID_ENTITY_TYPES[number])) {
+      if (!VALID_ENTITY_TYPES.includes(data.entityType as (typeof VALID_ENTITY_TYPES)[number])) {
         throw Object.assign(
-          new Error(`Invalid entity type '${data.entityType}'. Must be one of: ${VALID_ENTITY_TYPES.join(', ')}`),
+          new Error(
+            `Invalid entity type '${data.entityType}'. Must be one of: ${VALID_ENTITY_TYPES.join(', ')}`,
+          ),
           {
             statusCode: 400,
             code: 'INVALID_ENTITY_TYPE',
@@ -408,13 +395,10 @@ export class EvidenceService {
         .limit(1);
 
       if (existingLink) {
-        throw Object.assign(
-          new Error('Evidence is already linked to this entity'),
-          {
-            statusCode: 409,
-            code: 'EVIDENCE_ALREADY_LINKED',
-          },
-        );
+        throw Object.assign(new Error('Evidence is already linked to this entity'), {
+          statusCode: 409,
+          code: 'EVIDENCE_ALREADY_LINKED',
+        });
       }
 
       const [newLink] = await tx
@@ -479,12 +463,7 @@ export class EvidenceService {
       const [link] = await tx
         .select()
         .from(evidenceLinks)
-        .where(
-          and(
-            eq(evidenceLinks.id, linkId),
-            eq(evidenceLinks.evidenceId, evidenceId),
-          ),
-        )
+        .where(and(eq(evidenceLinks.id, linkId), eq(evidenceLinks.evidenceId, evidenceId)))
         .limit(1);
 
       if (!link) {
@@ -495,9 +474,7 @@ export class EvidenceService {
       }
 
       // Delete the link
-      await tx
-        .delete(evidenceLinks)
-        .where(eq(evidenceLinks.id, linkId));
+      await tx.delete(evidenceLinks).where(eq(evidenceLinks.id, linkId));
 
       // Create chain-of-custody 'unlinked' event
       await tx.insert(chainOfCustody).values({
@@ -601,7 +578,9 @@ export class EvidenceService {
                 hash: item.sha256Hash,
                 fileId: item.fileId,
                 storageKey: file.storageKey,
-                reason: hashesMatch ? undefined : 'Computed hash does not match stored hash — file may have been tampered with',
+                reason: hashesMatch
+                  ? undefined
+                  : 'Computed hash does not match stored hash — file may have been tampered with',
               };
             } catch {
               return {
@@ -835,12 +814,15 @@ export class EvidenceService {
 
     if (accessKey && secretKey) {
       // Basic auth for MinIO (simplified — production should use AWS SigV4)
-      headers['Authorization'] = 'Basic ' + Buffer.from(`${accessKey}:${secretKey}`).toString('base64');
+      headers['Authorization'] =
+        'Basic ' + Buffer.from(`${accessKey}:${secretKey}`).toString('base64');
     }
 
     const response = await fetch(url, { headers });
     if (!response.ok) {
-      throw new Error(`Failed to fetch file from storage: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch file from storage: ${response.status} ${response.statusText}`,
+      );
     }
 
     const arrayBuffer = await response.arrayBuffer();

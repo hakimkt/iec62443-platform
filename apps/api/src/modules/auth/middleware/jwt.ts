@@ -1,10 +1,9 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import fp from 'fastify-plugin';
-
-import { verifyToken, type JwtConfig, type TokenPayload } from '@iec62443/auth';
-import { eq, and } from 'drizzle-orm';
-import { apiKeys, users, authTokens } from '@iec62443/database';
 import crypto from 'node:crypto';
+import { verifyToken, type JwtConfig, type TokenPayload } from '@iec62443/auth';
+import { apiKeys, authTokens, users } from '@iec62443/database';
+import { and, eq } from 'drizzle-orm';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import fp from 'fastify-plugin';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -27,10 +26,7 @@ export interface JwtMiddlewareOptions {
   publicRoutes?: string[];
 }
 
-async function jwtMiddleware(
-  app: FastifyInstance,
-  options: JwtMiddlewareOptions,
-) {
+async function jwtMiddleware(app: FastifyInstance, options: JwtMiddlewareOptions) {
   const { jwtConfig, publicRoutes = [] } = options;
 
   app.addHook('onRequest', async (request: FastifyRequest, reply: FastifyReply) => {
@@ -117,10 +113,7 @@ async function jwtMiddleware(
             .select({ id: authTokens.id })
             .from(authTokens)
             .where(
-              and(
-                eq(authTokens.tokenHash, jtiHash),
-                eq(authTokens.tokenType, 'jwt_revocation'),
-              ),
+              and(eq(authTokens.tokenHash, jtiHash), eq(authTokens.tokenType, 'jwt_revocation')),
             )
             .limit(1);
 
@@ -176,12 +169,7 @@ async function authenticateApiKey(
   const [keyRecord] = await db
     .select()
     .from(apiKeys)
-    .where(
-      and(
-        eq(apiKeys.keyHash, keyHash),
-        eq(apiKeys.keyPrefix, keyPrefix),
-      ),
-    )
+    .where(and(eq(apiKeys.keyHash, keyHash), eq(apiKeys.keyPrefix, keyPrefix)))
     .limit(1);
 
   if (!keyRecord) {
@@ -207,11 +195,7 @@ async function authenticateApiKey(
     });
 
   // Fetch the user associated with this API key
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, keyRecord.userId))
-    .limit(1);
+  const [user] = await db.select().from(users).where(eq(users.id, keyRecord.userId)).limit(1);
 
   if (!user || user.status !== 'active') {
     return null;

@@ -3,19 +3,23 @@
 import { cn } from '@iec62443/ui';
 import { GaugeChart, TrendArrow } from '@iec62443/ui/charts';
 import {
-  Shield,
   AlertTriangle,
-  Target,
-  Wrench,
+  BarChart3,
   ClipboardCheck,
   FileText,
-  BarChart3,
-  Server,
   Loader2,
+  Server,
+  Shield,
+  Target,
+  Wrench,
 } from 'lucide-react';
 import Link from 'next/link';
-
-import { useDashboardSummary, useDashboardAssessmentProgress, useDashboardRecentFindings, useDashboardRemediationStatus } from '@/hooks/useDashboard';
+import {
+  useDashboardAssessmentProgress,
+  useDashboardRecentFindings,
+  useDashboardRemediationStatus,
+  useDashboardSummary,
+} from '@/hooks/useDashboard';
 
 export default function DashboardPage() {
   const { data: summary, isLoading: summaryLoading, error: summaryError } = useDashboardSummary();
@@ -27,12 +31,8 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-surface-900">
-            Executive Dashboard
-          </h1>
-          <p className="mt-1 text-sm text-surface-500">
-            Security posture overview and key metrics
-          </p>
+          <h1 className="text-2xl font-semibold text-surface-900">Executive Dashboard</h1>
+          <p className="mt-1 text-sm text-surface-500">Security posture overview and key metrics</p>
         </div>
         <Link
           href="/reports"
@@ -46,61 +46,54 @@ export default function DashboardPage() {
       {/* Top-level KPI Cards */}
       {summaryError ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-700">Failed to load dashboard data. Please refresh the page.</p>
+          <p className="text-sm text-red-700">
+            Failed to load dashboard data. Please refresh the page.
+          </p>
         </div>
       ) : (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <DashboardCard
-          icon={Shield}
-          label="Security Score"
-          value={summaryLoading ? '—' : String(summary?.securityScore ?? 0)}
-          trend={<TrendArrow value={summary?.securityScoreTrend ?? 0} />}
-          color="brand"
-        >
-          <GaugeChart
-            value={summary?.securityScore ?? 0}
-            max={100}
-            size={120}
-            strokeWidth={10}
-          />
-        </DashboardCard>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <DashboardCard
+            icon={Shield}
+            label="Security Score"
+            value={summaryLoading ? '—' : String(summary?.securityScore ?? 0)}
+            trend={<TrendArrow value={summary?.securityScoreTrend ?? 0} />}
+            color="brand"
+          >
+            <GaugeChart value={summary?.securityScore ?? 0} max={100} size={120} strokeWidth={10} />
+          </DashboardCard>
 
-        <DashboardCard
-          icon={AlertTriangle}
-          label="Open Findings"
-          value={summaryLoading ? '—' : String(summary?.openFindings ?? 0)}
-          trend={<TrendArrow value={summary?.findingsTrend ?? 0} invert />}
-          color="amber"
-        >
-          <div className="text-xs text-surface-500">
-            {summary?.criticalFindings ?? 0} critical
-          </div>
-        </DashboardCard>
+          <DashboardCard
+            icon={AlertTriangle}
+            label="Open Findings"
+            value={summaryLoading ? '—' : String(summary?.openFindings ?? 0)}
+            trend={<TrendArrow value={summary?.findingsTrend ?? 0} invert />}
+            color="amber"
+          >
+            <div className="text-xs text-surface-500">
+              {summary?.criticalFindings ?? 0} critical
+            </div>
+          </DashboardCard>
 
-        <DashboardCard
-          icon={Target}
-          label="Active Risks"
-          value={summaryLoading ? '—' : String(summary?.totalRisks ?? 0)}
-          trend={<TrendArrow value={summary?.risksTrend ?? 0} invert />}
-          color="red"
-        >
-          <div className="text-xs text-surface-500">
-            {summary?.highRisks ?? 0} high
-          </div>
-        </DashboardCard>
+          <DashboardCard
+            icon={Target}
+            label="Active Risks"
+            value={summaryLoading ? '—' : String(summary?.totalRisks ?? 0)}
+            trend={<TrendArrow value={summary?.risksTrend ?? 0} invert />}
+            color="red"
+          >
+            <div className="text-xs text-surface-500">{summary?.highRisks ?? 0} high</div>
+          </DashboardCard>
 
-        <DashboardCard
-          icon={Wrench}
-          label="Remediation Actions"
-          value={summaryLoading ? '—' : String(summary?.remediationActions ?? 0)}
-          trend={<TrendArrow value={summary?.remediationTrend ?? 0} />}
-          color="green"
-        >
-          <div className="text-xs text-surface-500">
-            {summary?.overdueActions ?? 0} overdue
-          </div>
-        </DashboardCard>
-      </div>
+          <DashboardCard
+            icon={Wrench}
+            label="Remediation Actions"
+            value={summaryLoading ? '—' : String(summary?.remediationActions ?? 0)}
+            trend={<TrendArrow value={summary?.remediationTrend ?? 0} />}
+            color="green"
+          >
+            <div className="text-xs text-surface-500">{summary?.overdueActions ?? 0} overdue</div>
+          </DashboardCard>
+        </div>
       )}
 
       {/* Second Row: Metrics */}
@@ -116,16 +109,8 @@ export default function DashboardPage() {
           label="Assessment Progress"
           value={`${Math.round(summary?.assessmentProgress ?? 0)}%`}
         />
-        <MetricCard
-          icon={Server}
-          label="Total Assets"
-          value={summary?.assetCount ?? 0}
-        />
-        <MetricCard
-          icon={Shield}
-          label="Zones & Conduits"
-          value={summary?.zoneCount ?? 0}
-        />
+        <MetricCard icon={Server} label="Total Assets" value={summary?.assetCount ?? 0} />
+        <MetricCard icon={Shield} label="Zones & Conduits" value={summary?.zoneCount ?? 0} />
       </div>
 
       {/* Main Content */}
@@ -134,13 +119,8 @@ export default function DashboardPage() {
         <div className="lg:col-span-2">
           <div className="rounded-lg border border-surface-200 bg-surface-0 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-surface-900">
-                Assessment Progress
-              </h2>
-              <Link
-                href="/assessments"
-                className="text-sm text-brand-600 hover:text-brand-700"
-              >
+              <h2 className="text-lg font-medium text-surface-900">Assessment Progress</h2>
+              <Link href="/assessments" className="text-sm text-brand-600 hover:text-brand-700">
                 View all
               </Link>
             </div>
@@ -156,12 +136,8 @@ export default function DashboardPage() {
                     className="flex items-center gap-4 rounded-md border border-surface-100 p-3"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-surface-900 truncate">
-                        {a.name}
-                      </p>
-                      <p className="text-xs text-surface-500">
-                        {a.framework}
-                      </p>
+                      <p className="text-sm font-medium text-surface-900 truncate">{a.name}</p>
+                      <p className="text-xs text-surface-500">{a.framework}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-24">
@@ -195,13 +171,8 @@ export default function DashboardPage() {
         <div>
           <div className="rounded-lg border border-surface-200 bg-surface-0 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-surface-900">
-                Recent Findings
-              </h2>
-              <Link
-                href="/findings"
-                className="text-sm text-brand-600 hover:text-brand-700"
-              >
+              <h2 className="text-lg font-medium text-surface-900">Recent Findings</h2>
+              <Link href="/findings" className="text-sm text-brand-600 hover:text-brand-700">
                 View all
               </Link>
             </div>
@@ -218,9 +189,7 @@ export default function DashboardPage() {
                   >
                     <SeverityBadge severity={f.severity} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-surface-900 truncate">
-                        {f.title}
-                      </p>
+                      <p className="text-sm font-medium text-surface-900 truncate">{f.title}</p>
                       <p className="text-xs text-surface-500">
                         {f.assetName ?? 'No asset'} · {formatDate(f.createdAt)}
                       </p>
@@ -245,19 +214,18 @@ export default function DashboardPage() {
       {remediationStatus && (
         <div className="rounded-lg border border-surface-200 bg-surface-0 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-surface-900">
-              Remediation Status
-            </h2>
-            <Link
-              href="/remediation"
-              className="text-sm text-brand-600 hover:text-brand-700"
-            >
+            <h2 className="text-lg font-medium text-surface-900">Remediation Status</h2>
+            <Link href="/remediation" className="text-sm text-brand-600 hover:text-brand-700">
               View all
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <RemediationStat label="Open" value={remediationStatus.open} color="amber" />
-            <RemediationStat label="In Progress" value={remediationStatus.inProgress} color="blue" />
+            <RemediationStat
+              label="In Progress"
+              value={remediationStatus.inProgress}
+              color="blue"
+            />
             <RemediationStat label="Completed" value={remediationStatus.completed} color="green" />
             <RemediationStat label="Overdue" value={remediationStatus.overdue} color="red" />
           </div>
@@ -291,7 +259,9 @@ function DashboardCard({ icon: Icon, label, value, trend, color, children }: Das
   return (
     <div className="rounded-lg border border-surface-200 bg-surface-0 p-4">
       <div className="flex items-center gap-3">
-        <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg', colorMap[color])}>
+        <div
+          className={cn('flex h-10 w-10 items-center justify-center rounded-lg', colorMap[color])}
+        >
           <Icon className="h-5 w-5" />
         </div>
         <div className="flex-1">
@@ -361,7 +331,12 @@ function SeverityBadge({ severity }: { severity: string }) {
   };
 
   return (
-    <span className={cn('inline-flex items-center rounded px-2 py-0.5 text-xs font-medium', colorMap[severity] ?? 'bg-surface-100 text-surface-600')}>
+    <span
+      className={cn(
+        'inline-flex items-center rounded px-2 py-0.5 text-xs font-medium',
+        colorMap[severity] ?? 'bg-surface-100 text-surface-600',
+      )}
+    >
       {severity}
     </span>
   );

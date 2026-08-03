@@ -1,8 +1,11 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type {
+  RemediationAction,
+  RemediationPlan,
+  RemediationVerification,
+} from '@iec62443/shared-types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiClient } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
-
-import type { RemediationPlan, RemediationAction, RemediationVerification } from '@iec62443/shared-types';
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -56,9 +59,7 @@ export function useRemediationPlan(id: string | null) {
   return useQuery({
     queryKey: queryKeys.remediation.plans.detail(id ?? ''),
     queryFn: async () => {
-      const result = await client.get<SingleResponse<RemediationPlan>>(
-        `/remediation/plans/${id}`,
-      );
+      const result = await client.get<SingleResponse<RemediationPlan>>(`/remediation/plans/${id}`);
       return result.data;
     },
     enabled: !!id,
@@ -80,10 +81,7 @@ export function useCreatePlan() {
       startDate?: string;
       targetDate?: string;
     }) => {
-      const result = await client.post<SingleResponse<RemediationPlan>>(
-        '/remediation/plans',
-        data,
-      );
+      const result = await client.post<SingleResponse<RemediationPlan>>('/remediation/plans', data);
       return result.data;
     },
     onSuccess: () => {
@@ -177,7 +175,10 @@ export function useCreateAction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ planId, ...data }: {
+    mutationFn: async ({
+      planId,
+      ...data
+    }: {
       planId: string;
       title: string;
       description?: string;
@@ -215,7 +216,9 @@ export function useUpdateAction() {
       return result.data;
     },
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.remediation.actions.detail(variables.id) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.remediation.actions.detail(variables.id),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.remediation.actions.lists() });
     },
   });
@@ -257,7 +260,10 @@ export function useVerifyAction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ actionId, ...data }: {
+    mutationFn: async ({
+      actionId,
+      ...data
+    }: {
       actionId: string;
       result: string;
       notes?: string;
@@ -273,7 +279,9 @@ export function useVerifyAction() {
       queryClient.invalidateQueries({
         queryKey: [...queryKeys.remediation.actions.detail(variables.actionId), 'verifications'],
       });
-      queryClient.invalidateQueries({ queryKey: queryKeys.remediation.actions.detail(variables.actionId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.remediation.actions.detail(variables.actionId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.remediation.actions.lists() });
     },
   });

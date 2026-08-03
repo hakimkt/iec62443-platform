@@ -1,6 +1,6 @@
-import type { FastifyInstance } from 'fastify';
 import rateLimit from '@fastify/rate-limit';
-
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import type { FastifyInstance } from 'fastify';
 import { DashboardController } from './dashboard.controller.js';
 import { DashboardService } from './dashboard.service.js';
 
@@ -9,7 +9,7 @@ import { DashboardService } from './dashboard.service.js';
 // ---------------------------------------------------------------------------
 
 export interface DashboardRouteOptions {
-  db: import('drizzle-orm/node-postgres').NodePgDatabase;
+  db: NodePgDatabase;
 }
 
 const responseSchema = {
@@ -23,15 +23,15 @@ const responseSchema = {
 const listResponseSchema = {
   type: 'object' as const,
   properties: {
-    data: { type: 'array' as const, items: { type: 'object' as const, additionalProperties: true } },
+    data: {
+      type: 'array' as const,
+      items: { type: 'object' as const, additionalProperties: true },
+    },
     meta: { type: 'object' as const, additionalProperties: true },
   },
 };
 
-export async function dashboardRoutes(
-  app: FastifyInstance,
-  options: DashboardRouteOptions,
-) {
+export async function dashboardRoutes(app: FastifyInstance, options: DashboardRouteOptions) {
   const { db } = options;
 
   app.register(rateLimit, {
@@ -55,107 +55,127 @@ export async function dashboardRoutes(
   // Dashboard Summary
   // ══════════════════════════════════════════════════════════════════════
 
-  app.get('/dashboard/summary', {
-    schema: {
-      tags: ['Dashboard'],
-      summary: 'Get dashboard summary',
-      security: [{ bearerAuth: [] }],
-      querystring: {
-        type: 'object',
-        properties: {
-          from: { type: 'string', format: 'date' },
-          to: { type: 'string', format: 'date' },
+  app.get(
+    '/dashboard/summary',
+    {
+      schema: {
+        tags: ['Dashboard'],
+        summary: 'Get dashboard summary',
+        security: [{ bearerAuth: [] }],
+        querystring: {
+          type: 'object',
+          properties: {
+            from: { type: 'string', format: 'date' },
+            to: { type: 'string', format: 'date' },
+          },
         },
+        response: { 200: responseSchema },
       },
-      response: { 200: responseSchema },
+      preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
     },
-    preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
-  }, async (request, reply) => {
-    const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId, request.tenantSchema);
-    const controller = new DashboardController(service);
-    return controller.getSummary(request, reply);
-  });
+    async (request, reply) => {
+      const tenantId = request.tenantId ?? '';
+      const service = createService(tenantId, request.tenantSchema);
+      const controller = new DashboardController(service);
+      return controller.getSummary(request, reply);
+    },
+  );
 
   // ══════════════════════════════════════════════════════════════════════
   // Risk Heat Map
   // ══════════════════════════════════════════════════════════════════════
 
-  app.get('/dashboard/risk-heatmap', {
-    schema: {
-      tags: ['Dashboard'],
-      summary: 'Get risk heat map data',
-      security: [{ bearerAuth: [] }],
-      querystring: {
-        type: 'object',
-        properties: {
-          registerId: { type: 'string', format: 'uuid' },
+  app.get(
+    '/dashboard/risk-heatmap',
+    {
+      schema: {
+        tags: ['Dashboard'],
+        summary: 'Get risk heat map data',
+        security: [{ bearerAuth: [] }],
+        querystring: {
+          type: 'object',
+          properties: {
+            registerId: { type: 'string', format: 'uuid' },
+          },
         },
+        response: { 200: responseSchema },
       },
-      response: { 200: responseSchema },
+      preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
     },
-    preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
-  }, async (request, reply) => {
-    const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId, request.tenantSchema);
-    const controller = new DashboardController(service);
-    return controller.getRiskHeatMap(request, reply);
-  });
+    async (request, reply) => {
+      const tenantId = request.tenantId ?? '';
+      const service = createService(tenantId, request.tenantSchema);
+      const controller = new DashboardController(service);
+      return controller.getRiskHeatMap(request, reply);
+    },
+  );
 
   // ══════════════════════════════════════════════════════════════════════
   // Assessment Progress
   // ══════════════════════════════════════════════════════════════════════
 
-  app.get('/dashboard/assessment-progress', {
-    schema: {
-      tags: ['Dashboard'],
-      summary: 'Get assessment progress list',
-      security: [{ bearerAuth: [] }],
-      response: { 200: listResponseSchema },
+  app.get(
+    '/dashboard/assessment-progress',
+    {
+      schema: {
+        tags: ['Dashboard'],
+        summary: 'Get assessment progress list',
+        security: [{ bearerAuth: [] }],
+        response: { 200: listResponseSchema },
+      },
+      preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
     },
-    preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
-  }, async (request, reply) => {
-    const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId, request.tenantSchema);
-    const controller = new DashboardController(service);
-    return controller.getAssessmentProgress(request, reply);
-  });
+    async (request, reply) => {
+      const tenantId = request.tenantId ?? '';
+      const service = createService(tenantId, request.tenantSchema);
+      const controller = new DashboardController(service);
+      return controller.getAssessmentProgress(request, reply);
+    },
+  );
 
   // ══════════════════════════════════════════════════════════════════════
   // Recent Findings
   // ══════════════════════════════════════════════════════════════════════
 
-  app.get('/dashboard/recent-findings', {
-    schema: {
-      tags: ['Dashboard'],
-      summary: 'Get recent findings',
-      security: [{ bearerAuth: [] }],
-      response: { 200: listResponseSchema },
+  app.get(
+    '/dashboard/recent-findings',
+    {
+      schema: {
+        tags: ['Dashboard'],
+        summary: 'Get recent findings',
+        security: [{ bearerAuth: [] }],
+        response: { 200: listResponseSchema },
+      },
+      preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
     },
-    preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
-  }, async (request, reply) => {
-    const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId, request.tenantSchema);
-    const controller = new DashboardController(service);
-    return controller.getRecentFindings(request, reply);
-  });
+    async (request, reply) => {
+      const tenantId = request.tenantId ?? '';
+      const service = createService(tenantId, request.tenantSchema);
+      const controller = new DashboardController(service);
+      return controller.getRecentFindings(request, reply);
+    },
+  );
 
   // ══════════════════════════════════════════════════════════════════════
   // Remediation Status
   // ══════════════════════════════════════════════════════════════════════
 
-  app.get('/dashboard/remediation-status', {
-    schema: {
-      tags: ['Dashboard'],
-      summary: 'Get remediation status summary',
-      security: [{ bearerAuth: [] }],
-      response: { 200: responseSchema },
+  app.get(
+    '/dashboard/remediation-status',
+    {
+      schema: {
+        tags: ['Dashboard'],
+        summary: 'Get remediation status summary',
+        security: [{ bearerAuth: [] }],
+        response: { 200: responseSchema },
+      },
+      preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
     },
-    preHandler: [app.authenticate, app.requirePermission('dashboard:read')],
-  }, async (request, reply) => {
-    const tenantId = request.tenantId ?? '';
-    const service = createService(tenantId, request.tenantSchema);
-    const controller = new DashboardController(service);
-    return controller.getRemediationStatus(request, reply);
-  });
+    async (request, reply) => {
+      const tenantId = request.tenantId ?? '';
+      const service = createService(tenantId, request.tenantSchema);
+      const controller = new DashboardController(service);
+      return controller.getRemediationStatus(request, reply);
+    },
+  );
 }

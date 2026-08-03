@@ -1,14 +1,27 @@
 import { z } from 'zod';
-import { foundationRequirementSchema, iecPartSchema, securityLevelSchema, uuidSchema } from './common.schema.js';
+import {
+  foundationRequirementSchema,
+  iecPartSchema,
+  securityLevelSchema,
+  uuidSchema,
+} from './common.schema.js';
 
 export const assessmentTypeSchema = z.enum(['gap', 'system', 'component', 'csms', 'custom']);
-export const assessmentStatusSchema = z.enum(['draft', 'in_progress', 'review', 'completed', 'archived']);
+export const assessmentStatusSchema = z.enum([
+  'draft',
+  'in_progress',
+  'review',
+  'completed',
+  'archived',
+]);
 export const maturityLevelSchema = z.coerce.number().int().min(0).max(4);
 
-export const requirementRefSchema = z.string().regex(
-  /^FR-[1-7](?:\.SR-[1-9]\d*(?:\.[1-9]\d*)*)?$/,
-  'Must follow IEC 62443 FR/SR/SRE format (e.g., FR-1, FR-1.SR-1, FR-1.SR-1.1)',
-);
+export const requirementRefSchema = z
+  .string()
+  .regex(
+    /^FR-[1-7](?:\.SR-[1-9]\d*(?:\.[1-9]\d*)*)?$/,
+    'Must follow IEC 62443 FR/SR/SRE format (e.g., FR-1, FR-1.SR-1, FR-1.SR-1.1)',
+  );
 
 export const MATURITY_LEVEL_LABELS: Record<number, string> = {
   0: 'Initial',

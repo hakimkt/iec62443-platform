@@ -17,13 +17,13 @@ The platform communicates **authority, precision, and trust**. It is used by cyb
 
 ### Comparison Benchmarks
 
-| Platform | What to emulate | What to avoid |
-|---|---|---|
-| **ServiceNow GRC** | Structured data density, workflow clarity | Dated visual style, slow perceived performance |
-| **RSA Archer** | Comprehensive risk visualization | Cluttered navigation, overwhelming dashboards |
-| **OneTrust** | Clean modern enterprise aesthetic | Generic stock-illustration style |
-| **Vanta** | Crisp onboarding, clear compliance indicators | Limited depth for complex use cases |
-| **Wiz (cloud security)** | Dark mode execution, threat visualization | Consumer-focused simplicity |
+| Platform                 | What to emulate                               | What to avoid                                  |
+| ------------------------ | --------------------------------------------- | ---------------------------------------------- |
+| **ServiceNow GRC**       | Structured data density, workflow clarity     | Dated visual style, slow perceived performance |
+| **RSA Archer**           | Comprehensive risk visualization              | Cluttered navigation, overwhelming dashboards  |
+| **OneTrust**             | Clean modern enterprise aesthetic             | Generic stock-illustration style               |
+| **Vanta**                | Crisp onboarding, clear compliance indicators | Limited depth for complex use cases            |
+| **Wiz (cloud security)** | Dark mode execution, threat visualization     | Consumer-focused simplicity                    |
 
 ---
 
@@ -136,7 +136,7 @@ Level     Color (Light)   Color (Dark)    Label
 
 ```
 Primary (UI):     Inter Variable
-                  font-family: 'Inter Variable', -apple-system, 
+                  font-family: 'Inter Variable', -apple-system,
                   BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
 Monospace (code): JetBrains Mono
@@ -167,12 +167,12 @@ text-4xl      36px      700       40px          -0.03em          Marketing (rare
 
 ### 3.3 Font Weight Usage
 
-| Weight | Name | Usage |
-|---|---|---|
-| 400 | Regular | Body text, table cells, descriptions |
-| 500 | Medium | Labels, navigation items, section headers |
-| 600 | Semi-Bold | Page titles, KPI values, emphasis |
-| 700 | Bold | Dashboard headers, large KPI numbers |
+| Weight | Name      | Usage                                     |
+| ------ | --------- | ----------------------------------------- |
+| 400    | Regular   | Body text, table cells, descriptions      |
+| 500    | Medium    | Labels, navigation items, section headers |
+| 600    | Semi-Bold | Page titles, KPI values, emphasis         |
+| 700    | Bold      | Dashboard headers, large KPI numbers      |
 
 ---
 
@@ -430,16 +430,16 @@ Assessment Scorecard Gradient (Gap = 0 → Gap = 4):
 
 ### 11.1 WCAG 2.1 AA Compliance
 
-| Requirement | Implementation |
-|---|---|
-| Color contrast (text) | Minimum 4.5:1 for normal text, 3:1 for large text |
-| Color contrast (UI) | Minimum 3:1 for interactive elements, icons, boundaries |
-| Non-color indicators | Icons + text labels; never color-only for status |
-| Focus indicators | 2px solid brand-500, offset 2px, visible on all surfaces |
-| Keyboard navigation | Full keyboard support; logical tab order; visible focus |
-| Screen readers | Semantic HTML; ARIA labels; live regions for dynamic content |
-| Motion | Respects `prefers-reduced-motion` |
-| Text scaling | Functional at 200% zoom |
+| Requirement           | Implementation                                               |
+| --------------------- | ------------------------------------------------------------ |
+| Color contrast (text) | Minimum 4.5:1 for normal text, 3:1 for large text            |
+| Color contrast (UI)   | Minimum 3:1 for interactive elements, icons, boundaries      |
+| Non-color indicators  | Icons + text labels; never color-only for status             |
+| Focus indicators      | 2px solid brand-500, offset 2px, visible on all surfaces     |
+| Keyboard navigation   | Full keyboard support; logical tab order; visible focus      |
+| Screen readers        | Semantic HTML; ARIA labels; live regions for dynamic content |
+| Motion                | Respects `prefers-reduced-motion`                            |
+| Text scaling          | Functional at 200% zoom                                      |
 
 ### 11.2 Focus Ring
 
@@ -476,14 +476,14 @@ Theme toggle location: User menu dropdown (top-right avatar → Theme: Light/Dar
 
 ### Dark Mode Adjustments
 
-| Element | Light | Dark |
-|---|---|---|
-| Cards | White bg, no shadow | Dark bg, subtle border |
-| Tables | Alternating row tint | Border-based separation |
-| Code blocks | Light gray bg | Darker bg with colored syntax |
-| Charts | Standard saturation | +10% saturation for visibility |
-| Images | Full brightness | 90% brightness (reduce glare) |
-| Overlay | rgba(0,0,0,0.5) | rgba(0,0,0,0.7) |
+| Element     | Light                | Dark                           |
+| ----------- | -------------------- | ------------------------------ |
+| Cards       | White bg, no shadow  | Dark bg, subtle border         |
+| Tables      | Alternating row tint | Border-based separation        |
+| Code blocks | Light gray bg        | Darker bg with colored syntax  |
+| Charts      | Standard saturation  | +10% saturation for visibility |
+| Images      | Full brightness      | 90% brightness (reduce glare)  |
+| Overlay     | rgba(0,0,0,0.5)      | rgba(0,0,0,0.7)                |
 
 ---
 
@@ -616,4 +616,4 @@ Mobile-first approach with progressive enhancement:
 
 ---
 
-*Next: [Wireframes →](wireframes.md)*
+_Next: [Wireframes →](wireframes.md)_

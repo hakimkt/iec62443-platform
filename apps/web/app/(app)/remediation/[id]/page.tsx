@@ -1,28 +1,27 @@
 'use client';
 
-import { use } from 'react';
-import Link from 'next/link';
+import type { RemediationActionStatus, RemediationPlanStatus } from '@iec62443/shared-types';
 import { cn } from '@iec62443/ui';
-import { Button } from '@iec62443/ui/primitives';
-import { Separator } from '@iec62443/ui/primitives';
+import { Button, Separator } from '@iec62443/ui/primitives';
 import {
   ArrowLeft,
-  Wrench,
-  Plus,
-  Trash2,
-  Loader2,
   Calendar,
   CheckCircle2,
   Flag,
   History,
+  Loader2,
+  Plus,
+  Trash2,
+  Wrench,
 } from 'lucide-react';
+import Link from 'next/link';
+import { use } from 'react';
 import {
-  useRemediationPlan,
-  useRemediationActions,
   useDeleteAction,
+  useRemediationActions,
+  useRemediationPlan,
   useVerifications,
 } from '@/hooks/useRemediation';
-import type { RemediationPlanStatus, RemediationActionStatus } from '@iec62443/shared-types';
 
 const PLAN_STATUS_CONFIG: Record<RemediationPlanStatus, { label: string; color: string }> = {
   planned: { label: 'Planned', color: 'bg-surface-100 text-surface-600' },
@@ -80,7 +79,12 @@ export default function RemediationPlanDetailPage({ params }: { params: Promise<
           </Link>
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-semibold text-surface-900">{plan.name}</h1>
-            <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', planStatusConfig.color)}>
+            <span
+              className={cn(
+                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                planStatusConfig.color,
+              )}
+            >
               {planStatusConfig.label}
             </span>
           </div>
@@ -130,7 +134,9 @@ export default function RemediationPlanDetailPage({ params }: { params: Promise<
             {plan.budgetEstimate != null && (
               <div className="flex justify-between">
                 <dt className="text-sm text-surface-500">Budget Estimate</dt>
-                <dd className="text-sm text-surface-900">${plan.budgetEstimate.toLocaleString()}</dd>
+                <dd className="text-sm text-surface-900">
+                  ${plan.budgetEstimate.toLocaleString()}
+                </dd>
               </div>
             )}
           </dl>
@@ -166,11 +172,7 @@ export default function RemediationPlanDetailPage({ params }: { params: Promise<
         ) : (
           <div className="space-y-3">
             {actions.map((action) => (
-              <ActionItem
-                key={action.id}
-                action={action}
-                onDelete={handleDeleteAction}
-              />
+              <ActionItem key={action.id} action={action} onDelete={handleDeleteAction} />
             ))}
           </div>
         )}
@@ -183,7 +185,15 @@ function ActionItem({
   action,
   onDelete,
 }: {
-  action: { id: string; title: string; description: string; status: RemediationActionStatus; assigneeId: string; dueDate: string | null; milestone: boolean };
+  action: {
+    id: string;
+    title: string;
+    description: string;
+    status: RemediationActionStatus;
+    assigneeId: string;
+    dueDate: string | null;
+    milestone: boolean;
+  };
   onDelete: (id: string) => void;
 }) {
   const { data: verifications } = useVerifications(action.id);
@@ -194,22 +204,21 @@ function ActionItem({
     <div className="rounded-lg border border-surface-100 p-4">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          {action.milestone && (
-            <Flag className="h-4 w-4 text-amber-500" />
-          )}
+          {action.milestone && <Flag className="h-4 w-4 text-amber-500" />}
           <div>
-            <p className="text-sm font-medium text-surface-900">
-              {action.title}
-            </p>
+            <p className="text-sm font-medium text-surface-900">{action.title}</p>
             {action.description && (
-              <p className="mt-0.5 text-xs text-surface-500 line-clamp-1">
-                {action.description}
-              </p>
+              <p className="mt-0.5 text-xs text-surface-500 line-clamp-1">{action.description}</p>
             )}
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', actionStatusConfig.color)}>
+          <span
+            className={cn(
+              'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+              actionStatusConfig.color,
+            )}
+          >
             {actionStatusConfig.label}
           </span>
           <button
@@ -244,15 +253,15 @@ function ActionItem({
           </p>
           <div className="space-y-1.5">
             {verifications.map((v) => (
-              <div
-                key={v.id}
-                className="flex items-center gap-2 text-xs text-surface-500"
-              >
+              <div key={v.id} className="flex items-center gap-2 text-xs text-surface-500">
                 <CheckCircle2
                   className={cn(
                     'h-3 w-3',
-                    v.result === 'passed' ? 'text-green-500' :
-                    v.result === 'failed' ? 'text-red-500' : 'text-amber-500',
+                    v.result === 'passed'
+                      ? 'text-green-500'
+                      : v.result === 'failed'
+                        ? 'text-red-500'
+                        : 'text-amber-500',
                   )}
                 />
                 <span className="capitalize">{v.result}</span>

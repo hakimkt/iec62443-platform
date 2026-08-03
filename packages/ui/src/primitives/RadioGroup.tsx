@@ -1,7 +1,7 @@
-import * as React from 'react';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
-import { Circle } from 'lucide-react';
 import { cva } from 'class-variance-authority';
+import { Circle } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 const radioGroupItemVariants = cva(
@@ -9,8 +9,7 @@ const radioGroupItemVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'h-4 w-4 border-surface-300 text-brand-600 data-[state=checked]:border-brand-600',
+        default: 'h-4 w-4 border-surface-300 text-brand-600 data-[state=checked]:border-brand-600',
         card: 'h-5 w-5 border-surface-300 text-brand-600 data-[state=checked]:border-brand-600',
       },
     },
@@ -42,8 +41,9 @@ const radioCardVariants = cva(
 
 /* ─── RadioGroup ──────────────────────────────────────────────────── */
 
-export interface RadioGroupProps
-  extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> {
+export interface RadioGroupProps extends React.ComponentPropsWithoutRef<
+  typeof RadioGroupPrimitive.Root
+> {
   variant?: 'default' | 'card';
 }
 
@@ -53,10 +53,7 @@ const RadioGroup = React.forwardRef<
 >(({ className, variant = 'default', ...props }, ref) => (
   <RadioGroupPrimitive.Root
     ref={ref}
-    className={cn(
-      variant === 'card' ? 'grid gap-3' : 'grid gap-2',
-      className,
-    )}
+    className={cn(variant === 'card' ? 'grid gap-3' : 'grid gap-2', className)}
     {...props}
   />
 ));
@@ -64,8 +61,9 @@ RadioGroup.displayName = 'RadioGroup';
 
 /* ─── RadioGroupItem ──────────────────────────────────────────────── */
 
-export interface RadioGroupItemProps
-  extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> {
+export interface RadioGroupItemProps extends React.ComponentPropsWithoutRef<
+  typeof RadioGroupPrimitive.Item
+> {
   variant?: 'default' | 'card';
   /** Label text for the radio item */
   label?: string;
@@ -100,14 +98,8 @@ const RadioGroupItem = React.forwardRef<
         </RadioGroupPrimitive.Item>
         {(label || description) && (
           <div className="flex-1">
-            {label && (
-              <span className="text-sm font-medium text-surface-700">
-                {label}
-              </span>
-            )}
-            {description && (
-              <p className="text-xs text-surface-500">{description}</p>
-            )}
+            {label && <span className="text-sm font-medium text-surface-700">{label}</span>}
+            {description && <p className="text-xs text-surface-500">{description}</p>}
           </div>
         )}
       </label>

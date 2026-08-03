@@ -31,7 +31,13 @@ export const CSMS_ELEMENT_LABELS: Record<string, string> = {
   'SM-12': 'Continuous improvement',
 };
 
-export const implementationStatusSchema = z.enum(['implemented', 'partial', 'planned', 'not_started', 'na']);
+export const implementationStatusSchema = z.enum([
+  'implemented',
+  'partial',
+  'planned',
+  'not_started',
+  'na',
+]);
 export const policyStatusSchema = z.enum(['draft', 'review', 'approved', 'deprecated']);
 export const improvementPrioritySchema = z.enum(['low', 'medium', 'high', 'critical']);
 
