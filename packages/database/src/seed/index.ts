@@ -692,7 +692,7 @@ async function seed() {
   console.log('Creating demo tenant schema...');
   await db.execute(sql`CREATE SCHEMA IF NOT EXISTS tenant_demo`);
   const tenantSchemaPath = new URL(
-    '../../infrastructure/migrations/001_tenant_schema.sql',
+    '../../../../infrastructure/migrations/001_tenant_schema.sql',
     import.meta.url,
   ).pathname.replace(/^\/+/, '/');
   try {

@@ -251,7 +251,7 @@ CREATE SCHEMA IF NOT EXISTS ${TENANT_SCHEMA};
 
 async function loadFullTenantSchema(pool: Pool): Promise<void> {
   const fs = await import('node:fs');
-  const path = new URL('../../infrastructure/migrations/001_tenant_schema.sql', import.meta.url)
+  const path = new URL('../../../../infrastructure/migrations/001_tenant_schema.sql', import.meta.url)
     .pathname.replace(/^\/+/, '/');
   const ddl = fs.readFileSync(path, 'utf-8').replace(/\{SCHEMA\}/g, TENANT_SCHEMA);
   await pool.query(ddl);
