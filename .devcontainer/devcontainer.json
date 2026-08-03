@@ -24,6 +24,6 @@
       }
     }
   },
-  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postCreateCommand": "bash /workspace/.devcontainer/post-create.sh",
   "remoteUser": "node"
 }
