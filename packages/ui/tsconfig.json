@@ -6,7 +6,6 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "outDir": "./dist",
-    "rootDir": "./src",
     "paths": {
       "@iec62443/shared-types": ["../shared-types/src/index.ts"]
     },
