@@ -4,12 +4,12 @@ A full-stack platform for managing IEC 62443 industrial cybersecurity compliance
 
 ## Architecture
 
-| Layer | App | Stack |
-|-------|-----|-------|
-| **Web** | `apps/web` | Next.js 15, React 19, Tailwind CSS 4, Radix UI, Recharts, XYFlow |
-| **API** | `apps/api` | Fastify 5, Drizzle ORM, PostgreSQL, JWT + RBAC auth |
-| **Worker** | `apps/worker` | BullMQ, Puppeteer (PDF/report generation) |
-| **Shared** | `packages/*` | shared-types, shared-schemas, database, auth, api-client, ui, config |
+| Layer      | App           | Stack                                                                |
+| ---------- | ------------- | -------------------------------------------------------------------- |
+| **Web**    | `apps/web`    | Next.js 15, React 19, Tailwind CSS 4, Radix UI, Recharts, XYFlow     |
+| **API**    | `apps/api`    | Fastify 5, Drizzle ORM, PostgreSQL, JWT + RBAC auth                  |
+| **Worker** | `apps/worker` | BullMQ, Puppeteer (PDF/report generation)                            |
+| **Shared** | `packages/*`  | shared-types, shared-schemas, database, auth, api-client, ui, config |
 
 **Infrastructure** (Docker Compose): PostgreSQL 16, Redis 7, MinIO, NATS 2 (JetStream), OpenSearch 2
 
@@ -73,12 +73,12 @@ pnpm dev
 
 This starts all three apps concurrently via Turborepo:
 
-| Service | URL |
-|---------|-----|
-| Web UI | http://localhost:3000 |
-| API server | http://localhost:4000 |
+| Service            | URL                                 |
+| ------------------ | ----------------------------------- |
+| Web UI             | http://localhost:3000               |
+| API server         | http://localhost:4000               |
 | API docs (Swagger) | http://localhost:4000/documentation |
-| MinIO Console | http://localhost:9001 |
+| MinIO Console      | http://localhost:9001               |
 
 ## Project Structure
 
@@ -106,22 +106,22 @@ iec62443-platform/
 
 ## Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start all apps in dev mode (watch) |
-| `pnpm build` | Production build (all packages + apps) |
-| `pnpm lint` | ESLint across the monorepo |
-| `pnpm type-check` | TypeScript `--noEmit` across all packages |
-| `pnpm test` | Run all tests |
-| `pnpm test:unit` | Unit tests only |
-| `pnpm test:e2e` | End-to-end tests |
-| `pnpm format` | Prettier write |
-| `pnpm format:check` | Prettier check |
-| `pnpm clean` | Remove all build artifacts and node_modules |
-| `pnpm db:generate` | Generate Drizzle migrations |
-| `pnpm db:migrate` | Apply migrations |
-| `pnpm db:seed` | Seed database with demo data |
-| `pnpm db:studio` | Open Drizzle Studio (DB browser) |
+| Command             | Description                                 |
+| ------------------- | ------------------------------------------- |
+| `pnpm dev`          | Start all apps in dev mode (watch)          |
+| `pnpm build`        | Production build (all packages + apps)      |
+| `pnpm lint`         | ESLint across the monorepo                  |
+| `pnpm type-check`   | TypeScript `--noEmit` across all packages   |
+| `pnpm test`         | Run all tests                               |
+| `pnpm test:unit`    | Unit tests only                             |
+| `pnpm test:e2e`     | End-to-end tests                            |
+| `pnpm format`       | Prettier write                              |
+| `pnpm format:check` | Prettier check                              |
+| `pnpm clean`        | Remove all build artifacts and node_modules |
+| `pnpm db:generate`  | Generate Drizzle migrations                 |
+| `pnpm db:migrate`   | Apply migrations                            |
+| `pnpm db:seed`      | Seed database with demo data                |
+| `pnpm db:studio`    | Open Drizzle Studio (DB browser)            |
 
 ## Running Individual Apps
 
@@ -153,13 +153,13 @@ pnpm --filter @iec62443/api vitest --watch
 
 The Docker Compose stack in `infrastructure/docker/docker-compose.dev.yml` provides:
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| PostgreSQL 16 | 5432 | Primary database |
-| Redis 7 | 6379 | Job queue, caching, sessions |
-| MinIO | 9000 / 9001 | S3-compatible evidence storage |
-| NATS 2 | 4222 / 8222 | Event messaging (JetStream) |
-| OpenSearch 2 | 9200 | Audit log search & analytics |
+| Service       | Port        | Purpose                        |
+| ------------- | ----------- | ------------------------------ |
+| PostgreSQL 16 | 5432        | Primary database               |
+| Redis 7       | 6379        | Job queue, caching, sessions   |
+| MinIO         | 9000 / 9001 | S3-compatible evidence storage |
+| NATS 2        | 4222 / 8222 | Event messaging (JetStream)    |
+| OpenSearch 2  | 9200        | Audit log search & analytics   |
 
 Stop all services:
 
@@ -172,6 +172,62 @@ Wipe data and start fresh:
 ```bash
 docker compose -f infrastructure/docker/docker-compose.dev.yml down -v
 ```
+
+## Docker Deployment
+
+The project includes a production-ready Docker Compose setup that builds and runs all three apps plus infrastructure.
+
+### Build all images
+
+```bash
+pnpm docker:build
+# or: docker compose build
+```
+
+### Start all services
+
+```bash
+pnpm docker:up
+# or: docker compose up -d
+```
+
+### Initialize the database (first time only)
+
+```bash
+pnpm docker:seed
+# or: docker compose --profile init run --rm db-init
+```
+
+### View logs
+
+```bash
+pnpm docker:logs
+# or: docker compose logs -f
+```
+
+### Stop all services
+
+```bash
+pnpm docker:down
+# or: docker compose down
+```
+
+### Stop and wipe all data
+
+```bash
+docker compose down -v
+```
+
+### Available Docker scripts
+
+| Command             | Description                          |
+| ------------------- | ------------------------------------ |
+| `pnpm docker:build` | Build all Docker images              |
+| `pnpm docker:up`    | Start all services in the background |
+| `pnpm docker:down`  | Stop all services                    |
+| `pnpm docker:logs`  | Stream logs from all services        |
+| `pnpm docker:ps`    | Show status of all containers        |
+| `pnpm docker:seed`  | Initialize database with seed data   |
 
 ## License
 
