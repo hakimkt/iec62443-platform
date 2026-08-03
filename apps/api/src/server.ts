@@ -48,7 +48,38 @@ await app.register(helmet, {
 });
 
 await app.register(cors, {
-  origin: process.env['CORS_ORIGIN']?.split(',') ?? ['http://localhost:3000'],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, server-to-server, mobile)
+    if (!origin) return callback(null, true);
+
+    const allowed = [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+    ];
+
+    // Explicit CORS_ORIGIN env var (comma-separated)
+    if (process.env['CORS_ORIGIN']) {
+      for (const o of process.env['CORS_ORIGIN'].split(',')) {
+        allowed.push(o.trim());
+      }
+    }
+
+    // GitHub Codespaces — allow any *.app.github.dev origin
+    if (origin.endsWith('.app.github.dev')) {
+      return callback(null, true);
+    }
+
+    if (allowed.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // In development, allow all origins as a fallback
+    if (process.env['NODE_ENV'] === 'development') {
+      return callback(null, true);
+    }
+
+    callback(new Error('Not allowed by CORS'), false);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-Request-Id', 'Idempotency-Key'],

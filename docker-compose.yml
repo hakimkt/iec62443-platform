@@ -63,13 +63,14 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://iec62443:${POSTGRES_PASSWORD:-iec62443_dev}@postgres:5432/iec62443_platform
-      JWT_SECRET: wduC/fSKxLEm+e1U4vetFtg7egJB0nr4duDv+wyhlirYPl7a/MzO5hPWUsYINtRo
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       JWT_ACCESS_TOKEN_TTL: ${JWT_ACCESS_TOKEN_TTL:-15m}
       JWT_REFRESH_TOKEN_TTL: ${JWT_REFRESH_TOKEN_TTL:-7d}
       NODE_ENV: production
       API_PORT: 4000
       LOG_LEVEL: ${LOG_LEVEL:-info}
       MFA_ISSUER: ${MFA_ISSUER:-IEC62443-Platform}
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
     ports:
       - '${API_PORT:-4000}:4000'
     healthcheck:

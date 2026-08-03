@@ -16,6 +16,7 @@ services:
       WEB_PORT: '3000'
       LOG_LEVEL: debug
       MFA_ISSUER: IEC62443-Platform
+      CODESPACE_NAME: ${CODESPACE_NAME:-}
     depends_on:
       postgres:
         condition: service_healthy
